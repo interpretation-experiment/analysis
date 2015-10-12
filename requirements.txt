@@ -1,0 +1,7 @@
+argparse==1.2.1
+blessings==1.6
+mach==0.5.1
+mozfile==1.2
+mozinfo==0.8
+mozprocess==0.22
+wsgiref==0.1.2
