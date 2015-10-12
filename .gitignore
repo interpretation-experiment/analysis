@@ -1,1 +1,11 @@
+# Python stuff
+__pycache__/
+
+# Setuptools stuff
+*.egg-info/
+
+# Virtualenv
 .venv
+
+# Editors
+*.swp
