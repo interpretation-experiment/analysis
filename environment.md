@@ -6,4 +6,5 @@ This is temporary (does not scale, is not easy to reproduce), and needs some aut
 * `pip install click`
 * `vf addpath ~/.virtualens/spreadr/lib/python3.4/site-packages` to be able to use spreadr classes
 * `pip install jsonschema terminado` to get ipython to work
+* `pip install sklearn`
 * in python, `nltk.download()` and download wordnet,punkt,stopwords
