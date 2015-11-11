@@ -1,6 +1,13 @@
 import click
 
-@click.command()
+
+@click.group()
 def cli():
     """Null data generation."""
-    click.echo('Hello World!')
+    pass
+
+@cli.command()
+@click.argument('filename', type=click.Path(exists=True))
+def example(filename):
+    """An example subcommand using a `filename` argument."""
+    click.echo('Example command with a file argument')
