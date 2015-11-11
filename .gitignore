@@ -1,6 +1,9 @@
 # Python stuff
 __pycache__/
 
+# IPython stuff
+.ipynb_checkpoints/
+
 # Setuptools stuff
 *.egg-info/
 
