@@ -2,6 +2,7 @@ from nltk.corpus import stopwords as nltk_stopwords
 from nltk.metrics import jaccard_distance, edit_distance
 from nltk.stem.snowball import EnglishStemmer as SnowballStemmer
 from nltk.tokenize import word_tokenize as nltk_word_tokenize
+from numpy import abs
 
 from utils import memoized, import_spreadr_models
 
@@ -71,34 +72,52 @@ def equip_sentence_distances(models):
     """Define distances between sentences.
 
     Distances defined:
+    * `raw_distance`
     * `ordered_distance`
     * `unordered_distance`
 
     """
 
     @memoized
-    def ordered_distance(self, sentence):
-        """Levenshtein distance on (ordered) content words between `self` and `sentence`."""
+    def raw_distance(self, sentence, normalized=True):
+        """Normalized levenshtein distance between `self.text` and `sentence.text`."""
+
+        self_text = self.text
+        sentence_text = sentence.text
+        distance = edit_distance(self_text, sentence_text)
+        norm = max(len(self_text), len(sentence_text))
+        return  distance / norm if normalized else distance
+
+    @memoized
+    def ordered_distance(self, sentence, normalized=True):
+        """Normalized levenshtein distance on (ordered) content words
+        between `self` and `sentence`."""
 
         self_content_words = self.content_words
         sentence_content_words = sentence.content_words
-        return edit_distance(self_content_words, sentence_content_words) / \
-            max(len(self_content_words), len(sentence_content_words))
+        distance = edit_distance(self_content_words, sentence_content_words)
+        norm = max(len(self_content_words), len(sentence_content_words))
+        return  distance / norm if normalized else distance
 
     @memoized
     def unordered_distance(self, sentence):
         """Jaccard distance on (unordered) content words between `self` and `sentence`."""
         return jaccard_distance(set(self.content_words), set(sentence.content_words))
 
+    models.Sentence.raw_distance = raw_distance
     models.Sentence.ordered_distance = ordered_distance
     models.Sentence.unordered_distance = unordered_distance
 
     # Testing this is hard (we don't have predictable data for it),
-    # so we test values for 0 and 1 only
+    # so we mostly test for stupid values only
+    assert models.Sentence.objects.get(id=1).raw_distance(\
+            models.Sentence.objects.get(id=1)) == 0.0
     assert models.Sentence.objects.get(id=1).ordered_distance(\
             models.Sentence.objects.get(id=1)) == 0.0
     assert models.Sentence.objects.get(id=1).unordered_distance(\
             models.Sentence.objects.get(id=1)) == 0.0
+    assert abs(models.Sentence.objects.get(id=1).raw_distance(\
+            models.Sentence.objects.get(id=2)) - .754098) <= 1e-6
     assert models.Sentence.objects.get(id=1).ordered_distance(\
             models.Sentence.objects.get(id=2)) == 1.0
     assert models.Sentence.objects.get(id=1).unordered_distance(\
