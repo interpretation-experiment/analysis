@@ -69,7 +69,7 @@ def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
             sb.blend_palette(palette, n_colors=n_colors))
 
 
-def import_gists_models():
+def import_spreadr_models():
     try:
         from gists import models
     except ImportError:
@@ -146,6 +146,6 @@ def equip_sentence_with_head(models):
 
 
 def equip_spreadr_models():
-    models = import_gists_models()
+    models = import_spreadr_models()
     equip_model_managers_with_bucket_type(models)
     equip_sentence_with_head(models)
