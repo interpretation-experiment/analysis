@@ -7,18 +7,7 @@ from utils import memoized, import_spreadr_models
 
 
 def equip_sentence_content_words(models):
-    """Define sentence content words.
-
-    For each sentence text, we want the content words. So:
-    * tokenize
-    * set to lowercase
-    * remove punctuation
-    * remove words $\leq$ 2 characters
-    * remove stopwords
-    * stem
-
-    and set the result as `content_words` on each `Sentence`.
-    """
+    """Define sentence `content_words`."""
 
     def _filter(words, exclude_list):
         return filter(lambda w: w not in exclude_list, words)
@@ -52,6 +41,18 @@ def equip_sentence_content_words(models):
 
     @memoized
     def get_content_words(self):
+        """Get content words of this sentence.
+
+        This is done with the following steps:
+        * tokenize the sentence text
+        * set tokens to lowercase
+        * remove punctuation
+        * remove words $\leq$ 2 characters
+        * remove stopwords
+        * stem
+
+        """
+
         processed = self.text
         for f in filters:
             processed = f(processed)
@@ -67,8 +68,18 @@ def equip_sentence_content_words(models):
 
 
 def equip_sentence_distances(models):
+    """Define distances between sentences.
+
+    Distances defined:
+    * `ordered_distance`
+    * `unordered_distance`
+
+    """
+
     @memoized
     def ordered_distance(self, sentence):
+        """Levenshtein distance on (ordered) content words between `self` and `sentence`."""
+
         self_content_words = self.content_words
         sentence_content_words = sentence.content_words
         return edit_distance(self_content_words, sentence_content_words) / \
@@ -76,6 +87,7 @@ def equip_sentence_distances(models):
 
     @memoized
     def unordered_distance(self, sentence):
+        """Jaccard distance on (unordered) content words between `self` and `sentence`."""
         return jaccard_distance(set(self.content_words), set(sentence.content_words))
 
     models.Sentence.ordered_distance = ordered_distance
@@ -94,6 +106,14 @@ def equip_sentence_distances(models):
 
 
 def equip_spreadr_models():
+    """Equip spreadr models with linguistics tools.
+
+    Tools:
+    * Content words on `Sentence`s
+    * Distances on `Sentence`s
+
+    """
+
     models = import_spreadr_models()
     equip_sentence_content_words(models)
     equip_sentence_distances(models)

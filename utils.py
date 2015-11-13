@@ -11,6 +11,13 @@ DB_USER = 'spreadr_analysis'
 
 
 def setup_spreadr(db_name):
+    """Setup environment for using spreadr models and database.
+
+    This loads the `spreadr` folder into `sys.path`, connects to `db_name`
+    on mysql which should be a spreadr database, and does initial django setup.
+
+    """
+
     import os, sys
     sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'spreadr'))
     from spreadr import settings as base_spreadr_settings
@@ -28,14 +35,20 @@ def setup_spreadr(db_name):
 
 
 def grouper(iterable, n, fillvalue=None):
+    """Iterate over `n`-wide slices of `iterable`, filling the
+    last slice with `fillvalue`."""
+
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
 
 
 class memoized(object):
-    """Decorator. Caches a function's return value each time it is called.
+    """Decorate a function to cache its return value each time it is called.
+
     If called later with the same arguments, the cached value is returned
-    (not reevaluated)."""
+    (not reevaluated).
+
+    """
 
     def __init__(self, func):
         self.func = func
@@ -63,6 +76,8 @@ class memoized(object):
 
 
 def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
+    """Get any seaborn palette as a usable matplotlib colormap."""
+
     import seaborn as sb
     palette = sb.color_palette(variation, n_colors, desat=0.8)
     return (sb.blend_palette(palette, n_colors=n_colors, as_cmap=True),
@@ -70,6 +85,8 @@ def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
 
 
 def import_spreadr_models():
+    """Get spreadr models, and bail if spreadr has not yet been setup."""
+
     try:
         from gists import models
     except ImportError:
@@ -79,6 +96,12 @@ def import_spreadr_models():
 
 
 def equip_model_managers_with_bucket_type(models):
+    """Add `training`, `experiment`, `game` to `Sentence` and `Tree` model managers.
+
+    These let you quickly narrow down a queryset to the named bucket.
+
+    """
+
     # For sentences
     models.Sentence.objects.__class__.training = property(lambda self: \
             self.get_queryset().filter(bucket__exact='training'))
@@ -107,8 +130,12 @@ def equip_model_managers_with_bucket_type(models):
 
 
 def equip_sentence_with_head(models):
+    """Define `head` on `Sentence`s."""
 
     def get_head(self):
+        """Get the head of the branch this sentence is in,
+        bailing if the sentence is root."""
+
         if self.parent is None:
             raise ValueError('Already at root')
         if self.parent.parent is None:
@@ -146,6 +173,14 @@ def equip_sentence_with_head(models):
 
 
 def equip_spreadr_models():
+    """Equip spreadr models with useful tools.
+
+    Tools:
+    * Bucket selection on `Sentence` and `Tree` model managers
+    * Head of branch for a `Sentence`
+
+    """
+
     models = import_spreadr_models()
     equip_model_managers_with_bucket_type(models)
     equip_sentence_with_head(models)
