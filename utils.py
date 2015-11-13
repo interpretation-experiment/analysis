@@ -4,6 +4,7 @@ from itertools import zip_longest
 
 import django
 from django.conf import settings
+from django.db.models import Count
 
 
 DB_USER = 'spreadr_analysis'
@@ -66,3 +67,85 @@ def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
     palette = sb.color_palette(variation, n_colors, desat=0.8)
     return (sb.blend_palette(palette, n_colors=n_colors, as_cmap=True),
             sb.blend_palette(palette, n_colors=n_colors))
+
+
+def import_gists_models():
+    try:
+        from gists import models
+    except ImportError:
+        raise ImportError('`gists` models not found for import, '
+                          'you might need to run `spreadr_setup() first')
+    return models
+
+
+def equip_model_managers_with_bucket_type(models):
+    # For sentences
+    models.Sentence.objects.__class__.training = property(lambda self: \
+            self.get_queryset().filter(bucket__exact='training'))
+    models.Sentence.objects.__class__.experiment = property(lambda self: \
+            self.get_queryset().filter(bucket__exact='experiment'))
+    models.Sentence.objects.__class__.game = property(lambda self: \
+            self.get_queryset().filter(bucket__exact='game'))
+
+    # Test
+    assert models.Sentence.objects.training.count() == 6
+    assert models.Sentence.objects.experiment.count() == \
+            models.Sentence.objects.count() - 6 - models.Sentence.objects.game.count()
+
+    # For trees
+    models.Tree.objects.__class__.training = property(lambda self: \
+            self.get_queryset().filter(root__bucket__exact='training'))
+    models.Tree.objects.__class__.experiment = property(lambda self: \
+            self.get_queryset().filter(root__bucket__exact='experiment'))
+    models.Tree.objects.__class__.game = property(lambda self: \
+            self.get_queryset().filter(root__bucket__exact='game'))
+
+    # Test
+    assert models.Tree.objects.training.count() == 6
+    assert models.Tree.objects.experiment.count() == \
+            models.Tree.objects.count() - 6 - models.Tree.objects.game.count()
+
+
+def equip_sentence_with_head(models):
+
+    def get_head(self):
+        if self.parent is None:
+            raise ValueError('Already at root')
+        if self.parent.parent is None:
+            return self
+        return self.parent.head
+
+    models.Sentence.head = property(get_head)
+
+    # Test
+    tree = models.Tree.objects.annotate(sentences_count=Count('sentences')).filter(\
+            sentences_count__gte=10).first()
+    heads = set(tree.root.children.all())
+    def _add_with_children(sentence, children):
+        children.append(sentence)
+        for child in sentence.children.all():
+            _add_with_children(child, children)
+    def walk_children(sentence):
+        res = []
+        _add_with_children(sentence, res)
+        return res
+    branches = {}
+    for head in heads:
+        branches[head] = walk_children(head)
+
+    for sentence in tree.sentences.all():
+        if sentence == tree.root:
+            try:
+                sentence.head
+            except ValueError:
+                pass  # Test passed
+            else:
+                raise Exception('Exception not raised on root')
+        else:
+            assert sentence in branches[sentence.head]
+
+
+def equip_spreadr_models():
+    models = import_gists_models()
+    equip_model_managers_with_bucket_type(models)
+    equip_sentence_with_head(models)
