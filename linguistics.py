@@ -2,7 +2,7 @@ from nltk.corpus import stopwords as nltk_stopwords
 from nltk.metrics import jaccard_distance, edit_distance
 from nltk.stem.snowball import EnglishStemmer as SnowballStemmer
 from nltk.tokenize import word_tokenize as nltk_word_tokenize
-from numpy import abs
+import numpy as np
 
 from utils import memoized, import_spreadr_models
 
@@ -119,7 +119,7 @@ def equip_sentence_distances(models):
             models.Sentence.objects.get(id=1)) == 0.0
     assert models.Sentence.objects.get(id=1).unordered_content_distance(\
             models.Sentence.objects.get(id=1)) == 0.0
-    assert abs(models.Sentence.objects.get(id=1).raw_distance(\
+    assert np.abs(models.Sentence.objects.get(id=1).raw_distance(\
             models.Sentence.objects.get(id=2)) - .754098) <= 1e-6
     assert models.Sentence.objects.get(id=1).ordered_content_distance(\
             models.Sentence.objects.get(id=2)) == 1.0
