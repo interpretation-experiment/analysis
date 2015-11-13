@@ -73,8 +73,10 @@ def equip_sentence_distances(models):
 
     Distances defined:
     * `raw_distance`
-    * `ordered_distance`
-    * `unordered_distance`
+    * `ordered_content_distance`
+    * `unordered_content_distance`
+
+    Also add `Sentence.DISTANCE_TYPES` that lists available distances.
 
     """
 
@@ -89,7 +91,7 @@ def equip_sentence_distances(models):
         return  distance / norm if normalized else distance
 
     @memoized
-    def ordered_distance(self, sentence, normalized=True):
+    def ordered_content_distance(self, sentence, normalized=True):
         """Normalized levenshtein distance on (ordered) content words
         between `self` and `sentence`."""
 
@@ -100,28 +102,65 @@ def equip_sentence_distances(models):
         return  distance / norm if normalized else distance
 
     @memoized
-    def unordered_distance(self, sentence):
+    def unordered_content_distance(self, sentence):
         """Jaccard distance on (unordered) content words between `self` and `sentence`."""
         return jaccard_distance(set(self.content_words), set(sentence.content_words))
 
     models.Sentence.raw_distance = raw_distance
-    models.Sentence.ordered_distance = ordered_distance
-    models.Sentence.unordered_distance = unordered_distance
+    models.Sentence.ordered_content_distance = ordered_content_distance
+    models.Sentence.unordered_content_distance = unordered_content_distance
+    models.Sentence.DISTANCE_TYPES = ['raw', 'ordered_content', 'unordered_content']
 
     # Testing this is hard (we don't have predictable data for it),
     # so we mostly test for stupid values only
     assert models.Sentence.objects.get(id=1).raw_distance(\
             models.Sentence.objects.get(id=1)) == 0.0
-    assert models.Sentence.objects.get(id=1).ordered_distance(\
+    assert models.Sentence.objects.get(id=1).ordered_content_distance(\
             models.Sentence.objects.get(id=1)) == 0.0
-    assert models.Sentence.objects.get(id=1).unordered_distance(\
+    assert models.Sentence.objects.get(id=1).unordered_content_distance(\
             models.Sentence.objects.get(id=1)) == 0.0
     assert abs(models.Sentence.objects.get(id=1).raw_distance(\
             models.Sentence.objects.get(id=2)) - .754098) <= 1e-6
-    assert models.Sentence.objects.get(id=1).ordered_distance(\
+    assert models.Sentence.objects.get(id=1).ordered_content_distance(\
             models.Sentence.objects.get(id=2)) == 1.0
-    assert models.Sentence.objects.get(id=1).unordered_distance(\
+    assert models.Sentence.objects.get(id=1).unordered_content_distance(\
             models.Sentence.objects.get(id=2)) == 1.0
+
+
+def equip_profile_transformation_rate(models):
+    """Define `Profile.transformation_rate`."""
+
+    @memoized
+    def transformation_rate(self, distance_type):
+        """Compute profile transformation for distance `distance_type`.
+
+        The transformation rate is the average of distances between a sentence a
+        profile transformed and its parent. It can be computed for all
+        available distance types (defined on `Sentence`).
+
+        """
+
+        if distance_type not in models.Sentence.DISTANCE_TYPES:
+            raise ValueError("Unkown distance type (not one of {}): {}".format(\
+                    distance_type, models.Sentence.DISTANCE_TYPES))
+        distance_name = distance_type + '_distance'
+
+        transformed_sentences = self.sentences.filter(parent__isnull=False).all()
+        if len(transformed_sentences) == 0:
+            raise ValueError("Profile has no reformulated sentences")
+
+        return np.array([getattr(s.parent, distance_name)(s)
+                        for s in transformed_sentences]).mean()
+
+    models.Profile.transformation_rate = transformation_rate
+
+    # Test
+    try:
+        models.Profile.objects.get(user__username='sl').transformation_rate('raw')
+    except ValueError:
+        pass  # Test passed
+    else:
+        raise Exception("Exception not raised on profile with no reformulated sentences")
 
 
 def equip_spreadr_models():
@@ -130,9 +169,11 @@ def equip_spreadr_models():
     Tools:
     * Content words on `Sentence`s
     * Distances on `Sentence`s
+    * Tranformation rate on `Profile`s
 
     """
 
     models = import_spreadr_models()
     equip_sentence_content_words(models)
     equip_sentence_distances(models)
+    equip_profile_transformation_rate(models)
