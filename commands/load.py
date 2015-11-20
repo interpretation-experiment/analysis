@@ -38,14 +38,15 @@ def sentences_to_spamcodable_csv(obj, filename):
     click.echo('Writing {} sentences to {}...'.format(Sentence.objects.count(), filename),
                nl=False)
     with open(filename, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['id', 'bucket', 'is_root', 'is_spam', 'text'])
+        writer = csv.DictWriter(csvfile,
+                                fieldnames=['id', 'bucket', 'is_root', 'is_spam', 'text'])
+        writer.writeheader()
         for sentence in Sentence.objects.all().order_by('bucket'):
-            writer.writerow([sentence.id,
-                             sentence.bucket,
-                             True if sentence.parent is None else False,
-                             None,
-                             sentence.text])
+            writer.writerow({'id': sentence.id,
+                             'bucket': sentence.bucket,
+                             'is_root': True if sentence.parent is None else False,
+                             'is_spam': None,
+                             'text': sentence.text})
 
     click.secho('Done', fg='green', bold=True)
     click.secho('''
