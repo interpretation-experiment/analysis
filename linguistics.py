@@ -169,8 +169,8 @@ def equip_sentence_codings(models):
     db = settings.DATABASES['default']['NAME']
 
     # Load spam codings
-    spam_codings = load_codings(db, 'spam',
-                                lambda c: c.lower() == 'true' or c == '1')
+    spam_codings = load_codings(\
+            db, 'spam', lambda c: c.lower() == 'true' or c.lower() == 'yes' or c == '1')
     models.Sentence._spam_codings = spam_codings
     models.Sentence.spam_detail = property(\
             lambda self: self._spam_codings.get(self.id, [(False, None)]))
