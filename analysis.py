@@ -1,7 +1,9 @@
 import click
 import os
 
+
 plugin_folder = os.path.join(os.path.dirname(__file__), 'commands')
+
 
 class CLI(click.MultiCommand):
 
@@ -21,7 +23,9 @@ class CLI(click.MultiCommand):
             eval(code, ns, ns)
         return ns['cli']
 
+
 cli = CLI(help='Analysis tools for gistr data')
 
+
 if __name__ == '__main__':
-    cli()
+    cli(obj={})
