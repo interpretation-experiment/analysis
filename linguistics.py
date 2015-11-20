@@ -172,10 +172,12 @@ def equip_sentence_codings(models):
     spam_codings = load_codings(\
             db, 'spam', lambda c: c.lower() == 'true' or c.lower() == 'yes' or c == '1')
     models.Sentence._spam_codings = spam_codings
-    models.Sentence.spam_detail = property(\
-            lambda self: self._spam_codings.get(self.id, [(False, None)]))
-    models.Sentence.spam = property(\
-            lambda self: np.mean([spam for (spam, _) in self.spam_detail]) > 0.5)
+    models.Sentence.spam_detail = property(memoized(\
+            lambda self: self._spam_codings.get(self.id, [(False, None)])))
+    models.Sentence.self_spam = property(memoized(\
+            lambda self: np.mean([spam for (spam, _) in self.spam_detail]) > 0.5))
+    models.Sentence.spam = property(memoized(\
+            lambda self: self.self_spam or getattr(self.parent, 'self_spam', False)))
 
     models.Sentence.LOADED_CODINGS = ['spam']
 
