@@ -15,10 +15,11 @@ def cli(obj, db):
 
 
 @cli.command()
+@click.argument('coding', type=str)
 @click.argument('filename', type=click.Path(file_okay=True, writable=True))
 @click.pass_obj
-def sentences_to_spamcodable_csv(obj, filename):
-    """Load sentences into an ods file to code spam."""
+def sentences_to_codable_csv(obj, coding, filename):
+    """Load sentences into a csv file to code `coding`."""
 
     # Check if filename already exists
     if os.path.exists(filename):
@@ -39,21 +40,20 @@ def sentences_to_spamcodable_csv(obj, filename):
                nl=False)
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile,
-                                fieldnames=['id', 'bucket', 'is_root', 'is_spam', 'text'])
+                                fieldnames=['id', 'bucket', 'is_root', coding, 'text'])
         writer.writeheader()
         for sentence in Sentence.objects.all().order_by('bucket'):
             writer.writerow({'id': sentence.id,
                              'bucket': sentence.bucket,
                              'is_root': True if sentence.parent is None else False,
-                             'is_spam': None,
+                             coding: None,
                              'text': sentence.text})
 
     click.secho('Done', fg='green', bold=True)
     click.secho('''
 You can now:
-* import {} to a spreadsheet,
-* spam-code it,
+* import {filename} to a spreadsheet,
+* {coding}-code it,
 * re-export it to csv,
-* and put it in 'codings/{}/spam/name-of-coder.csv'
-'''.format(filename, db),
-                fg='cyan', bold=True)
+* and put it in 'codings/{db}/{coding}/name-of-coder.csv'
+'''.format(filename=filename, db=db, coding=coding), fg='cyan', bold=True)
