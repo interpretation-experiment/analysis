@@ -1,3 +1,6 @@
+import csv
+import os
+
 from nltk.corpus import stopwords as nltk_stopwords
 from nltk.metrics import jaccard_distance, edit_distance
 from nltk.stem.snowball import EnglishStemmer as SnowballStemmer
@@ -127,6 +130,68 @@ def equip_sentence_distances(models):
             models.Sentence.objects.get(id=2)) == 1.0
 
 
+def load_codings(db, coding, mapper):
+    """Load the files for codings of `coding`, for the given `db`, extracting key `coding`
+    from each csv file, and processing the values with `mapper`."""
+
+    # Get the list of files to load
+    folder = os.path.join(os.path.dirname(__file__), 'codings', db, coding)
+    filepaths = [os.path.join(folder, name) for name in next(os.walk(folder))[2]]
+
+    # Load the files
+    codings = {}
+    for filepath in filepaths:
+        coder = os.path.splitext(os.path.basename(filepath))[0]
+        with open(filepath, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                id = int(row['id'])
+                code = mapper(row[coding])
+                if id not in codings:
+                    codings[id] = []
+                codings[id].append((code, coder))
+
+    return codings
+
+
+def equip_sentence_codings(models):
+    """Import external codings on sentences.
+
+    Codings imported:
+    * `spam` (with `spam_detail`)
+
+    Also add Sentence.LOADED_CODINGS which lists loaded codings.
+
+    """
+
+    # Get database name
+    from django.conf import settings
+    db = settings.DATABASES['default']['NAME']
+
+    # Load spam codings
+    spam_codings = load_codings(db, 'spam',
+                                lambda c: c.lower() == 'true' or c == '1')
+    models.Sentence._spam_codings = spam_codings
+    models.Sentence.spam_detail = property(\
+            lambda self: self._spam_codings.get(self.id, [(False, None)]))
+    models.Sentence.spam = property(\
+            lambda self: np.mean([spam for (spam, _) in self.spam_detail]) > 0.5)
+
+    models.Sentence.LOADED_CODINGS = ['spam']
+
+    # Test (hard to test, so only checking that what we entered as first
+    # sentences is not spam)
+    assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
+    assert models.Sentence.objects.get(id=1).spam_detail[0][0] == False
+    assert models.Sentence.objects.get(id=1).spam == False
+    assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
+    assert models.Sentence.objects.get(id=2).spam_detail[0][0] == False
+    assert models.Sentence.objects.get(id=2).spam == False
+    assert len(models.Sentence.objects.get(id=3).spam_detail[0]) == 2
+    assert models.Sentence.objects.get(id=3).spam_detail[0][0] == False
+    assert models.Sentence.objects.get(id=3).spam == False
+
+
 def equip_profile_transformation_rate(models):
     """Define `Profile.transformation_rate`."""
 
@@ -164,11 +229,12 @@ def equip_profile_transformation_rate(models):
 
 
 def equip_spreadr_models():
-    """Equip spreadr models with linguistics tools.
+    """Equip spreadr models with linguistics tools and codings.
 
     Tools:
     * Content words on `Sentence`s
     * Distances on `Sentence`s
+    * Codings on `Sentence`s
     * Tranformation rate on `Profile`s
 
     """
@@ -176,4 +242,5 @@ def equip_spreadr_models():
     models = import_spreadr_models()
     equip_sentence_content_words(models)
     equip_sentence_distances(models)
+    equip_sentence_codings(models)
     equip_profile_transformation_rate(models)
