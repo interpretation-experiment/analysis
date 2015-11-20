@@ -48,6 +48,11 @@ def sentences_to_spamcodable_csv(obj, filename):
                              sentence.text])
 
     click.secho('Done', fg='green', bold=True)
-    click.secho(('You can now import {} to a spreadsheet, spam-code it, '
-                 're-export to csv and load it back in').format(filename),
+    click.secho('''
+You can now:
+* import {} to a spreadsheet,
+* spam-code it,
+* re-export it to csv,
+* and put it in 'codings/{}/spam/name-of-coder.csv'
+'''.format(filename, db),
                 fg='cyan', bold=True)
