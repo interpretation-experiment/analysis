@@ -13,11 +13,20 @@ from utils import memoized, import_spreadr_models
 def equip_sentence_content_words(models):
     """Define sentence `content_words`."""
 
+    def filter_backtick_apostrophe(text):
+        return text.replace('`', "'")
+
+    def filter_lowercase(words):
+        return map(lambda w: w.lower(), words)
+
     def _filter(words, exclude_list):
         return filter(lambda w: w not in exclude_list, words)
 
     def filter_punctuation(words):
         return _filter(words, [',', '.', ';', '!', '?'])
+
+    def filter_length(words):
+        return filter(lambda w: len(w) > 2, words)
 
     stopwords = set(nltk_stopwords.words('english'))
     stopwords.add("n't")  # Missing from the corpus, and appears with tokenization
@@ -25,18 +34,13 @@ def equip_sentence_content_words(models):
     def filter_stopwords(words):
         return _filter(words, stopwords)
 
-    def filter_lowercase(words):
-        return map(lambda w: w.lower(), words)
-
-    def filter_length(words):
-        return filter(lambda w: len(w) > 2, words)
-
     stemmer = SnowballStemmer(ignore_stopwords=True)
 
     def filter_stem(words):
         return map(lambda w: stemmer.stem(w), words)
 
-    filters = [nltk_word_tokenize,
+    filters = [filter_backtick_apostrophe,
+               nltk_word_tokenize,
                filter_lowercase,
                filter_punctuation,
                filter_length,
