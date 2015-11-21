@@ -199,15 +199,17 @@ def equip_sentence_codings(models):
 
 
 def equip_profile_transformation_rate(models):
-    """Define `Profile.transformation_rate`."""
+    """Define `Profile.transformation_rate`; requires `content_words` and `spam`."""
 
     @memoized
-    def transformation_rate(self, distance_type):
+    def transformation_rate(self, distance_type, with_spam=False):
         """Compute profile transformation for distance `distance_type`.
 
         The transformation rate is the average of distances between a sentence a
         profile transformed and its parent. It can be computed for all
         available distance types (defined on `Sentence`).
+
+        Unless you provide `with_spam=True`, it is computed only on non-spam sentences.
 
         """
 
@@ -221,7 +223,8 @@ def equip_profile_transformation_rate(models):
             raise ValueError("Profile has no reformulated sentences")
 
         return np.array([getattr(s.parent, distance_name)(s)
-                        for s in transformed_sentences]).mean()
+                         for s in transformed_sentences
+                         if with_spam or not s.spam]).mean()
 
     models.Profile.transformation_rate = transformation_rate
 
