@@ -5,6 +5,7 @@ from itertools import zip_longest
 import django
 from django.conf import settings
 from django.db.models import Count
+from django.db.models.manager import Manager
 
 
 DB_USER = 'spreadr_analysis'
@@ -109,28 +110,24 @@ def equip_model_managers_with_bucket_type(models):
 
     """
 
-    # For sentences
-    models.Sentence.objects.__class__.training = property(lambda self: \
-            self.get_queryset().filter(bucket__exact='training'))
-    models.Sentence.objects.__class__.experiment = property(lambda self: \
-            self.get_queryset().filter(bucket__exact='experiment'))
-    models.Sentence.objects.__class__.game = property(lambda self: \
-            self.get_queryset().filter(bucket__exact='game'))
+    def filter_bucket(self, bucket_name):
+        qs = self.get_queryset()
+        if self.model == models.Sentence:
+            return qs.filter(bucket__exact=bucket_name)
+        elif self.model == models.Tree:
+            return qs.filter(root__bucket__exact=bucket_name)
+        else:
+            raise ValueError('Only exists for Sentence and Tree')
+
+    # This will work for Sentence and Tree
+    Manager.training = property(lambda self: filter_bucket(self, 'training'))
+    Manager.experiment = property(lambda self: filter_bucket(self, 'experiment'))
+    Manager.game = property(lambda self: filter_bucket(self, 'game'))
 
     # Test
     assert models.Sentence.objects.training.count() == 6
     assert models.Sentence.objects.experiment.count() == \
             models.Sentence.objects.count() - 6 - models.Sentence.objects.game.count()
-
-    # For trees
-    models.Tree.objects.__class__.training = property(lambda self: \
-            self.get_queryset().filter(root__bucket__exact='training'))
-    models.Tree.objects.__class__.experiment = property(lambda self: \
-            self.get_queryset().filter(root__bucket__exact='experiment'))
-    models.Tree.objects.__class__.game = property(lambda self: \
-            self.get_queryset().filter(root__bucket__exact='game'))
-
-    # Test
     assert models.Tree.objects.training.count() == 6
     assert models.Tree.objects.experiment.count() == \
             models.Tree.objects.count() - 6 - models.Tree.objects.game.count()
