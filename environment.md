@@ -8,5 +8,4 @@ This is temporary (does not scale, is not easy to reproduce), and needs some aut
 * `pip install jsonschema terminado` to get ipython to work
 * `pip install sklearn`
 * `pip install seaborn`
-* `pip install memoized`
 * in python, `nltk.download()` and download wordnet,punkt,stopwords
