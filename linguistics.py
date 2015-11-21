@@ -1,6 +1,7 @@
 import csv
 import os
 
+from django.db.models.manager import Manager
 from nltk.corpus import stopwords as nltk_stopwords
 from nltk.metrics import jaccard_distance, edit_distance
 from nltk.stem.snowball import EnglishStemmer as SnowballStemmer
@@ -162,7 +163,7 @@ def equip_sentence_codings(models):
     """Import external codings on sentences.
 
     Codings imported:
-    * `spam` (with `spam_detail`)
+    * `spam` (with `spam_detail`, and `ham` on `SentenceManager`)
 
     Also add Sentence.LOADED_CODINGS which lists loaded codings.
 
@@ -175,6 +176,8 @@ def equip_sentence_codings(models):
     # Load spam codings
     spam_codings = load_codings(\
             db, 'spam', lambda c: c.lower() == 'true' or c.lower() == 'yes' or c == '1')
+
+    # Add them as properties to Sentence
     models.Sentence._spam_codings = spam_codings
     models.Sentence.spam_detail = property(memoized(\
             lambda self: self._spam_codings.get(self.id, [(False, None)])))
@@ -183,6 +186,17 @@ def equip_sentence_codings(models):
     models.Sentence.spam = property(memoized(\
             lambda self: self.self_spam or getattr(self.parent, 'self_spam', False)))
 
+    # Give easy access to non-spam sentences
+    def get_ham(self):
+        if self.model != models.Sentence:
+            raise ValueError('Only available on Sentence')
+
+        qs = self.get_queryset()
+        ids = [s.id for s in qs if not s.spam]
+        return qs.filter(pk__in=ids)
+
+    Manager.ham = property(get_ham)
+
     models.Sentence.LOADED_CODINGS = ['spam']
 
     # Test (hard to test, so only checking that what we entered as first
@@ -190,6 +204,7 @@ def equip_sentence_codings(models):
     assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
     assert models.Sentence.objects.get(id=1).spam_detail[0][0] == False
     assert models.Sentence.objects.get(id=1).spam == False
+    assert models.Sentence.objects.ham.get(id=1) is not None
     assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
     assert models.Sentence.objects.get(id=2).spam_detail[0][0] == False
     assert models.Sentence.objects.get(id=2).spam == False
