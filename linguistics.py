@@ -184,7 +184,7 @@ def equip_sentence_codings(models):
     models.Sentence.self_spam = property(memoized(\
             lambda self: np.mean([spam for (spam, _) in self.spam_detail]) > 0.5))
     models.Sentence.spam = property(memoized(\
-            lambda self: self.self_spam or getattr(self.parent, 'self_spam', False)))
+            lambda self: self.self_spam or (self.parent is not None and self.parent.spam)))
 
     # Give easy access to non-spam sentences
     def get_ham(self):
