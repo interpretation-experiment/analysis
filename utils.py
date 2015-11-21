@@ -117,7 +117,7 @@ def equip_model_managers_with_bucket_type(models):
         elif self.model == models.Tree:
             return qs.filter(root__bucket__exact=bucket_name)
         else:
-            raise ValueError('Only exists for Sentence and Tree')
+            raise ValueError('Only available on Sentence and Tree')
 
     # This will work for Sentence and Tree
     Manager.training = property(lambda self: filter_bucket(self, 'training'))
