@@ -131,6 +131,12 @@ def equip_model_managers_with_bucket_type(models):
     assert models.Tree.objects.training.count() == 6
     assert models.Tree.objects.experiment.count() == \
             models.Tree.objects.count() - 6 - models.Tree.objects.game.count()
+    try:
+        models.Profile.objects.training
+    except ValueError:
+        pass  # Test passed
+    else:
+        raise Exception('ValueError not raised on Profile.objects.training')
 
 
 def equip_sentence_with_head(models):
