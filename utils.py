@@ -139,9 +139,10 @@ def equip_model_managers_with_bucket_type(models):
         raise Exception('ValueError not raised on Profile.objects.training')
 
 
-def equip_sentence_with_head(models):
-    """Define `head` on `Sentence`s."""
+def equip_sentence_with_head_depth(models):
+    """Define `head` and `depth` on `Sentence`s."""
 
+    @memoized
     def get_head(self):
         """Get the head of the branch this sentence is in,
         bailing if the sentence is root."""
@@ -154,24 +155,35 @@ def equip_sentence_with_head(models):
 
     models.Sentence.head = property(get_head)
 
+    @memoized
+    def get_depth(self):
+        """Get the depth of the sentence in its branch."""
+
+        if self.parent is None:
+            return 0
+        return 1 + self.parent.depth
+
+    models.Sentence.depth = property(get_depth)
+
     # Test
     tree = models.Tree.objects.annotate(sentences_count=Count('sentences')).filter(\
             sentences_count__gte=10).first()
     heads = set(tree.root.children.all())
-    def _add_with_children(sentence, children):
-        children.append(sentence)
+    def _add_with_children(sentence, children, depth):
+        children.append((sentence, depth))
         for child in sentence.children.all():
-            _add_with_children(child, children)
-    def walk_children(sentence):
+            _add_with_children(child, children, depth + 1)
+    def walk_children(sentence, depth):
         res = []
-        _add_with_children(sentence, res)
+        _add_with_children(sentence, res, depth)
         return res
     branches = {}
     for head in heads:
-        branches[head] = walk_children(head)
+        branches[head] = walk_children(head, 1)
 
     for sentence in tree.sentences.all():
         if sentence == tree.root:
+            assert sentence.depth == 0
             try:
                 sentence.head
             except ValueError:
@@ -179,7 +191,7 @@ def equip_sentence_with_head(models):
             else:
                 raise Exception('Exception not raised on root')
         else:
-            assert sentence in branches[sentence.head]
+            assert (sentence, sentence.depth) in branches[sentence.head]
 
 
 def equip_spreadr_models():
@@ -187,10 +199,10 @@ def equip_spreadr_models():
 
     Tools:
     * Bucket selection on `Sentence` and `Tree` model managers
-    * Head of branch for a `Sentence`
+    * Head of branch and depth in branch for a `Sentence`
 
     """
 
     models = import_spreadr_models()
     equip_model_managers_with_bucket_type(models)
-    equip_sentence_with_head(models)
+    equip_sentence_with_head_depth(models)
