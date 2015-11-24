@@ -164,8 +164,10 @@ def equip_sentence_codings(models):
 
     Codings imported:
     * `spam` (with `spam_detail`, and `ham` and `with_spam()` on `SentenceManager`)
+    * `rogue`
 
-    Also add Sentence.LOADED_CODINGS which lists loaded codings.
+    Also add Sentence.LOADED_CODINGS which lists loaded codings, and `kept`
+    on `SentenceManager` which lists sentences kept after deciding on all codings.
 
     """
 
@@ -200,9 +202,55 @@ def equip_sentence_codings(models):
     Manager.with_spam = \
             lambda self, with_spam: self.get_queryset() if with_spam else self.ham
 
-    models.Sentence.LOADED_CODINGS = ['spam']
+    # Create rogue codings
+    @memoized
+    def get_rogue(self):
+        if self.parent is None:
+            return False
 
-    # Test (hard to test, so only checking that what we entered as first
+        ham_children = self.children.ham
+        if ham_children.count() == 0:
+            # Potential leaf
+            head = self.head
+            depth = self.depth
+            competitors = [s for s in self.tree.sentences.ham.all()
+                           if s.children.ham.count() == 0 and s.head == head]
+
+            betters = [s for s in competitors if s.depth > depth]
+            if len(betters) > 0:
+                # Another leaf (or even several) in this branch is strictly deeper
+                return True
+
+            equals = [s for s in competitors if s.depth == depth]
+            if len(equals) > 0:
+                # Another leaf (or even several) in this branch is as deep as we are.
+                # Take the sentence created earliest as non-rogue.
+                equals = sorted(equals, key=lambda s: s.created)
+                return equals[0] != self
+
+            # No better competitor, so we're not rogue
+            return False
+        else:
+            # We're not a leaf, so see if our children are rogue
+            return np.all([c.rogue for c in ham_children])
+
+    models.Sentence.rogue = property(get_rogue)
+
+    # Easily access sentences we want to keep
+    @memoized
+    def get_kept(self):
+        if self.model != models.Sentence:
+            raise ValueError('Only available on Sentence')
+
+        ham = self.ham
+        ids = [s.id for s in ham if not s.rogue]
+        return ham.filter(pk__in=ids)
+
+    Manager.kept = property(get_kept)
+
+    models.Sentence.LOADED_CODINGS = ['spam', 'rogue']
+
+    # Test spam/ham (hard to test, so only checking that what we entered as first
     # sentences is not spam)
     assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
     assert models.Sentence.objects.get(id=1).spam_detail[0][0] == False
@@ -222,6 +270,15 @@ def equip_sentence_codings(models):
         pass  # Test passed
     else:
         raise Exception('ValueError not raised on Profile.objects.ham')
+
+    # Test rogue
+    assert models.Sentence.objects.get(id=486).rogue == True
+    assert models.Sentence.objects.get(id=489).rogue == False
+    assert models.Sentence.objects.get(id=2081).rogue == False
+    assert models.Sentence.objects.get(id=2084).rogue == True
+
+    # Test kept
+    assert models.Sentence.objects.kept.get(id=1) is not None
 
 
 def equip_profile_transformation_rate(models):
