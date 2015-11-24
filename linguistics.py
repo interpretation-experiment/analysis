@@ -187,6 +187,7 @@ def equip_sentence_codings(models):
             lambda self: self.self_spam or (self.parent is not None and self.parent.spam)))
 
     # Give easy access to non-spam sentences
+    @memoized
     def get_ham(self):
         if self.model != models.Sentence:
             raise ValueError('Only available on Sentence')
