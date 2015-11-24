@@ -163,11 +163,12 @@ def equip_sentence_codings(models):
     """Import external codings on sentences.
 
     Codings imported:
-    * `spam` (with `spam_detail`, and `ham` and `with_spam()` on `SentenceManager`)
+    * `spam` (with `spam_detail`, and `ham` on `SentenceManager`)
     * `rogue`
 
     Also add Sentence.LOADED_CODINGS which lists loaded codings, and `kept`
-    on `SentenceManager` which lists sentences kept after deciding on all codings.
+    and `with_dropped()` on `SentenceManager` which filters on sentences kept
+    after deciding on all codings.
 
     """
 
@@ -199,8 +200,6 @@ def equip_sentence_codings(models):
         return qs.filter(pk__in=ids)
 
     Manager.ham = property(get_ham)
-    Manager.with_spam = \
-            lambda self, with_spam: self.get_queryset() if with_spam else self.ham
 
     # Create rogue codings
     @memoized
@@ -247,23 +246,25 @@ def equip_sentence_codings(models):
         return ham.filter(pk__in=ids)
 
     Manager.kept = property(get_kept)
+    Manager.with_dropped = \
+            lambda self, with_dropped: self.get_queryset() if with_dropped else self.kept
 
     models.Sentence.LOADED_CODINGS = ['spam', 'rogue']
 
-    # Test spam/ham (hard to test, so only checking that what we entered as first
+    # Test spam (hard to test, so only checking that what we entered as first
     # sentences is not spam)
     assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
     assert models.Sentence.objects.get(id=1).spam_detail[0][0] == False
     assert models.Sentence.objects.get(id=1).spam == False
-    assert models.Sentence.objects.ham.get(id=1) is not None
-    assert models.Sentence.objects.with_spam(True).get(id=1) is not None
-    assert models.Sentence.objects.with_spam(False).get(id=1) is not None
     assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
     assert models.Sentence.objects.get(id=2).spam_detail[0][0] == False
     assert models.Sentence.objects.get(id=2).spam == False
     assert len(models.Sentence.objects.get(id=3).spam_detail[0]) == 2
     assert models.Sentence.objects.get(id=3).spam_detail[0][0] == False
     assert models.Sentence.objects.get(id=3).spam == False
+
+    # Test ham
+    assert models.Sentence.objects.ham.get(id=1) is not None
     try:
         models.Profile.objects.ham
     except ValueError:
@@ -279,6 +280,10 @@ def equip_sentence_codings(models):
 
     # Test kept
     assert models.Sentence.objects.kept.get(id=1) is not None
+
+    # Test with_dropped
+    assert models.Sentence.objects.with_dropped(True).get(id=1) is not None
+    assert models.Sentence.objects.with_dropped(False).get(id=1) is not None
 
 
 def equip_profile_transformation_rate(models):
