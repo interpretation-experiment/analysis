@@ -21,16 +21,10 @@ def setup_spreadr(db_name):
 
     import os, sys
     sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'spreadr'))
-    from spreadr import settings as base_spreadr_settings
+    from spreadr import settings_analysis as spreadr_settings
 
-    spreadr_settings = base_spreadr_settings.__dict__.copy()
-    spreadr_settings['DATABASES'] = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': db_name,
-            'USER': DB_USER
-        }
-    }
+    spreadr_settings = spreadr_settings.__dict__.copy()
+    spreadr_settings['DATABASES']['default']['NAME'] = db_name
     settings.configure(**spreadr_settings)
     django.setup()
 
