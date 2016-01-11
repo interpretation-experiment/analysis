@@ -2,10 +2,24 @@
 
 This is temporary (does not scale, is not easy to reproduce), and needs some automation. They're just notes to be able to recreate the process.
 
-* Create a python3 virtualenv ("interpretation-experiment.analysis") with `--system-sites-packages` (so's not to redownload numpy, scipy, ntlk, and all that straight away)
+* Create a python3.5 virtualenv ("interpretation-experiment.analysis")
+* `pip install numpy scipy`
+* `pip install nltk`
 * `pip install click`
-* `vf addpath ~/.virtualens/spreadr/lib/python3.5/site-packages` to be able to use the spreadr environment without duplicating it. This works only if the `spreadr` environment corresponds to the commit checked out in the submodule of this repository.
 * `pip install jsonschema terminado` to get ipython to work
 * `pip install sklearn`
 * `pip install seaborn, statsmodels`
 * in python, `nltk.download(['wordnet', 'punkt', 'stopwords'])`
+* `vf addpath ~/.virtualens/spreadr/lib/python3.5/site-packages` to be able to use the spreadr environment without duplicating it. This works only if the `spreadr` environment corresponds to the commit checked out in the submodule of this repository.
+
+Data importing
+
+* Edit the `.sql` file to set the right database name you want
+* `mysql -u root < db.sql`
+
+User setup (in a mysql shell, i.e. `mysql -u root`)
+
+* Create the analysis user: `CREATE USER 'spreadr_analysis'@'localhost';`
+* Grant him all privileges: `GRANT ALL on spreadr_exp_1.* TO 'spreadr_analysis'@'localhost';`
+
+Finally, migrate the database: in the `spreadr` folder, `env DJANGO_SETTINGS_MODULE=spreadr.settings_analysis MY_CNF=./my.analysis.cnf python manage.py migrate`
