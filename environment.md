@@ -3,8 +3,8 @@
 This is temporary (does not scale, is not easy to reproduce), and needs some automation. They're just notes to be able to recreate the process.
 
 * Create a python3.5 virtualenv ("interpretation-experiment.analysis")
-* `pip install numpy scipy`
-* `pip install nltk`
+* `pip install numpy`
+* `pip install scipy nltk`
 * `pip install click`
 * `pip install jsonschema terminado` to get ipython to work
 * `pip install sklearn`
