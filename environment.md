@@ -14,12 +14,12 @@ This is temporary (does not scale, is not easy to reproduce), and needs some aut
 
 Data importing
 
-* Edit the `.sql` file to set the right database name you want
+* Edit the `.sql` file to set the right database name you want (in the example here we'll use `spreadr_exp_1`)
 * `mysql -u root < db.sql`
 
 User setup (in a mysql shell, i.e. `mysql -u root`)
 
 * Create the analysis user: `CREATE USER 'spreadr_analysis'@'localhost';`
-* Grant him all privileges: `GRANT ALL on spreadr_exp_1.* TO 'spreadr_analysis'@'localhost';`
+* Grant it all privileges: `GRANT ALL on spreadr_exp_1.* TO 'spreadr_analysis'@'localhost';` (change the database name to your own)
 
-Finally, migrate the database: in the `spreadr` folder, `env DJANGO_SETTINGS_MODULE=spreadr.settings_analysis MY_CNF=./my.analysis.cnf python manage.py migrate`
+Finally, migrate the database: in the `spreadr` folder, `env DJANGO_SETTINGS_MODULE=spreadr.settings_analysis DB_NAME=spreadr_exp_1 python manage.py migrate` (change the database name to your own).
