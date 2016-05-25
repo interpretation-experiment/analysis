@@ -323,14 +323,14 @@ def equip_profile_transformation_rate(models):
                     distance_type, models.Sentence.DISTANCE_TYPES))
         distance_name = distance_type + '_distance'
 
-        transformed_sentences = self.sentences.filter(
-            parent__isnull=False).all()
+        sentences = self.sentences if with_spam else self.sentences.ham
+        transformed_sentences = sentences.filter(parent__isnull=False).all()
         if len(transformed_sentences) == 0:
-            raise ValueError("Profile has no reformulated sentences")
+            raise ValueError("Profile has no reformulated sentences "
+                             "(with_spam={})".format(with_spam))
 
         return np.array([getattr(s.parent, distance_name)(s)
-                         for s in transformed_sentences
-                         if with_spam or not s.spam]).mean()
+                         for s in transformed_sentences]).mean()
 
     models.Profile.transformation_rate = transformation_rate
 
@@ -338,6 +338,15 @@ def equip_profile_transformation_rate(models):
     try:
         models.Profile.objects.get(
             user__username='sl').transformation_rate('raw')
+    except ValueError:
+        pass  # Test passed
+    else:
+        raise Exception("Exception not raised on profile with "
+                        "no reformulated sentences")
+    # And with with_spam=True
+    try:
+        models.Profile.objects.get(
+            user__username='sl').transformation_rate('raw', with_spam=True)
     except ValueError:
         pass  # Test passed
     else:
