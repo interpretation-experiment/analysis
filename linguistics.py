@@ -1,5 +1,6 @@
 import csv
 import os
+from warnings import warn
 
 from django.db.models.manager import Manager
 from nltk.corpus import stopwords as nltk_stopwords
@@ -84,6 +85,8 @@ def equip_sentence_distances(models):
     * `raw_distance`
     * `ordered_content_distance`
     * `unordered_content_distance`
+    * `cum_root_distance`: cumulative distance from root, for any of the above
+      distances
 
     Also add `Sentence.DISTANCE_TYPES` that lists available distances.
 
@@ -138,6 +141,69 @@ def equip_sentence_distances(models):
             models.Sentence.objects.get(id=2)) == 1.0
     assert models.Sentence.objects.get(id=1).unordered_content_distance(
             models.Sentence.objects.get(id=2)) == 1.0
+
+    # Add cumulative distance from root
+    @memoized
+    def cum_root_distance(self, distance_type, normalized=True):
+        """Cumulative distance from root, for the distance `distance_type`."""
+
+        if distance_type not in models.Sentence.DISTANCE_TYPES:
+            raise ValueError("Unkown distance type (not one of {}): {}".format(
+                    distance_type, models.Sentence.DISTANCE_TYPES))
+        distance_name = distance_type + '_distance'
+        if distance_type == 'unordered_content':
+            kwargs = {}
+            if not normalized:
+                warn("'unordered_content' distance is always normalized, so "
+                     "we're ignoring normalized=False")
+        else:
+            kwargs = {'normalized': normalized}
+
+        if self.parent is None:
+            return 0
+        else:
+            return (getattr(self, distance_name)(self.parent, **kwargs) +
+                    self.parent.cum_root_distance(distance_type, **kwargs))
+
+    models.Sentence.cum_root_distance = cum_root_distance
+
+    # Also hard to test, so testing stupid values
+    assert models.Sentence.objects.get(id=580).cum_root_distance('raw') == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'raw', normalized=False) == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'ordered_content') == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'ordered_content', normalized=False) == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'unordered_content') == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'unordered_content', normalized=False) == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'raw') == .02
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'raw', normalized=False) == 1
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'ordered_content') == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'ordered_content', normalized=False) == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'unordered_content') == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'unordered_content', normalized=False) == 0
+    assert abs(models.Sentence.objects.get(id=1115).cum_root_distance('raw') -
+               .308333) < 1e-6
+    assert models.Sentence.objects.get(id=1115).cum_root_distance(
+        'raw', normalized=False) == 15
+    assert abs(models.Sentence.objects.get(id=1115)
+               .cum_root_distance('ordered_content') - .166666) < 1e-6
+    assert models.Sentence.objects.get(id=1115).cum_root_distance(
+        'ordered_content', normalized=False) == 1
+    assert abs(models.Sentence.objects.get(id=1115)
+               .cum_root_distance('unordered_content') - .166666) < 1e-6
+    assert abs(models.Sentence.objects.get(id=1115)
+               .cum_root_distance('unordered_content', normalized=False) -
+               .166666) < 1e-6
 
 
 def load_codings(db, coding, mapper):
@@ -265,14 +331,14 @@ def equip_sentence_codings(models):
     # Test spam (hard to test, so only checking that what we entered as first
     # sentences is not spam)
     assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
-    assert models.Sentence.objects.get(id=1).spam_detail[0][0] is False
-    assert models.Sentence.objects.get(id=1).spam is False
+    assert not models.Sentence.objects.get(id=1).spam_detail[0][0]
+    assert not models.Sentence.objects.get(id=1).spam
     assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
-    assert models.Sentence.objects.get(id=2).spam_detail[0][0] is False
-    assert models.Sentence.objects.get(id=2).spam is False
+    assert not models.Sentence.objects.get(id=2).spam_detail[0][0]
+    assert not models.Sentence.objects.get(id=2).spam
     assert len(models.Sentence.objects.get(id=3).spam_detail[0]) == 2
-    assert models.Sentence.objects.get(id=3).spam_detail[0][0] is False
-    assert models.Sentence.objects.get(id=3).spam is False
+    assert not models.Sentence.objects.get(id=3).spam_detail[0][0]
+    assert not models.Sentence.objects.get(id=3).spam
 
     # Test ham
     assert models.Sentence.objects.ham.get(id=1) is not None
@@ -284,10 +350,10 @@ def equip_sentence_codings(models):
         raise Exception('ValueError not raised on Profile.objects.ham')
 
     # Test rogue
-    assert models.Sentence.objects.get(id=486).rogue is True
-    assert models.Sentence.objects.get(id=489).rogue is False
-    assert models.Sentence.objects.get(id=2081).rogue is False
-    assert models.Sentence.objects.get(id=2084).rogue is True
+    assert models.Sentence.objects.get(id=486).rogue
+    assert not models.Sentence.objects.get(id=489).rogue
+    assert not models.Sentence.objects.get(id=2081).rogue
+    assert models.Sentence.objects.get(id=2084).rogue
 
     # Test kept
     assert models.Sentence.objects.kept.get(id=1) is not None
