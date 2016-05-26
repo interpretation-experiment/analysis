@@ -6,6 +6,7 @@ def cli():
     """Null data generation."""
     pass
 
+
 @cli.command()
 @click.argument('filename', type=click.Path(exists=True))
 def example(filename):

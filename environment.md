@@ -6,9 +6,8 @@ This is temporary (does not scale, is not easy to reproduce), and needs some aut
 * `pip install numpy`
 * `pip install scipy nltk`
 * `pip install click`
-* `pip install jsonschema terminado` to get ipython to work
-* `pip install sklearn`
-* `pip install seaborn, statsmodels`
+* `pip install jupyter`
+* `pip install sklearn seaborn statsmodels pandas`
 * in python, `nltk.download(['wordnet', 'punkt', 'stopwords'])`
 * `vf addpath ~/.virtualens/spreadr/lib/python3.5/site-packages` to be able to use the spreadr environment without duplicating it. This works only if the `spreadr` environment corresponds to the commit checked out in the submodule of this repository.
 

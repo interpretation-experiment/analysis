@@ -1,4 +1,3 @@
-import collections
 import functools
 from itertools import zip_longest
 
@@ -19,7 +18,8 @@ def setup_spreadr(db_name):
 
     """
 
-    import os, sys
+    import os
+    import sys
     sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'spreadr'))
     from spreadr import settings_analysis as spreadr_settings
 
@@ -48,19 +48,10 @@ class memoized(object):
     def __init__(self, func):
         self.func = func
         self.cache = {}
+        functools.update_wrapper(self, self.func)
 
     def __call__(self, *args, **kwargs):
-        try:
-            key = (args, frozenset(kwargs.items()))
-        except TypeError:
-            # uncacheable. a list, for instance.
-            # better to not cache than blow up.
-            return self.func(*args, **kwargs)
-
-        if not isinstance(args, collections.Hashable):
-            # again uncacheable
-            return self.func(*args, **kwargs)
-
+        key = (args, frozenset(kwargs.items()))
         if key in self.cache:
             return self.cache[key]
         else:
@@ -68,13 +59,15 @@ class memoized(object):
             self.cache[key] = value
             return value
 
-    def __repr__(self):
-        """Return the function's docstring."""
-        return self.func.__doc__
-
     def __get__(self, obj, objtype):
         """Support instance methods."""
-        return functools.partial(self.__call__, obj)
+        func = functools.partial(self.__call__, obj)
+        functools.update_wrapper(func, self)
+        func.drop_cache = self.drop_cache
+        return func
+
+    def drop_cache(self):
+        self.cache = {}
 
 
 def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
@@ -98,7 +91,8 @@ def import_spreadr_models():
 
 
 def equip_model_managers_with_bucket_type(models):
-    """Add `training`, `experiment`, `game` to `Sentence` and `Tree` model managers.
+    """Add `training`, `experiment`, `game` to `Sentence` and `Tree` model
+    managers.
 
     These let you quickly narrow down a queryset to the named bucket.
 
@@ -115,16 +109,18 @@ def equip_model_managers_with_bucket_type(models):
 
     # This will work for Sentence and Tree
     Manager.training = property(lambda self: filter_bucket(self, 'training'))
-    Manager.experiment = property(lambda self: filter_bucket(self, 'experiment'))
+    Manager.experiment = property(
+        lambda self: filter_bucket(self, 'experiment'))
     Manager.game = property(lambda self: filter_bucket(self, 'game'))
 
     # Test
     assert models.Sentence.objects.training.count() == 6
     assert models.Sentence.objects.experiment.count() == \
-            models.Sentence.objects.count() - 6 - models.Sentence.objects.game.count()
+        (models.Sentence.objects.count() - 6 -
+         models.Sentence.objects.game.count())
     assert models.Tree.objects.training.count() == 6
     assert models.Tree.objects.experiment.count() == \
-            models.Tree.objects.count() - 6 - models.Tree.objects.game.count()
+        models.Tree.objects.count() - 6 - models.Tree.objects.game.count()
     try:
         models.Profile.objects.training
     except ValueError:
@@ -160,17 +156,21 @@ def equip_sentence_with_head_depth(models):
     models.Sentence.depth = property(get_depth)
 
     # Test
-    tree = models.Tree.objects.annotate(sentences_count=Count('sentences')).filter(\
-            sentences_count__gte=10).first()
+    tree = models.Tree.objects\
+        .annotate(sentences_count=Count('sentences'))\
+        .filter(sentences_count__gte=10).first()
     heads = set(tree.root.children.all())
+
     def _add_with_children(sentence, children, depth):
         children.append((sentence, depth))
         for child in sentence.children.all():
             _add_with_children(child, children, depth + 1)
+
     def walk_children(sentence, depth):
         res = []
         _add_with_children(sentence, res, depth)
         return res
+
     branches = {}
     for head in heads:
         branches[head] = walk_children(head, 1)

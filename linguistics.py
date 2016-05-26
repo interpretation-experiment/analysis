@@ -1,5 +1,6 @@
 import csv
 import os
+from warnings import warn
 
 from django.db.models.manager import Manager
 from nltk.corpus import stopwords as nltk_stopwords
@@ -30,7 +31,8 @@ def equip_sentence_content_words(models):
         return filter(lambda w: len(w) > 2, words)
 
     stopwords = set(nltk_stopwords.words('english'))
-    stopwords.add("n't")  # Missing from the corpus, and appears with tokenization
+    # Missing from the corpus, and appears with tokenization
+    stopwords.add("n't")
 
     def filter_stopwords(words):
         return _filter(words, stopwords)
@@ -71,9 +73,9 @@ def equip_sentence_content_words(models):
 
     # Test
     assert models.Sentence.objects.get(id=1).content_words == \
-            ['young', 'boy', 'sudden', 'hit', 'littl', 'girl']
+        ['young', 'boy', 'sudden', 'hit', 'littl', 'girl']
     assert models.Sentence.objects.get(id=2).content_words == \
-            ['forget', 'leav', 'door', 'open', 'leav', 'offic']
+        ['forget', 'leav', 'door', 'open', 'leav', 'offic']
 
 
 def equip_sentence_distances(models):
@@ -83,6 +85,8 @@ def equip_sentence_distances(models):
     * `raw_distance`
     * `ordered_content_distance`
     * `unordered_content_distance`
+    * `cum_root_distance`: cumulative distance from root, for any of the above
+      distances
 
     Also add `Sentence.DISTANCE_TYPES` that lists available distances.
 
@@ -90,13 +94,14 @@ def equip_sentence_distances(models):
 
     @memoized
     def raw_distance(self, sentence, normalized=True):
-        """Normalized levenshtein distance between `self.text` and `sentence.text`."""
+        """Normalized levenshtein distance between `self.text` and
+        `sentence.text`."""
 
         self_text = self.text
         sentence_text = sentence.text
         distance = edit_distance(self_text, sentence_text)
         norm = max(len(self_text), len(sentence_text))
-        return  distance / norm if normalized else distance
+        return distance / norm if normalized else distance
 
     @memoized
     def ordered_content_distance(self, sentence, normalized=True):
@@ -107,41 +112,109 @@ def equip_sentence_distances(models):
         sentence_content_words = sentence.content_words
         distance = edit_distance(self_content_words, sentence_content_words)
         norm = max(len(self_content_words), len(sentence_content_words))
-        return  distance / norm if normalized else distance
+        return distance / norm if normalized else distance
 
     @memoized
     def unordered_content_distance(self, sentence):
-        """Jaccard distance on (unordered) content words between `self` and `sentence`."""
-        return jaccard_distance(set(self.content_words), set(sentence.content_words))
+        """Jaccard distance on (unordered) content words between `self` and
+        `sentence`."""
+        return jaccard_distance(set(self.content_words),
+                                set(sentence.content_words))
 
     models.Sentence.raw_distance = raw_distance
     models.Sentence.ordered_content_distance = ordered_content_distance
     models.Sentence.unordered_content_distance = unordered_content_distance
-    models.Sentence.DISTANCE_TYPES = ['raw', 'ordered_content', 'unordered_content']
+    models.Sentence.DISTANCE_TYPES = ['raw', 'ordered_content',
+                                      'unordered_content']
 
     # Testing this is hard (we don't have predictable data for it),
     # so we mostly test for stupid values only
-    assert models.Sentence.objects.get(id=1).raw_distance(\
+    assert models.Sentence.objects.get(id=1).raw_distance(
             models.Sentence.objects.get(id=1)) == 0.0
-    assert models.Sentence.objects.get(id=1).ordered_content_distance(\
+    assert models.Sentence.objects.get(id=1).ordered_content_distance(
             models.Sentence.objects.get(id=1)) == 0.0
-    assert models.Sentence.objects.get(id=1).unordered_content_distance(\
+    assert models.Sentence.objects.get(id=1).unordered_content_distance(
             models.Sentence.objects.get(id=1)) == 0.0
-    assert np.abs(models.Sentence.objects.get(id=1).raw_distance(\
+    assert np.abs(models.Sentence.objects.get(id=1).raw_distance(
             models.Sentence.objects.get(id=2)) - .754098) <= 1e-6
-    assert models.Sentence.objects.get(id=1).ordered_content_distance(\
+    assert models.Sentence.objects.get(id=1).ordered_content_distance(
             models.Sentence.objects.get(id=2)) == 1.0
-    assert models.Sentence.objects.get(id=1).unordered_content_distance(\
+    assert models.Sentence.objects.get(id=1).unordered_content_distance(
             models.Sentence.objects.get(id=2)) == 1.0
+
+    # Add cumulative distance from root
+    @memoized
+    def cum_root_distance(self, distance_type, normalized=True):
+        """Cumulative distance from root, for the distance `distance_type`."""
+
+        if distance_type not in models.Sentence.DISTANCE_TYPES:
+            raise ValueError("Unkown distance type (not one of {}): {}".format(
+                    distance_type, models.Sentence.DISTANCE_TYPES))
+        distance_name = distance_type + '_distance'
+        if distance_type == 'unordered_content':
+            kwargs = {}
+            if not normalized:
+                warn("'unordered_content' distance is always normalized, so "
+                     "we're ignoring normalized=False")
+        else:
+            kwargs = {'normalized': normalized}
+
+        if self.parent is None:
+            return 0
+        else:
+            return (getattr(self, distance_name)(self.parent, **kwargs) +
+                    self.parent.cum_root_distance(distance_type, **kwargs))
+
+    models.Sentence.cum_root_distance = cum_root_distance
+
+    # Also hard to test, so testing stupid values
+    assert models.Sentence.objects.get(id=580).cum_root_distance('raw') == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'raw', normalized=False) == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'ordered_content') == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'ordered_content', normalized=False) == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'unordered_content') == 0
+    assert models.Sentence.objects.get(id=580).cum_root_distance(
+        'unordered_content', normalized=False) == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'raw') == .02
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'raw', normalized=False) == 1
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'ordered_content') == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'ordered_content', normalized=False) == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'unordered_content') == 0
+    assert models.Sentence.objects.get(id=823).cum_root_distance(
+        'unordered_content', normalized=False) == 0
+    assert abs(models.Sentence.objects.get(id=1115).cum_root_distance('raw') -
+               .308333) < 1e-6
+    assert models.Sentence.objects.get(id=1115).cum_root_distance(
+        'raw', normalized=False) == 15
+    assert abs(models.Sentence.objects.get(id=1115)
+               .cum_root_distance('ordered_content') - .166666) < 1e-6
+    assert models.Sentence.objects.get(id=1115).cum_root_distance(
+        'ordered_content', normalized=False) == 1
+    assert abs(models.Sentence.objects.get(id=1115)
+               .cum_root_distance('unordered_content') - .166666) < 1e-6
+    assert abs(models.Sentence.objects.get(id=1115)
+               .cum_root_distance('unordered_content', normalized=False) -
+               .166666) < 1e-6
 
 
 def load_codings(db, coding, mapper):
-    """Load the files for codings of `coding`, for the given `db`, extracting key `coding`
-    from each csv file, and processing the values with `mapper`."""
+    """Load the files for codings of `coding`, for the given `db`, extracting
+    key `coding` from each csv file, and processing the values with
+    `mapper`."""
 
     # Get the list of files to load
     folder = os.path.join(os.path.dirname(__file__), 'codings', db, coding)
-    filepaths = [os.path.join(folder, name) for name in next(os.walk(folder))[2]]
+    filepaths = [os.path.join(folder, name)
+                 for name in next(os.walk(folder))[2]]
 
     # Load the files
     codings = {}
@@ -177,17 +250,20 @@ def equip_sentence_codings(models):
     db = settings.DATABASES['default']['NAME']
 
     # Load spam codings
-    spam_codings = load_codings(\
-            db, 'spam', lambda c: c.lower() == 'true' or c.lower() == 'yes' or c == '1')
+    spam_codings = load_codings(
+        db, 'spam',
+        lambda c: c.lower() == 'true' or c.lower() == 'yes' or c == '1')
 
     # Add them as properties to Sentence
     models.Sentence._spam_codings = spam_codings
-    models.Sentence.spam_detail = property(memoized(\
+    models.Sentence.spam_detail = property(memoized(
             lambda self: self._spam_codings.get(self.id, [(False, None)])))
-    models.Sentence.self_spam = property(memoized(\
-            lambda self: np.mean([spam for (spam, _) in self.spam_detail]) > 0.5))
-    models.Sentence.spam = property(memoized(\
-            lambda self: self.self_spam or (self.parent is not None and self.parent.spam)))
+    models.Sentence.self_spam = property(memoized(
+            lambda self: np.mean([spam for (spam, _)
+                                  in self.spam_detail]) > 0.5))
+    models.Sentence.spam = property(memoized(
+            lambda self: self.self_spam or (self.parent is not None and
+                                            self.parent.spam)))
 
     # Give easy access to non-spam sentences
     @memoized
@@ -217,13 +293,14 @@ def equip_sentence_codings(models):
 
             betters = [s for s in competitors if s.depth > depth]
             if len(betters) > 0:
-                # Another leaf (or even several) in this branch is strictly deeper
+                # Another leaf (or even several) in this branch is strictly
+                # deeper
                 return True
 
             equals = [s for s in competitors if s.depth == depth]
             if len(equals) > 0:
-                # Another leaf (or even several) in this branch is as deep as we are.
-                # Take the sentence created earliest as non-rogue.
+                # Another leaf (or even several) in this branch is as deep as
+                # we are. Take the sentence created earliest as non-rogue.
                 equals = sorted(equals, key=lambda s: s.created)
                 return equals[0] != self
 
@@ -246,22 +323,22 @@ def equip_sentence_codings(models):
         return ham.filter(pk__in=ids)
 
     Manager.kept = property(get_kept)
-    Manager.with_dropped = \
-            lambda self, with_dropped: self.get_queryset() if with_dropped else self.kept
+    Manager.with_dropped = lambda self, with_dropped: \
+        self.get_queryset() if with_dropped else self.kept
 
     models.Sentence.LOADED_CODINGS = ['spam', 'rogue']
 
     # Test spam (hard to test, so only checking that what we entered as first
     # sentences is not spam)
     assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
-    assert models.Sentence.objects.get(id=1).spam_detail[0][0] == False
-    assert models.Sentence.objects.get(id=1).spam == False
+    assert not models.Sentence.objects.get(id=1).spam_detail[0][0]
+    assert not models.Sentence.objects.get(id=1).spam
     assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
-    assert models.Sentence.objects.get(id=2).spam_detail[0][0] == False
-    assert models.Sentence.objects.get(id=2).spam == False
+    assert not models.Sentence.objects.get(id=2).spam_detail[0][0]
+    assert not models.Sentence.objects.get(id=2).spam
     assert len(models.Sentence.objects.get(id=3).spam_detail[0]) == 2
-    assert models.Sentence.objects.get(id=3).spam_detail[0][0] == False
-    assert models.Sentence.objects.get(id=3).spam == False
+    assert not models.Sentence.objects.get(id=3).spam_detail[0][0]
+    assert not models.Sentence.objects.get(id=3).spam
 
     # Test ham
     assert models.Sentence.objects.ham.get(id=1) is not None
@@ -273,10 +350,10 @@ def equip_sentence_codings(models):
         raise Exception('ValueError not raised on Profile.objects.ham')
 
     # Test rogue
-    assert models.Sentence.objects.get(id=486).rogue == True
-    assert models.Sentence.objects.get(id=489).rogue == False
-    assert models.Sentence.objects.get(id=2081).rogue == False
-    assert models.Sentence.objects.get(id=2084).rogue == True
+    assert models.Sentence.objects.get(id=486).rogue
+    assert not models.Sentence.objects.get(id=489).rogue
+    assert not models.Sentence.objects.get(id=2081).rogue
+    assert models.Sentence.objects.get(id=2084).rogue
 
     # Test kept
     assert models.Sentence.objects.kept.get(id=1) is not None
@@ -287,42 +364,60 @@ def equip_sentence_codings(models):
 
 
 def equip_profile_transformation_rate(models):
-    """Define `Profile.transformation_rate`; requires `content_words` and `spam`."""
+    """Define `Profile.transformation_rate`; requires `content_words` and
+    `spam`."""
 
     @memoized
     def transformation_rate(self, distance_type, with_spam=False):
         """Compute profile transformation for distance `distance_type`.
 
-        The transformation rate is the average of distances between a sentence a
-        profile transformed and its parent. It can be computed for all
+        The transformation rate is the average of distances between a sentence
+        a profile transformed and its parent. It can be computed for all
         available distance types (defined on `Sentence`).
 
-        Unless you provide `with_spam=True`, it is computed only on non-spam sentences.
+        Unless you provide `with_spam=True`, it is computed only on non-spam
+        sentences. Note that we always keep rogue sentences (i.e. non-spam
+        transformations that profiles made, but that are rejected in the trees
+        because they initiated a branch that died early): they are valid
+        transformations that the profiles made, just not included in the final
+        trees because of branching.
 
         """
 
         if distance_type not in models.Sentence.DISTANCE_TYPES:
-            raise ValueError("Unkown distance type (not one of {}): {}".format(\
+            raise ValueError("Unkown distance type (not one of {}): {}".format(
                     distance_type, models.Sentence.DISTANCE_TYPES))
         distance_name = distance_type + '_distance'
 
-        transformed_sentences = self.sentences.filter(parent__isnull=False).all()
+        sentences = self.sentences if with_spam else self.sentences.ham
+        transformed_sentences = sentences.filter(parent__isnull=False).all()
         if len(transformed_sentences) == 0:
-            raise ValueError("Profile has no reformulated sentences")
+            raise ValueError("Profile has no reformulated sentences "
+                             "(with_spam={})".format(with_spam))
 
         return np.array([getattr(s.parent, distance_name)(s)
-                         for s in transformed_sentences
-                         if with_spam or not s.spam]).mean()
+                         for s in transformed_sentences]).mean()
 
     models.Profile.transformation_rate = transformation_rate
 
     # Test
     try:
-        models.Profile.objects.get(user__username='sl').transformation_rate('raw')
+        models.Profile.objects.get(
+            user__username='sl').transformation_rate('raw')
     except ValueError:
         pass  # Test passed
     else:
-        raise Exception("Exception not raised on profile with no reformulated sentences")
+        raise Exception("Exception not raised on profile with "
+                        "no reformulated sentences")
+    # And with with_spam=True
+    try:
+        models.Profile.objects.get(
+            user__username='sl').transformation_rate('raw', with_spam=True)
+    except ValueError:
+        pass  # Test passed
+    else:
+        raise Exception("Exception not raised on profile with "
+                        "no reformulated sentences")
 
 
 def equip_spreadr_models():

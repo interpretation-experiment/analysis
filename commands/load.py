@@ -36,7 +36,8 @@ def sentences_to_codable_csv(obj, coding, filename):
 
     # Write sentences to csv
     from gists.models import Sentence
-    click.echo('Writing {} sentences to {}...'.format(Sentence.objects.count(), filename),
+    click.echo('Writing {} sentences to {}...'
+               .format(Sentence.objects.count(), filename),
                nl=False)
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile,
@@ -44,12 +45,14 @@ def sentences_to_codable_csv(obj, coding, filename):
                                             coding, 'text', 'parent_text'])
         writer.writeheader()
         for sentence in Sentence.objects.all().order_by('bucket'):
-            writer.writerow({'id': sentence.id,
-                             'bucket': sentence.bucket,
-                             'is_root': True if sentence.parent is None else False,
-                             coding: None,
-                             'text': sentence.text,
-                             'parent_text': getattr(sentence.parent, 'text', None)})
+            writer.writerow({
+                'id': sentence.id,
+                'bucket': sentence.bucket,
+                'is_root': True if sentence.parent is None else False,
+                coding: None,
+                'text': sentence.text,
+                'parent_text': getattr(sentence.parent, 'text', None)
+            })
 
     click.secho('Done', fg='green', bold=True)
     click.secho('''
