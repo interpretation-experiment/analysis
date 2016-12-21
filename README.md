@@ -13,7 +13,7 @@ This is temporary (does not scale, is not easy to reproduce), and needs some aut
 * `pip install scipy nltk`
 * `pip install click`
 * `pip install jupyter`
-* `pip install sklearn seaborn statsmodels pandas`
+* `pip install sklearn seaborn statsmodels pandas matplotlib`
 * in python, `nltk.download(['wordnet', 'punkt', 'stopwords'])`
 * `pip install -r spreadr/requirements.txt` to be able to use the spreadr environment too
 
