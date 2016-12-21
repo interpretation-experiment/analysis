@@ -15,7 +15,7 @@ This is temporary (does not scale, is not easy to reproduce), and needs some aut
 * `pip install jupyter`
 * `pip install sklearn seaborn statsmodels pandas`
 * in python, `nltk.download(['wordnet', 'punkt', 'stopwords'])`
-* `vf addpath ~/.virtualens/spreadr/lib/python3.5/site-packages` to be able to use the spreadr environment without duplicating it. This works only if the `spreadr` environment corresponds to the commit checked out in the submodule of this repository.
+* `pip install -r spreadr/requirements.txt` to be able to use the spreadr environment too
 
 Data importing
 
