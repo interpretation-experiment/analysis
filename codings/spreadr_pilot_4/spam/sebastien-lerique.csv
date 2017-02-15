@@ -1,0 +1,92 @@
+id,bucket,is_root,spam,text,parent_text
+4,experiment,True,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto",
+5,experiment,True,0,"Louis Allen, 21, of Hammersmith, was knifed by a young woman wandering about by night in the military zone.",
+6,experiment,True,0,Three bears driven down from the heights of the Pyrenees by snow have been decimating the sheep of the valley.,
+7,experiment,True,0,"A criminal virago, Miss Fisher, was sentenced by the Liverpool court to 10 years' hard labour, while her lover got five.",
+8,experiment,True,0,An unidentified maker of paste jewels from the third district was fishing in a boat with his wife at Maldon. She fell. He dived. Both gone.,
+9,experiment,True,0,"Because an automobile ran over his dog, a peasant from Bingham shot at another automobile. He got a year in jail, suspended.",
+10,experiment,True,0,"'Ouch!' cried the cunning oyster eater, 'A pearl!' Someone at the next table bought it for 100 pounds. It had cost 30 pence at the dime store.",
+11,experiment,True,0,"If you refuse, you die, she dies, everybody dies.",
+12,experiment,True,0,"She's sleeping, but only I can awaken her.",
+13,experiment,True,0,"If you were any less black, you would be clear.",
+17,experiment,False,0,Three bears driven down from the heights of the Pyrenees by the snow have been decimating the sheep of the valley,Three bears driven down from the heights of the Pyrenees by snow have been decimating the sheep of the valley.
+18,experiment,False,0,"because an automobile ran over his dog, a peasant from Bingham, shot at another automobile. He got a year in jail, suspended","Because an automobile ran over his dog, a peasant from Bingham shot at another automobile. He got a year in jail, suspended."
+19,experiment,False,0,"A criminal virago, Miss Fisher, was sentences in Liverpool crown court to 10 years hard labour. While her lover got 5","A criminal virago, Miss Fisher, was sentenced by the Liverpool court to 10 years' hard labour, while her lover got five."
+20,experiment,False,0,"An unidentified fisher of pearls was at Maldon with his wife. She fell, he dived in. Both gone.",An unidentified maker of paste jewels from the third district was fishing in a boat with his wife at Maldon. She fell. He dived. Both gone.
+21,experiment,False,0,"Louise Allen, 21, of Hammersmith. Was knifed by a woman wandering around at night in the military zone","Louis Allen, 21, of Hammersmith, was knifed by a young woman wandering about by night in the military zone."
+22,experiment,False,0,"She's sleeping, but only I can wake her.","She's sleeping, but only I can awaken her."
+23,experiment,False,0,"If you were any less black, you would be clear.","If you were any less black, you would be clear."
+24,experiment,False,0,'Ouch!' cried the cunning oyster eater. 'A Pearl!' A diner at the next table bought it for 100 bucks. He's got it in the dime store for 30 cents.,"'Ouch!' cried the cunning oyster eater, 'A pearl!' Someone at the next table bought it for 100 pounds. It had cost 30 pence at the dime store."
+25,experiment,False,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+26,experiment,False,0,"if you refuse, you die, she dies, everybody dies.","If you refuse, you die, she dies, everybody dies."
+31,experiment,False,0,"""Ouch"" cried the cunning oyster eater, a pearl. Someone bought it for £100, it had cost 30 pence at the dime store.","'Ouch!' cried the cunning oyster eater, 'A pearl!' Someone at the next table bought it for 100 pounds. It had cost 30 pence at the dime store."
+34,experiment,False,0,Three bears driven down from the Pyrenees by the snow have been decimating the sheep of the valley.,Three bears driven down from the heights of the Pyrenees by snow have been decimating the sheep of the valley.
+36,experiment,False,0,"A criminal virago, Miss Fisher, was sentenced by the Liverpool courts to ten years hard labour, her lover got five.","A criminal virago, Miss Fisher, was sentenced by the Liverpool court to 10 years' hard labour, while her lover got five."
+38,experiment,False,0,"Because an automobile ran over his dog, a peasant from Bingham shot at another automobile and got a year in jail suspended.","Because an automobile ran over his dog, a peasant from Bingham shot at another automobile. He got a year in jail, suspended."
+39,experiment,False,0,"They want it all for themselves, and i don't blame them, but it ends up a rich ghetto.","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+41,experiment,False,0,"If you refuse you die, she dies, everybody dies.","If you refuse, you die, she dies, everybody dies."
+42,experiment,False,0,"""Ouch"" cried the cunning oyster eater, pearl. Someone bought it for £100, but it cost 30 pence in the dime store.","""Ouch"" cried the cunning oyster eater, a pearl. Someone bought it for £100, it had cost 30 pence at the dime store."
+44,experiment,False,0,"Louis Allen, 21 of Hammersmith was knifed by a young woman who was wandering about at night in the military zone.","Louis Allen, 21, of Hammersmith, was knifed by a young woman wandering about by night in the military zone."
+47,experiment,False,0,An unidentified fisher of pearls was at Maldon with his wife. She fell and he dived in. Both gone.,"An unidentified fisher of pearls was at Maldon with his wife. She fell, he dived in. Both gone."
+48,experiment,False,0,"A criminal Virago, Miss Fisher, was sentenced by Liverpool court to 10 years' hard labour. Her lover got 5 years.","A criminal virago, Miss Fisher, was sentenced by the Liverpool court to 10 years' hard labour, while her lover got five."
+49,experiment,False,0,"if you refuse, you die, she dies, everybody dies.","If you refuse, you die, she dies, everybody dies."
+50,experiment,False,0,"If you were any less black, you would be clear.","If you were any less black, you would be clear."
+51,experiment,False,0,"She's sleeping, but only I can awaken her.","She's sleeping, but only I can awaken her."
+52,experiment,False,0,"They want to keep it all to themselves, and I don't blame them, but it ends up being a rich ghetto.","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+53,experiment,False,0,"If you were any less black, you would be clear.","If you were any less black, you would be clear."
+54,experiment,False,0,"an unidentified maker of paste jewels from the 3rd district fishing boat with wife Maldon. she fell, he dived and both are gone.",An unidentified maker of paste jewels from the third district was fishing in a boat with his wife at Maldon. She fell. He dived. Both gone.
+55,experiment,False,0,"If you refuse you die, she dies, everybody dies.","if you refuse, you die, she dies, everybody dies."
+56,experiment,False,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto.","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+57,experiment,False,0,"Louis Allen, 21, of Hammersmith, was knifed by a young woman wandering around at night in the military zone.","Louis Allen, 21, of Hammersmith, was knifed by a young woman wandering about by night in the military zone."
+58,experiment,False,0,"because an automobile ran over his dog, a peasant shot another automobile.","Because an automobile ran over his dog, a peasant from Bingham shot at another automobile. He got a year in jail, suspended."
+59,experiment,False,0,"She's sleeping, but only I can awaken her.","She's sleeping, but only I can awaken her."
+60,experiment,False,0,three bears driven down from the Pyrenees by snow have been decimating eh sheep in the valley,Three bears driven down from the heights of the Pyrenees by snow have been decimating the sheep of the valley.
+61,experiment,False,0,"""Ouch!"", cried the cunning oyster eater pearl, somebody bought it for £100 but it cost 30 pence in the dime store.","""Ouch"" cried the cunning oyster eater, pearl. Someone bought it for £100, but it cost 30 pence in the dime store."
+62,experiment,False,0,"An unidentified maker of paste jewellery from the third district was fishing with his wife, Maldon. She fell, he dived after her, they are both gone.",An unidentified maker of paste jewels from the third district was fishing in a boat with his wife at Maldon. She fell. He dived. Both gone.
+63,experiment,False,0,"a criminal Virago, Miss fisher, was sentenced to ten years in Liverpool court, the lover got 5","A criminal virago, Miss Fisher, was sentenced by the Liverpool courts to ten years hard labour, her lover got five."
+64,experiment,False,0,"Because an automobile ran over his dog, a peasant from Bingham shot at another automobile. He got a years' sentence, suspended.","because an automobile ran over his dog, a peasant from Bingham, shot at another automobile. He got a year in jail, suspended"
+65,experiment,False,0,Three bears driven down from the Pyrenees by snow having been decimating sheep.,three bears driven down from the Pyrenees by snow have been decimating eh sheep in the valley
+66,experiment,False,0,"Louis Smith, 21 Of Hammersmith, was knifed by a young woman while walking in the militarised zone.","Louis Allen, 21, of Hammersmith, was knifed by a young woman wandering around at night in the military zone."
+67,experiment,False,0,"if you were any less black, you would be clear","If you were any less black, you would be clear."
+68,experiment,False,0,"She's sleeping, but only I can awaken her.","She's sleeping, but only I can awaken her."
+69,experiment,False,0,"If you refuse, you die, she dies, everybody dies.","if you refuse, you die, she dies, everybody dies."
+70,experiment,False,0,"Louise Allen 21 of hammer smith, was knifed by a woman in a military zone","Louise Allen, 21, of Hammersmith. Was knifed by a woman wandering around at night in the military zone"
+71,experiment,False,0,shes sleeping right towards now,"She's sleeping, but only I can wake her."
+72,experiment,False,0,"If you were any less black, you would be clear.","If you were any less black, you would be clear."
+73,experiment,False,0,"A criminal Virago, Miss Fisher, was sentenced to 10 years hard labor at a Liverpool court. Her lover got 5 years.","A criminal Virago, Miss Fisher, was sentenced by Liverpool court to 10 years' hard labour. Her lover got 5 years."
+74,experiment,False,0,"Because an automobile ran over his dog, a peasant from Bingham shot another automobile and got a year suspended.","Because an automobile ran over his dog, a peasant from Bingham shot at another automobile and got a year in jail suspended."
+75,experiment,False,0,An unidentified fisher was at Maldon with his wife. they both dived in and both were lost.,An unidentified fisher of pearls was at Maldon with his wife. She fell and he dived in. Both gone.
+77,experiment,False,0,Three bears haven driven down from the Pyrenees after being driven down by snow.,Three bears driven down from the Pyrenees by snow having been decimating sheep.
+80,experiment,False,0,'Ouch' said the mystery oyster eater. It had had cost 100 pounds but costs 30 pence at the dime store.,"'Ouch!' cried the cunning oyster eater, 'A pearl!' Someone at the next table bought it for 100 pounds. It had cost 30 pence at the dime store."
+81,experiment,False,0,"They want to keep it all to themselves, and I don't blame them, but it ends up being a rich ghetto.","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto."
+82,experiment,False,0,"Louise Allen 21 of hammer smith, was knifed by a woman in a military zone.","Louise Allen 21 of hammer smith, was knifed by a woman in a military zone"
+83,experiment,False,0,"A criminal Virago, Miss Fisher, was sentenced to 10 years hard labour by a Liverpool court.  Her lover got 5 years.","A criminal Virago, Miss Fisher, was sentenced to 10 years hard labor at a Liverpool court. Her lover got 5 years."
+84,experiment,False,0,Three bears driven down by the snow of the Pyrenees have been decimating the sheep of the valley.,Three bears driven down from the Pyrenees by the snow have been decimating the sheep of the valley.
+85,experiment,False,0,shes sleeping right towards now,shes sleeping right towards now
+86,experiment,False,0,"If you were any less black, you would be clear.","If you were any less black, you would be clear."
+87,experiment,False,0,'Ouch' said the mystery oyster eater.  It had had cost a 100 pounds but cost 30 dollars at the dime store.,'Ouch' said the mystery oyster eater. It had had cost 100 pounds but costs 30 pence at the dime store.
+88,experiment,False,0,"Because an automobile ran over his dog, a peasant from Bingham shot an automobile and got a year suspended.","Because an automobile ran over his dog, a peasant from Bingham shot another automobile and got a year suspended."
+89,experiment,False,0,"If you refuse, you die, she dies, everybody dies.","If you refuse, you die, she dies, everybody dies."
+90,experiment,False,0,"They want to keep it all to themselves and I don't blame them, but it will end up being a rich ghetto.","They want to keep it all to themselves, and I don't blame them, but it ends up being a rich ghetto."
+91,experiment,False,0,"an unidentified maker of paste jewels from the 3rd district. she fell, boat gone, all died.","an unidentified maker of paste jewels from the 3rd district fishing boat with wife Maldon. she fell, he dived and both are gone."
+1,training,True,0,"Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity.",
+2,training,True,0,"Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars",
+3,training,True,0,And that's the way the cookie crumbles.,
+14,training,False,0,And that's the way the cookie crumbles.,And that's the way the cookie crumbles.
+15,training,False,0,"Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity.","Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity."
+16,training,False,0,"Listen I've lived among them my whole life, you can't believe a word they say, you know that, they're born liars","Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars"
+27,training,False,0,"Listen, I've lived amongst them all my lives, people don't know you're liars.","Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars"
+28,training,False,0,And that's the way the cookie crumbles.,And that's the way the cookie crumbles.
+29,training,False,0,Nurse Lisa Parker whose day off was yesterday put on a public display of insanity.,"Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity."
+30,training,False,0,"when i think, they're born liars","Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars"
+32,training,False,0,and that's the way the cookie crumbles.,And that's the way the cookie crumbles.
+33,training,False,0,"Nurse Lisa Parker, whose day off was yesterday, put on a display of insanity","Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity."
+35,training,False,0,And that's the way the cookie crumbles.,And that's the way the cookie crumbles.
+37,training,False,0,"Listen, I've lived among them all my life, you can't believe a word they say. They are born liars.","Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars"
+40,training,False,0,"Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity.","Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity."
+43,training,False,0,"Listen, I've lived among them all my life, you can't believe a word they say. They are born liars.","Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars"
+45,training,False,0,"Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity.","Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity."
+46,training,False,0,And that's the way the cookie crumbles.,And that's the way the cookie crumbles.
+76,training,False,0,"Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity.","Nurse Lisa Parker, whose day off was yesterday, put on a public display of insanity."
+78,training,False,0,"Listen I've lived amongst them all my live, you know that you can't believe a word they say, they're born liars.","Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars"
+79,training,False,0,And that's the way the cookie crumbles!,And that's the way the cookie crumbles.
