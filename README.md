@@ -6,30 +6,48 @@ Tools for analysis of the gistr data, and generation of null data.
 Environment setup
 -----------------
 
-This is temporary (does not scale, is not easy to reproduce), and needs some automation. They're just notes to be able to recreate the process.
+Using the Fish shell with virtualfish and Python 3.6+:
 
-* Create a python3.5 virtualenv (called e.g. "interpretation-experiment.analysis")
-* `pip install numpy`
-* `pip install scipy nltk`
-* `pip install click`
-* `pip install jupyter`
-* `pip install sklearn seaborn statsmodels pandas matplotlib`
-* in python, `nltk.download(['wordnet', 'punkt', 'stopwords'])`
-* `pip install -r spreadr/requirements.txt` to be able to use the spreadr environment too
+```
+git submodule update --init  # to check out the spreadr submodule
 
-Data importing
+vf new -p (which python3) interpretation-experiment.analysis
 
-* Edit the `.sql` file to set the right database name you want (in the example here we'll use `spreadr_exp_1`)
-* `mysql -u root < db.sql`
+pip install -r requirements.txt
+python -m nltk.downloader punkt averaged_perceptron_tagger wordnet stopwords
+python -m spacy.en.download all
 
-User setup (in a mysql shell, i.e. `mysql -u root`)
+# The following will override a few of the parent's requirements
+# (spreadr isn't always as up-to-date), but that's okay.
+pip install -r spreadr/requirements.txt
+```
+
+Experiment data importing:
+
+* Get a `.sql` file of the whole database. Back it up.
+* Edit your `.sql` file to set the database name you want to create locally to hold the data (in what follows here we'll use `spreadr_XXX`). There's three replacements to make (a comment, the `CREATE DATABASE` stance, and the `USE` stance).
+* Import the data in MySQL: `mysql -u root < db.sql`
+
+User setup (in a mysql shell, i.e. `mysql -u root`):
 
 * Create the analysis user: `CREATE USER 'spreadr_analysis'@'localhost';`
-* Grant it all privileges: `GRANT ALL on spreadr_exp_1.* TO 'spreadr_analysis'@'localhost';` (change the database name to your own)
+* Grant it all privileges: `GRANT ALL on spreadr_XXX.* TO 'spreadr_analysis'@'localhost';` (change the database name to your own)
 
-Finally, migrate the database: in the `spreadr` folder, `DJANGO_SETTINGS_MODULE=spreadr.settings_analysis DB_NAME=spreadr_exp_1 python manage.py migrate` (change the database name to your own).
+Finally, migrate the database: in the `spreadr` folder, `DJANGO_SETTINGS_MODULE=spreadr.settings_analysis DB_NAME=spreadr_XXX python manage.py migrate` (change the database name to your own).
 
 Usage
 -----
 
-`python analysis.py --help`
+Use `python analysis.py --help` to explore what's possible.
+
+Right now there are two parts in the code:
+
+* Stuff in `analysis.py` and `commands/`, which is used to preprocess, code, or generate data
+* Stuff in `utils.py` and `linguistics.py`, which serve as utilities for the notebooks in all the `notebooks_*/` folders.
+
+These correspond to two steps you should follow:
+
+* Code the data with any needed codings (mostly spam, but could be any sentence-level feature); use `python analysis.py load --db DB_NAME sentences_to_codable_csv CODING OUTFILE.csv` and follow the instructions.
+* Open Jupyter and run any of the notebooks you want. They use the spreadr models, but augment them with utilities and any sentence-codings you provided from the previous step, thanks to `utils.py` and `linguistics.py`.
+
+Note that, for now, the notebooks in a `notebooks_XXX/` folder are written for the dependencies and the API spreadr exposed when the corresponding data was collected. That may change in the future, but right now your best bet to get those notebooks working is to look up the version indicated in `notebooks_XXX/spreadr-version`, and check out that version (as a git tag) in `spreadr/`. Then re-install the requirements and re-run the data importing before running the notebooks.
