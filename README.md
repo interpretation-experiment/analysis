@@ -13,13 +13,15 @@ git submodule update --init  # to check out the spreadr submodule
 
 vf new -p (which python3) interpretation-experiment.analysis
 
+pip install -r spreadr/requirements.txt
+
+# The following will override a few of the above's requirements
+# (spreadr isn't always as up-to-date), but that's okay.
 pip install -r requirements.txt
+
+# Get necessary nltk and spaCy data
 python -m nltk.downloader punkt averaged_perceptron_tagger wordnet stopwords
 python -m spacy.en.download all
-
-# The following will override a few of the parent's requirements
-# (spreadr isn't always as up-to-date), but that's okay.
-pip install -r spreadr/requirements.txt
 ```
 
 Experiment data importing:
