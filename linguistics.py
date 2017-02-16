@@ -2,6 +2,7 @@ import csv
 import os
 from warnings import warn
 
+from django.conf import settings
 from django.db.models.manager import Manager
 from nltk.corpus import stopwords as nltk_stopwords
 from nltk.metrics import jaccard_distance, edit_distance
@@ -72,10 +73,11 @@ def equip_sentence_content_words(models):
     models.Sentence.content_words = property(get_content_words)
 
     # Test
-    assert models.Sentence.objects.get(id=1).content_words == \
-        ['young', 'boy', 'sudden', 'hit', 'littl', 'girl']
-    assert models.Sentence.objects.get(id=2).content_words == \
-        ['forget', 'leav', 'door', 'open', 'leav', 'offic']
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.get(id=1).content_words == \
+            ['young', 'boy', 'sudden', 'hit', 'littl', 'girl']
+        assert models.Sentence.objects.get(id=2).content_words == \
+            ['forget', 'leav', 'door', 'open', 'leav', 'offic']
 
 
 def equip_sentence_distances(models):
@@ -129,18 +131,19 @@ def equip_sentence_distances(models):
 
     # Testing this is hard (we don't have predictable data for it),
     # so we mostly test for stupid values only
-    assert models.Sentence.objects.get(id=1).raw_distance(
-            models.Sentence.objects.get(id=1)) == 0.0
-    assert models.Sentence.objects.get(id=1).ordered_content_distance(
-            models.Sentence.objects.get(id=1)) == 0.0
-    assert models.Sentence.objects.get(id=1).unordered_content_distance(
-            models.Sentence.objects.get(id=1)) == 0.0
-    assert np.abs(models.Sentence.objects.get(id=1).raw_distance(
-            models.Sentence.objects.get(id=2)) - .754098) <= 1e-6
-    assert models.Sentence.objects.get(id=1).ordered_content_distance(
-            models.Sentence.objects.get(id=2)) == 1.0
-    assert models.Sentence.objects.get(id=1).unordered_content_distance(
-            models.Sentence.objects.get(id=2)) == 1.0
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.get(id=1).raw_distance(
+                models.Sentence.objects.get(id=1)) == 0.0
+        assert models.Sentence.objects.get(id=1).ordered_content_distance(
+                models.Sentence.objects.get(id=1)) == 0.0
+        assert models.Sentence.objects.get(id=1).unordered_content_distance(
+                models.Sentence.objects.get(id=1)) == 0.0
+        assert np.abs(models.Sentence.objects.get(id=1).raw_distance(
+                models.Sentence.objects.get(id=2)) - .754098) <= 1e-6
+        assert models.Sentence.objects.get(id=1).ordered_content_distance(
+                models.Sentence.objects.get(id=2)) == 1.0
+        assert models.Sentence.objects.get(id=1).unordered_content_distance(
+                models.Sentence.objects.get(id=2)) == 1.0
 
     # Add cumulative distance from root
     @memoized
@@ -168,42 +171,44 @@ def equip_sentence_distances(models):
     models.Sentence.cum_root_distance = cum_root_distance
 
     # Also hard to test, so testing stupid values
-    assert models.Sentence.objects.get(id=580).cum_root_distance('raw') == 0
-    assert models.Sentence.objects.get(id=580).cum_root_distance(
-        'raw', normalized=False) == 0
-    assert models.Sentence.objects.get(id=580).cum_root_distance(
-        'ordered_content') == 0
-    assert models.Sentence.objects.get(id=580).cum_root_distance(
-        'ordered_content', normalized=False) == 0
-    assert models.Sentence.objects.get(id=580).cum_root_distance(
-        'unordered_content') == 0
-    assert models.Sentence.objects.get(id=580).cum_root_distance(
-        'unordered_content', normalized=False) == 0
-    assert models.Sentence.objects.get(id=823).cum_root_distance(
-        'raw') == .02
-    assert models.Sentence.objects.get(id=823).cum_root_distance(
-        'raw', normalized=False) == 1
-    assert models.Sentence.objects.get(id=823).cum_root_distance(
-        'ordered_content') == 0
-    assert models.Sentence.objects.get(id=823).cum_root_distance(
-        'ordered_content', normalized=False) == 0
-    assert models.Sentence.objects.get(id=823).cum_root_distance(
-        'unordered_content') == 0
-    assert models.Sentence.objects.get(id=823).cum_root_distance(
-        'unordered_content', normalized=False) == 0
-    assert abs(models.Sentence.objects.get(id=1115).cum_root_distance('raw') -
-               .308333) < 1e-6
-    assert models.Sentence.objects.get(id=1115).cum_root_distance(
-        'raw', normalized=False) == 15
-    assert abs(models.Sentence.objects.get(id=1115)
-               .cum_root_distance('ordered_content') - .166666) < 1e-6
-    assert models.Sentence.objects.get(id=1115).cum_root_distance(
-        'ordered_content', normalized=False) == 1
-    assert abs(models.Sentence.objects.get(id=1115)
-               .cum_root_distance('unordered_content') - .166666) < 1e-6
-    assert abs(models.Sentence.objects.get(id=1115)
-               .cum_root_distance('unordered_content', normalized=False) -
-               .166666) < 1e-6
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.get(id=580).cum_root_distance(
+            'raw') == 0
+        assert models.Sentence.objects.get(id=580).cum_root_distance(
+            'raw', normalized=False) == 0
+        assert models.Sentence.objects.get(id=580).cum_root_distance(
+            'ordered_content') == 0
+        assert models.Sentence.objects.get(id=580).cum_root_distance(
+            'ordered_content', normalized=False) == 0
+        assert models.Sentence.objects.get(id=580).cum_root_distance(
+            'unordered_content') == 0
+        assert models.Sentence.objects.get(id=580).cum_root_distance(
+            'unordered_content', normalized=False) == 0
+        assert models.Sentence.objects.get(id=823).cum_root_distance(
+            'raw') == .02
+        assert models.Sentence.objects.get(id=823).cum_root_distance(
+            'raw', normalized=False) == 1
+        assert models.Sentence.objects.get(id=823).cum_root_distance(
+            'ordered_content') == 0
+        assert models.Sentence.objects.get(id=823).cum_root_distance(
+            'ordered_content', normalized=False) == 0
+        assert models.Sentence.objects.get(id=823).cum_root_distance(
+            'unordered_content') == 0
+        assert models.Sentence.objects.get(id=823).cum_root_distance(
+            'unordered_content', normalized=False) == 0
+        assert abs(models.Sentence.objects.get(id=1115).cum_root_distance(
+            'raw') - .308333) < 1e-6
+        assert models.Sentence.objects.get(id=1115).cum_root_distance(
+            'raw', normalized=False) == 15
+        assert abs(models.Sentence.objects.get(id=1115)
+                   .cum_root_distance('ordered_content') - .166666) < 1e-6
+        assert models.Sentence.objects.get(id=1115).cum_root_distance(
+            'ordered_content', normalized=False) == 1
+        assert abs(models.Sentence.objects.get(id=1115)
+                   .cum_root_distance('unordered_content') - .166666) < 1e-6
+        assert abs(models.Sentence.objects.get(id=1115)
+                   .cum_root_distance('unordered_content', normalized=False) -
+                   .166666) < 1e-6
 
 
 def load_codings(db, coding, mapper):
@@ -330,37 +335,43 @@ def equip_sentence_codings(models):
 
     # Test spam (hard to test, so only checking that what we entered as first
     # sentences is not spam)
-    assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
-    assert not models.Sentence.objects.get(id=1).spam_detail[0][0]
-    assert not models.Sentence.objects.get(id=1).spam
-    assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
-    assert not models.Sentence.objects.get(id=2).spam_detail[0][0]
-    assert not models.Sentence.objects.get(id=2).spam
-    assert len(models.Sentence.objects.get(id=3).spam_detail[0]) == 2
-    assert not models.Sentence.objects.get(id=3).spam_detail[0][0]
-    assert not models.Sentence.objects.get(id=3).spam
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
+        assert not models.Sentence.objects.get(id=1).spam_detail[0][0]
+        assert not models.Sentence.objects.get(id=1).spam
+        assert len(models.Sentence.objects.get(id=2).spam_detail[0]) == 2
+        assert not models.Sentence.objects.get(id=2).spam_detail[0][0]
+        assert not models.Sentence.objects.get(id=2).spam
+        assert len(models.Sentence.objects.get(id=3).spam_detail[0]) == 2
+        assert not models.Sentence.objects.get(id=3).spam_detail[0][0]
+        assert not models.Sentence.objects.get(id=3).spam
 
     # Test ham
-    assert models.Sentence.objects.ham.get(id=1) is not None
-    try:
-        models.Profile.objects.ham
-    except ValueError:
-        pass  # Test passed
-    else:
-        raise Exception('ValueError not raised on Profile.objects.ham')
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.ham.get(id=1) is not None
+        try:
+            models.Profile.objects.ham
+        except ValueError:
+            pass  # Test passed
+        else:
+            raise Exception('ValueError not raised on Profile.objects.ham')
 
     # Test rogue
-    assert models.Sentence.objects.get(id=486).rogue
-    assert not models.Sentence.objects.get(id=489).rogue
-    assert not models.Sentence.objects.get(id=2081).rogue
-    assert models.Sentence.objects.get(id=2084).rogue
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.get(id=486).rogue
+        assert not models.Sentence.objects.get(id=489).rogue
+        assert not models.Sentence.objects.get(id=2081).rogue
+        assert models.Sentence.objects.get(id=2084).rogue
 
     # Test kept
-    assert models.Sentence.objects.kept.get(id=1) is not None
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.kept.get(id=1) is not None
 
     # Test with_dropped
-    assert models.Sentence.objects.with_dropped(True).get(id=1) is not None
-    assert models.Sentence.objects.with_dropped(False).get(id=1) is not None
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+        assert models.Sentence.objects.with_dropped(True).get(id=1) is not None
+        assert (models.Sentence.objects.with_dropped(False).get(id=1)
+                is not None)
 
 
 def equip_profile_transformation_rate(models):
