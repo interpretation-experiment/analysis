@@ -1,0 +1,46 @@
+id,bucket,is_root,spam,text,parent_text
+3,experiment,True,0,I wouldn't give you a gun if it was World War Three.,
+4,experiment,True,0,"We go out, we find those damn snake things, we make 'em extinct.",
+5,experiment,True,0,"Don't piss me off, junior. Or I will repaint this office with your brains.",
+6,experiment,True,0,I gotta go break the news to Megan's friends about what's happened.,
+7,experiment,True,0,It's my lot in life to be surrounded by beautiful women.,
+8,experiment,True,0,He said he wrote because he didn't have your phone number.,
+9,experiment,True,0,All I need to find you Louis is follow the corpses of rats.,
+13,experiment,False,0,He said he wrote because he didn't have your phone number.,He said he wrote because he didn't have your phone number.
+15,experiment,False,0,It's my lot in life to be surrounded by beautiful women.,It's my lot in life to be surrounded by beautiful women.
+16,experiment,False,0,"Don't piss me off, junior. Or I will repaint this office with your brains.","Don't piss me off, junior. Or I will repaint this office with your brains."
+17,experiment,False,0,I gotta go break the news to Megan's friend about what happened.,I gotta go break the news to Megan's friends about what's happened.
+18,experiment,False,0,I wouldn't give you a gun if it was World War Three.,I wouldn't give you a gun if it was World War Three.
+19,experiment,False,0,"We go out, we find those damn snake things, we make 'em extinct.","We go out, we find those damn snake things, we make 'em extinct."
+20,experiment,False,0,All I need to find you Louis is follow the corpses of rats.,All I need to find you Louis is follow the corpses of rats.
+22,experiment,False,0,its my lot in life to be surrounded by beautiful women,It's my lot in life to be surrounded by beautiful women.
+24,experiment,False,0,i gotta go break the news to Megan friend about what happened,I gotta go break the news to Megan's friend about what happened.
+25,experiment,False,0,"we go out, we find those damn snake things, we make them extinct","We go out, we find those damn snake things, we make 'em extinct."
+26,experiment,False,0,he said he wrote because he did  not have your phone number,He said he wrote because he didn't have your phone number.
+27,experiment,False,0,all i need to find you Louis is follow the corpses of rats,All I need to find you Louis is follow the corpses of rats.
+28,experiment,False,0,i gotta break the news  friend that her cat died,i gotta go break the news to Megan friend about what happened
+29,experiment,False,0,"we go out, we find those snake things, and we kill them","we go out, we find those damn snake things, we make them extinct"
+30,experiment,False,0,all i need to find your louis is to follow the trail of dead rats,all i need to find you Louis is follow the corpses of rats
+31,experiment,False,0,i would not give you a gun if it was world war three,I wouldn't give you a gun if it was World War Three.
+32,experiment,False,0,"Don't piss me of, junior, or I will repaint the office walls with your brains","Don't piss me off, junior. Or I will repaint this office with your brains."
+33,experiment,False,0,he said he wrote cause he did not have your phone number,he said he wrote because he did  not have your phone number
+34,experiment,False,0,its my lot in life to be surrounded by beautiful women,its my lot in life to be surrounded by beautiful women
+35,experiment,False,0,i would not give you a gun if it were world war 3,i would not give you a gun if it was world war three
+36,experiment,False,0,"don't piss me off Junior,or I will repaint the office walls with your brain","Don't piss me of, junior, or I will repaint the office walls with your brains"
+39,experiment,False,0,"don't piss me off junior, I will repaint the walls with your brain","don't piss me off Junior,or I will repaint the office walls with your brain"
+40,experiment,False,0,i gotta break the news friend that her cat died,i gotta break the news  friend that her cat died
+41,experiment,False,0,all i need to find louis is your trail of dead rats,all i need to find your louis is to follow the trail of dead rats
+42,experiment,False,0,"we go out, we find those snake things, we kill them","we go out, we find those snake things, and we kill them"
+43,experiment,False,0,completely forgot everything in this one,its my lot in life to be surrounded by beautiful women
+44,experiment,False,0,i would not give you a gun if it were world war 3,i would not give you a gun if it were world war 3
+45,experiment,False,0,he said he wrote because he didn't have your phone number,he said he wrote cause he did not have your phone number
+1,training,True,0,"If I met you for the first time today, I'd still want to be with you.",
+2,training,True,0,When you backed me you needed somebody named Deeds to bump the other fella out of office.,
+10,training,False,0,"If I met you for the first time today, I'd still want to be with you","If I met you for the first time today, I'd still want to be with you."
+11,training,False,0,When you backed me you needed somebody named Deeds to bump you out of the office,When you backed me you needed somebody named Deeds to bump the other fella out of office.
+12,training,False,0,when you backed me you needed somebody named Deeds to bump the other in the office,When you backed me you needed somebody named Deeds to bump the other fella out of office.
+14,training,False,0,"if i met you for the first time today , i d still want to be with you","If I met you for the first time today, I'd still want to be with you."
+21,training,False,0,when you backed me up need another guy to back up the office,When you backed me you needed somebody named Deeds to bump the other fella out of office.
+23,training,False,0,If i met you id get to know you,"If I met you for the first time today, I'd still want to be with you."
+37,training,False,0,"when you bumped into me, you needed another deed to kick me out of the office",When you backed me you needed somebody named Deeds to bump the other fella out of office.
+38,training,False,0,"If i met you for the first time today, I'd still want to be with you.","If I met you for the first time today, I'd still want to be with you."
