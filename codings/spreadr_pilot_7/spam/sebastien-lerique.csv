@@ -1,0 +1,53 @@
+id,bucket,is_root,spam,text,parent_text
+3,experiment,True,0,And my company sells a product that's better than the competition's at a price that's lower.,
+4,experiment,True,0,"So if that dope doesn't arrive, for whatever reason - Cousin or no cousin - don't let me down.",
+5,experiment,True,0,"Call me Irish, but I don't believe in cooler heads prevailing.",
+6,experiment,True,0,And we need to get these guys out of the White House.,
+7,experiment,True,0,I don't care if you leave this second.,
+8,experiment,True,0,I just sort of think it's juvenile now.,
+9,experiment,True,0,"They say there are only two days you enjoy a boat, the day you buy it and the day you sell it.",
+16,experiment,False,0,"Call me Irish, but I don't believe in cooler heads prevailing","Call me Irish, but I don't believe in cooler heads prevailing."
+17,experiment,False,0,I don't care if you leave this second.,I don't care if you leave this second.
+18,experiment,False,0,And we need to get these guys out of the White House.,And we need to get these guys out of the White House.
+19,experiment,False,0,"They say there are only 2 days you enjoy on a boat, the day you buy it and the day you sell it","They say there are only two days you enjoy a boat, the day you buy it and the day you sell it."
+20,experiment,False,0,I just sort of think it's juvenile now.,I just sort of think it's juvenile now.
+21,experiment,False,0,And my company sells a product that's better than the Competitor's and at a cheaper price,And my company sells a product that's better than the competition's at a price that's lower.
+23,experiment,False,0,So if that dope doesn't arrive - Cousin or no Cousin - don't let me down.,"So if that dope doesn't arrive, for whatever reason - Cousin or no cousin - don't let me down."
+24,experiment,False,0,I just sort of think it's juvenile now,I just sort of think it's juvenile now.
+26,experiment,False,0,"And my company sells a product that's better than the Competitors, at a cheaper price.",And my company sells a product that's better than the Competitor's and at a cheaper price
+27,experiment,False,0,And we need to get these guys out of the White House,And we need to get these guys out of the White House.
+28,experiment,False,0,"Call be Irish, but I don't believe in cooler heads prevailing.","Call me Irish, but I don't believe in cooler heads prevailing"
+29,experiment,False,0,they say there is only two day's to enjoy you're boat . The day you buy it and the day you sell it,"They say there are only 2 days you enjoy on a boat, the day you buy it and the day you sell it"
+30,experiment,False,0,I don't care if you leave this second,I don't care if you leave this second.
+31,experiment,False,0,They say there's only two days to enjoy your boat - the day you buy it and the day you sell it.,they say there is only two day's to enjoy you're boat . The day you buy it and the day you sell it
+32,experiment,False,0,So if that dope doesn't arrive - Cousin or not,So if that dope doesn't arrive - Cousin or no Cousin - don't let me down.
+33,experiment,False,0,I just sort of think,I just sort of think it's juvenile now
+34,experiment,False,0,I don't care if you leave this second,I don't care if you leave this second
+37,experiment,False,0,They say there's only two days to enjoy your boat,They say there's only two days to enjoy your boat - the day you buy it and the day you sell it.
+38,experiment,False,0,I just sort of think,I just sort of think
+39,experiment,False,0,"And my company sell's a better product, and at a cheaper price!","And my company sells a product that's better than the Competitors, at a cheaper price."
+40,experiment,False,0,So if that dope doesn't arrive- Cousin or not,So if that dope doesn't arrive - Cousin or not
+41,experiment,False,0,And we need to get these guys out of the White House,And we need to get these guys out of the White House
+42,experiment,False,0,"Call be Irish, but I don't believe in cooler heads","Call be Irish, but I don't believe in cooler heads prevailing."
+43,experiment,False,0,I don't care if you leave this second,I don't care if you leave this second
+46,experiment,False,0,I just sort of think,I just sort of think
+47,experiment,False,0,As we need to get these guys out of the White House,And we need to get these guys out of the White House
+48,experiment,False,0,And my company sells a better product at a better price,"And my company sell's a better product, and at a cheaper price!"
+49,experiment,False,0,Call be Irish but i don't believe in cooler heads,"Call be Irish, but I don't believe in cooler heads"
+50,experiment,False,0,I don't care if you leave this second,I don't care if you leave this second
+51,experiment,False,0,They say there's only two days to enjoy your food,They say there's only two days to enjoy your boat
+52,experiment,False,0,"So if that dope doesn't arrive, Cousin or not",So if that dope doesn't arrive- Cousin or not
+1,training,True,0,I hope you don't screw like you type.,
+2,training,True,0,"I didn't know your size, so I guessed.",
+10,training,False,0,I hope you don't screw like you type,I hope you don't screw like you type.
+11,training,False,0,"I didn't know your size, so I guessed","I didn't know your size, so I guessed."
+12,training,False,0,"I didn't know your size, so I guessed","I didn't know your size, so I guessed."
+13,training,False,0,"I didn't know your size, so I guessed.","I didn't know your size, so I guessed."
+14,training,False,0,I hope you don't screw like you type,I hope you don't screw like you type.
+15,training,False,0,I hope you don't screw like you type.,I hope you don't screw like you type.
+22,training,False,0,don't know your size so i guessed,"I didn't know your size, so I guessed."
+25,training,False,0,i hope you don't screw the mop,I hope you don't screw like you type.
+35,training,False,0,I hope you don't screw like guys,I hope you don't screw like you type.
+36,training,False,0,"I didn't know your size, so I guessed","I didn't know your size, so I guessed."
+44,training,False,0,I hope you don't screw your type,I hope you don't screw like you type.
+45,training,False,0,I didn't know your size so i guessed,"I didn't know your size, so I guessed."
