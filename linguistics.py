@@ -346,6 +346,11 @@ def equip_sentence_codings(models):
         assert not models.Sentence.objects.get(id=3).spam_detail[0][0]
         assert not models.Sentence.objects.get(id=3).spam
 
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+        assert models.Sentence.objects.get(id=901).spam
+        assert models.Sentence.objects.get(id=2608).spam
+        assert not models.Sentence.objects.get(id=244).spam
+
     # Test ham
     if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.ham.get(id=1) is not None
@@ -362,6 +367,10 @@ def equip_sentence_codings(models):
         assert not models.Sentence.objects.get(id=489).rogue
         assert not models.Sentence.objects.get(id=2081).rogue
         assert models.Sentence.objects.get(id=2084).rogue
+
+    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+        assert not models.Sentence.objects.get(id=1452).rogue
+        assert models.Sentence.objects.get(id=1453).rogue
 
     # Test kept
     if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
