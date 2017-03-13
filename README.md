@@ -20,7 +20,7 @@ pip install -r spreadr/requirements.txt
 pip install -r requirements.txt
 
 # Get necessary nltk and spaCy data
-python -m nltk.downloader punkt averaged_perceptron_tagger wordnet stopwords
+python -m nltk.downloader punkt averaged_perceptron_tagger wordnet stopwords brown
 python -m spacy.en.download all
 ```
 
