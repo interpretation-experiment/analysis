@@ -253,7 +253,8 @@ class NgramModel:
         """
         Calculate the approximate cross-entropy of the n-gram model for a
         given evaluation text.
-        This is the average log probability of each word in the text.
+        This is the absolute value of the average log probability of each word
+        in the text.
 
         :param text: words to use for evaluation
         :type text: list(str)
@@ -277,36 +278,6 @@ class NgramModel:
         """
 
         return pow(2.0, self.entropy(text))
-
-    def sent_logprob(self, sent):
-        """
-        Calculate the log-probability of a sentence (a negative value).
-
-        :param sent: words of the sentence
-        :type sent: list(str)
-        """
-
-        lp = 0.0
-        sent = list(self._lpad) + sent + list(self._rpad)
-        for i in range(self._n - 1, len(sent)):
-            context = tuple(sent[i - self._n + 1:i])
-            token = sent[i]
-            lp += self.logprob(token, context)
-        return lp
-
-    def text_logprob(self, text):
-        """
-        Calculate the log-probability of a text, summing the log-probabilities
-        of its sentences (a negative value).
-
-        :param text: list of sentences, each made of a list of words
-        :type text: list(list(str))
-        """
-
-        lp = 0.0
-        for sent in text:
-            lp += self.sent_logprob(sent)
-        return lp
 
     def __contains__(self, item):
         return tuple(item) in self._words_following
