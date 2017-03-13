@@ -49,9 +49,9 @@ Right now there are two parts in the code:
 
 These correspond to three steps you should follow:
 
-* Generate the language models needed by the notebooks:
+* Generate the language models needed by the notebooks if they're not already in `models/`, or if outdated:
 
-```
+```bash
 for n in 1 2 3; do
   for type in word tag; do
     python analysis.py load --db nothing language_model $n $type
