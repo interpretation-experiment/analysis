@@ -47,7 +47,17 @@ Right now there are two parts in the code:
 * Stuff in `analysis.py` and `commands/`, which is used to preprocess, code, or generate data
 * Stuff in `utils.py` and `linguistics.py`, which serve as utilities for the notebooks in all the `notebooks_*/` folders.
 
-These correspond to two steps you should follow:
+These correspond to three steps you should follow:
+
+* Generate the language models needed by the notebooks:
+
+```
+for n in 1 2 3; do
+  for type in word tag; do
+    python analysis.py load --db nothing language_model $n $type
+  done
+done
+```
 
 * Code the data with any needed codings (mostly spam, but could be any sentence-level feature); use `python analysis.py load --db DB_NAME sentences_to_codable_csv CODING OUTFILE.csv` and follow the instructions.
 * Open Jupyter and run any of the notebooks you want. They use the spreadr models, but augment them with utilities and any sentence-codings you provided from the previous step, thanks to `utils.py` and `linguistics.py`.

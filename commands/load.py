@@ -1,9 +1,14 @@
 import csv
 import os
+import pickle
 
 import click
+import spacy
+from nltk.corpus import brown
 
 from utils import setup_spreadr
+from language_model import NgramModel
+import settings
 
 
 @click.group()
@@ -12,6 +17,81 @@ from utils import setup_spreadr
 def cli(obj, db):
     """Data loading and conversion."""
     obj['DB'] = db
+
+
+@cli.command()
+@click.argument('n', type=click.IntRange(1, None))
+@click.argument('type', type=click.Choice(['word', 'tag']))
+def language_model(n, type):
+    """Load an ngram model into its pickle file.
+
+    `n` defines the size of the ngrams. `type` must be one of ['word', 'tag'],
+    and defines what property of the words the model is about.
+
+    """
+
+    if type == 'word':
+        tags = False
+    elif type == 'tag':
+        tags = True
+    else:
+        raise ValueError('unknown model type: {}'.format(type))
+
+    outfile = settings.MODEL_TEMPLATE.format(n=n, type=type)
+
+    # Check if outfile already exists
+    if os.path.exists(outfile):
+        click.secho('{} already exists, not overwriting it.'.format(outfile),
+                    fg='red', bold=True)
+        click.secho('Aborting.', fg='red')
+        return
+
+    # Load spaCy model
+    click.secho('Loading spaCy model')
+    nlp = spacy.load('en')
+
+    # Load brown training data
+    click.secho('Loading Brown News training data')
+    brown_training = []
+    for sent in brown.tagged_sents(categories='news', tagset='universal'):
+        sent_training = []
+        for word, tag in sent:
+            # Normalise punctuation so spaCy will recognise it
+            word = word.replace('`', "'")
+            doc = nlp(word)
+            # Subdivide the word if spaCy recognises it
+            if len(doc) > 1:
+                for subword in doc:
+                    if subword.is_punct:
+                        continue
+                    if tags:
+                        sent_training.append(subword.pos_.upper())
+                    else:
+                        sent_training.append(subword.orth_.lower())
+            else:
+                if doc[0].is_punct:
+                    continue
+                if tags:
+                    sent_training.append(tag.upper())
+                else:
+                    sent_training.append(word.lower())
+        if len(sent_training) > 0:
+            brown_training.append(sent_training)
+
+    # Train
+    click.secho('Training {n}-gram {type} model'.format(n=n, type=type))
+    model = NgramModel(n, brown_training, estimator_args=(0.2,))
+
+    # Save to pickle
+    click.secho("Saving model to '{}'".format(outfile))
+    try:
+        os.mkdir(settings.MODELS_FOLDER)
+    except FileExistsError:
+        pass
+    with open(outfile, 'wb') as f:
+        pickle.dump(model, f)
+
+    click.secho('Done', fg='green', bold=True)
 
 
 @cli.command()
