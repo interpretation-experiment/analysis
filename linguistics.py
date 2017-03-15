@@ -2,7 +2,7 @@ import csv
 import os
 from warnings import warn
 
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 from nltk.corpus import stopwords as nltk_stopwords
@@ -74,7 +74,7 @@ def equip_sentence_content_words(models):
     models.Sentence.content_words = property(get_content_words)
 
     # Test
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.get(id=1).content_words == \
             ['young', 'boy', 'sudden', 'hit', 'littl', 'girl']
         assert models.Sentence.objects.get(id=2).content_words == \
@@ -132,7 +132,7 @@ def equip_sentence_distances(models):
 
     # Testing this is hard (we don't have predictable data for it),
     # so we mostly test for stupid values only
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.get(id=1).raw_distance(
                 models.Sentence.objects.get(id=1)) == 0.0
         assert models.Sentence.objects.get(id=1).ordered_content_distance(
@@ -172,7 +172,7 @@ def equip_sentence_distances(models):
     models.Sentence.cum_root_distance = cum_root_distance
 
     # Also hard to test, so testing stupid values
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.get(id=580).cum_root_distance(
             'raw') == 0
         assert models.Sentence.objects.get(id=580).cum_root_distance(
@@ -254,8 +254,8 @@ def equip_sentence_codings(models):
     """
 
     # Get database name
-    from django.conf import settings
-    db = settings.DATABASES['default']['NAME']
+    from django.conf import settings as django_settings
+    db = django_settings.DATABASES['default']['NAME']
 
     # Load spam codings
     spam_codings = load_codings(
@@ -402,7 +402,7 @@ def equip_sentence_codings(models):
 
     # Test spam (hard to test, so only checking that what we entered as first
     # sentences is not spam)
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert len(models.Sentence.objects.get(id=1).spam_detail[0]) == 2
         assert not models.Sentence.objects.get(id=1).spam_detail[0][0]
         assert not models.Sentence.objects.get(id=1).spam
@@ -413,7 +413,7 @@ def equip_sentence_codings(models):
         assert not models.Sentence.objects.get(id=3).spam_detail[0][0]
         assert not models.Sentence.objects.get(id=3).spam
 
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert models.Sentence.objects.get(id=901).spam
         assert models.Sentence.objects.get(id=2608).spam
         assert not models.Sentence.objects.get(id=244).spam
@@ -425,13 +425,13 @@ def equip_sentence_codings(models):
         pass  # Test passed
     else:
         raise Exception('ValueError not raised on Profile.objects.nonspam')
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.nonspam.get(id=1) is not None
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert models.Sentence.objects.nonspam.get(id=6) is not None
 
     # Test doublepost
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert models.Sentence.objects.get(id=258).doublepost
         assert models.Sentence.objects.get(id=1557).doublepost
         assert models.Sentence.objects.get(id=442).doublepost
@@ -446,17 +446,17 @@ def equip_sentence_codings(models):
     else:
         raise Exception('ValueError not raised on '
                         'Profile.objects.nondoublepost')
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert models.Sentence.objects.nondoublepost.get(id=984) is not None
 
     # Test rogue
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.get(id=486).rogue
         assert not models.Sentence.objects.get(id=489).rogue
         assert not models.Sentence.objects.get(id=2081).rogue
         assert models.Sentence.objects.get(id=2084).rogue
 
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert not models.Sentence.objects.get(id=1452).rogue
         assert models.Sentence.objects.get(id=1453).rogue
 
@@ -468,18 +468,18 @@ def equip_sentence_codings(models):
     else:
         raise Exception('ValueError not raised on '
                         'Profile.objects.nonrogue')
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert models.Sentence.objects.nonrogue.get(id=984) is not None
 
     # Test kept
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.kept.get(id=1) is not None
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_2':
         assert models.Sentence.objects.kept.get(id=6) is not None
         assert models.Sentence.objects.kept.get(id=1618) is not None
 
     # Test with_dropped
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.with_dropped(True).get(id=1) is not None
         assert (models.Sentence.objects.with_dropped(False).get(id=1)
                 is not None)

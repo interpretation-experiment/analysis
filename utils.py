@@ -1,8 +1,9 @@
+import pickle
 import functools
 from itertools import zip_longest
 
 import django
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.db.models import Count
 from django.db.models.manager import Manager
 
@@ -25,7 +26,7 @@ def setup_spreadr(db_name):
 
     spreadr_settings = spreadr_settings.__dict__.copy()
     spreadr_settings['DATABASES']['default']['NAME'] = db_name
-    settings.configure(**spreadr_settings)
+    django_settings.configure(**spreadr_settings)
     django.setup()
 
 
@@ -68,6 +69,18 @@ class memoized(object):
 
     def drop_cache(self):
         self.cache = {}
+
+
+@memoized
+def unpickle(filename):
+    """Load a pickle file at path `filename`.
+
+    This function is :func:`memoized` so a file is only loaded the first time.
+
+    """
+
+    with open(filename, 'rb') as file:
+        return pickle.load(file)
 
 
 def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
@@ -114,7 +127,7 @@ def equip_model_managers_with_bucket_type(models):
     Manager.game = property(lambda self: filter_bucket(self, 'game'))
 
     # Test
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         assert models.Sentence.objects.training.count() == 6
         assert models.Sentence.objects.experiment.count() == \
             (models.Sentence.objects.count() - 6 -
@@ -158,7 +171,7 @@ def equip_sentence_with_head_depth(models):
     models.Sentence.depth = property(get_depth)
 
     # Test
-    if settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
+    if django_settings.DATABASES['default']['NAME'] == 'spreadr_exp_1':
         tree = models.Tree.objects\
             .annotate(sentences_count=Count('sentences'))\
             .filter(sentences_count__gte=10).first()
