@@ -62,14 +62,14 @@ def language_model(n, type):
             # Subdivide the word if spaCy recognises it
             if len(doc) > 1:
                 for subword in doc:
-                    if subword.is_punct:
+                    if subword.is_punct or subword.is_space:
                         continue
                     if tags:
                         sent_training.append(subword.pos_.upper())
                     else:
                         sent_training.append(subword.orth_.lower())
             else:
-                if doc[0].is_punct:
+                if doc[0].is_punct or doc[0].is_space:
                     continue
                 if tags:
                     sent_training.append(tag.upper())
