@@ -2,10 +2,7 @@ import pickle
 import functools
 from itertools import zip_longest
 
-import django
-from django.conf import settings as django_settings
-from django.db.models import Count
-from django.db.models.manager import Manager
+from . import settings
 
 
 def setup_spreadr(db_name):
@@ -18,7 +15,16 @@ def setup_spreadr(db_name):
 
     import os
     import sys
-    sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'spreadr'))
+    notebook_base = os.path.join(settings.NOTEBOOKS_FOLDER, db_name[8:])
+    spreadr_src = os.path.join(notebook_base, 'spreadr')
+    spreadr_lib = os.path.join(notebook_base, 'spreadr_env', 'lib')
+    pythonVersion = [f for f in os.listdir(spreadr_lib)
+                     if f.startswith('python')][0]
+    sys.path.append(os.path.join(spreadr_lib, pythonVersion, 'site-packages'))
+    sys.path.append(spreadr_src)
+
+    import django
+    from django.conf import settings as django_settings
     from spreadr import settings_analysis as spreadr_settings
 
     spreadr_settings = spreadr_settings.__dict__.copy()
@@ -108,6 +114,9 @@ def equip_model_managers_with_bucket_type(models):
 
     """
 
+    from django.db.models.manager import Manager
+    from django.conf import settings as django_settings
+
     def filter_bucket(self, bucket_name):
         qs = self.get_queryset()
         if self.model == models.Sentence:
@@ -143,6 +152,9 @@ def equip_model_managers_with_bucket_type(models):
 
 def equip_sentence_with_head_depth(models):
     """Define `head` and `depth` on `Sentence`s."""
+
+    from django.db.models import Count
+    from django.conf import settings as django_settings
 
     @memoized
     def get_head(self):
