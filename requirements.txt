@@ -6,6 +6,7 @@ cymem==1.31.2
 cytoolz==0.8.2
 decorator==4.0.11
 dill==0.2.6
+en-core-web-md==1.2.1
 entrypoints==0.2.2
 html5lib==0.999999999
 ipykernel==4.5.2
@@ -38,8 +39,10 @@ plac==0.9.6
 preshed==1.0.0
 prompt-toolkit==1.0.13
 ptyprocess==0.5.1
+py==1.4.33
 Pygments==2.2.0
 pyparsing==2.2.0
+pytest==3.0.7
 python-dateutil==2.6.0
 pytz==2016.10
 pyzmq==16.0.2

@@ -17,3 +17,6 @@ __pycache__/
 
 # Notebook spreadr environments
 notebooks/*/spreadr_env
+
+# Pytest
+.cache/
