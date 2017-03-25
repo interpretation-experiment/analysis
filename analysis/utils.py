@@ -8,9 +8,6 @@ from django.db.models import Count
 from django.db.models.manager import Manager
 
 
-DB_USER = 'spreadr_analysis'
-
-
 def setup_spreadr(db_name):
     """Setup environment for using spreadr models and database.
 
