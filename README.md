@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 # Get necessary nltk and spaCy data
 python -m nltk.downloader punkt averaged_perceptron_tagger wordnet stopwords brown cmudict
-python -m spacy.en.download all
+python -m spacy download en_core_web_md
 
 # Check ou all the spreadr submodules and set up their environments
 git submodule update --init
