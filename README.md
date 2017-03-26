@@ -36,7 +36,7 @@ User setup (in a mysql shell, i.e. `mysql -u root`):
 Usage
 -----
 
-Use `python analysis/cli.py --help` to explore what's possible.
+Use `python -m analysis.cli --help` to explore what's possible.
 
 Right now there are two parts in the code:
 
@@ -50,12 +50,12 @@ These correspond to three steps you should follow:
 ```bash
 for n in 1 2 3; do
   for type in word tag; do
-    python analysis/cli.py load --db nothing language_model $n $type
+    python -m analysis.cli load --db nothing language_model $n $type
   done
 done
 ```
 
-* Code the data with any needed codings (mostly spam, but could be any sentence-level feature); use `python analysis/cli.py load --db DB_NAME sentences_to_codable_csv CODING OUTFILE.csv` and follow the instructions.
+* Code the data with any needed codings (mostly spam, but could be any sentence-level feature); use `python -m analysis.cli load --db DB_NAME sentences_to_codable_csv CODING OUTFILE.csv` and follow the instructions.
 * Open Jupyter and run any of the notebooks you want. They use the spreadr models, but augment them with utilities and any sentence-codings you provided from the previous step, thanks to stuff in `analysis/`.
 
 TODO: fix `exp_1` notebooks and tests. It at least needs to upgrade the django version so that it supports python 3.6, and an update to the `settings_analysis` (so it doesn't read `MY_CNF`).

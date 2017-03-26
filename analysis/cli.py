@@ -28,4 +28,4 @@ cli = CLI(help='Analysis tools for gistr data')
 
 
 if __name__ == '__main__':
-    cli(obj={})
+    cli(obj={}, prog_name='python -m analysis.cli')

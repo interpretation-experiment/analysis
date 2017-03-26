@@ -6,9 +6,12 @@ import click
 import spacy
 from nltk.corpus import brown
 
-from utils import setup_spreadr
-from language_model import NgramModel
-import settings
+from analysis.utils import setup_spreadr
+from analysis.language_model import NgramModel
+from analysis import settings
+
+
+# TODO: make sure this still works
 
 
 @click.group()
