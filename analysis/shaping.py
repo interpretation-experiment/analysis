@@ -3,21 +3,20 @@ import numpy as np
 from .utils import memoized, load_codings
 
 
-# TODO: fix docs
-
-
 def equip_sentence_shaping(models):
-    """Import external codings on sentences.
+    """Import and compute shaping codings on sentences.
 
     Codings imported:
     * `spam` (with `spam_detail`, and `nonspam` on `SentenceManager`
       and `QuerySet`)
+
+    Computed codings:
     * `doublepost` (with `nondoublepost` on `SentenceManager` and `QuerySet`)
     * `rogue` (with `nonrogue` on `SentenceManager` and `QuerySet`)
 
-    Also add Sentence.LOADED_CODINGS which lists loaded codings, and `kept`
+    Also update Sentence.LOADED_CODINGS which lists loaded codings, and `kept`
     and `with_dropped()` on `SentenceManager` and `QuerySet` which filters on
-    sentences kept after deciding on all codings.
+    sentences kept after deciding on all shaping codings.
 
     """
 
@@ -174,31 +173,34 @@ def equip_sentence_shaping(models):
     models.Sentence.LOADED_CODINGS = LOADED_CODINGS
 
 
-# TODO: set on queryset too
 def equip_model_managers_with_bucket_type(models):
     """Add `training`, `experiment`, `game` to `Sentence` and `Tree` model
-    managers.
+    managers and querysets.
 
     These let you quickly narrow down a queryset to the named bucket.
 
     """
 
     from django.db.models.manager import Manager
+    from django.db.models.query import QuerySet
 
     def filter_bucket(self, bucket_name):
-        qs = self.get_queryset()
         if self.model == models.Sentence:
-            return qs.filter(bucket__exact=bucket_name)
+            return self.filter(bucket__exact=bucket_name)
         elif self.model == models.Tree:
-            return qs.filter(root__bucket__exact=bucket_name)
+            return self.filter(root__bucket__exact=bucket_name)
         else:
             raise ValueError('Only available on Sentence and Tree')
 
     # This will work for Sentence and Tree
     Manager.training = property(lambda self: filter_bucket(self, 'training'))
+    QuerySet.training = property(lambda self: filter_bucket(self, 'training'))
     Manager.experiment = property(
         lambda self: filter_bucket(self, 'experiment'))
+    QuerySet.experiment = property(
+        lambda self: filter_bucket(self, 'experiment'))
     Manager.game = property(lambda self: filter_bucket(self, 'game'))
+    QuerySet.game = property(lambda self: filter_bucket(self, 'game'))
 
 
 def equip_sentence_with_head_depth(models):
