@@ -1,6 +1,9 @@
 import numpy as np
 
 
+# TODO: refresh tests
+
+
 def test_equip_sentence_content_words(models):
     from django.conf import settings as django_settings
 

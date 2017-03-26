@@ -1,85 +1,75 @@
 from warnings import warn
 
-from nltk.corpus import stopwords as nltk_stopwords
 from nltk.metrics import jaccard_distance, edit_distance
-from nltk.stem.snowball import EnglishStemmer as SnowballStemmer
-from nltk.tokenize import word_tokenize as nltk_word_tokenize
 import numpy as np
 
-from .utils import memoized
+from .utils import memoized, get_nlp
 
 
-# TODO: fix docs
+@memoized
+def is_stopword(tok):
+    nlp = get_nlp()
+    return (tok.lower_ in nlp.Defaults.stop_words
+            or tok.lemma_ in nlp.Defaults.stop_words)
 
 
-# TODO: use spacy
-def equip_sentence_content_words(models):
-    """Define sentence `content_words`."""
+def equip_sentence_words(models):
+    """Define sentence content-related word accessors.
 
-    def filter_backtick_apostrophe(text):
-        return text.replace('`', "'")
+    Properties defined:
+    * `tokens`: sentence's spaCy `Token`s, without punctuation or space
+    * `words`: lowercase spelling of `tokens`
+    * `content_tokens`: `tokens` that are not stopwords
+    * `content_words`: lowercase spelling of `content_tokens`
+    * `content_lemmas`: lowercase lemmas of `content_tokens`
+    * `content_ids`: indexes of `content_tokens` in `tokens`
 
-    def filter_lowercase(words):
-        return map(lambda w: w.lower(), words)
+    """
 
-    def _filter(words, exclude_list):
-        return filter(lambda w: w not in exclude_list, words)
-
-    def filter_punctuation(words):
-        return _filter(words, [',', '.', ';', '!', '?'])
-
-    def filter_length(words):
-        return filter(lambda w: len(w) > 2, words)
-
-    stopwords = set(nltk_stopwords.words('english'))
-    # Missing from the corpus, and appears with tokenization
-    stopwords.add("n't")
-
-    def filter_stopwords(words):
-        return _filter(words, stopwords)
-
-    stemmer = SnowballStemmer(ignore_stopwords=True)
-
-    def filter_stem(words):
-        return map(lambda w: stemmer.stem(w), words)
-
-    filters = [filter_backtick_apostrophe,
-               nltk_word_tokenize,
-               filter_lowercase,
-               filter_punctuation,
-               filter_length,
-               filter_stopwords,
-               filter_stem]
+    nlp = get_nlp()
 
     @memoized
+    def get_tokens(self):
+        tokens = [tok for tok in nlp(self.text)
+                  if not tok.is_punct and not tok.is_space]
+        return tuple(tokens)
+
+    def get_words(self):
+        return tuple(tok.lower_ for tok in self.tokens)
+
+    @memoized
+    def _get_content_ids_tokens(self):
+        return tuple((i, tok) for i, tok in enumerate(self.tokens)
+                     if not is_stopword(tok))
+
+    def get_content_tokens(self):
+        return tuple(tok for _, tok in _get_content_ids_tokens(self))
+
     def get_content_words(self):
-        """Get content words of this sentence.
+        return tuple(tok.lower_ for _, tok in _get_content_ids_tokens(self))
 
-        This is done with the following steps:
-        * tokenize the sentence text
-        * set tokens to lowercase
-        * remove punctuation
-        * remove words $\leq$ 2 characters
-        * remove stopwords
-        * stem
+    def get_content_lemmas(self):
+        return tuple(tok.lemma_ for _, tok in _get_content_ids_tokens(self))
 
-        """
+    def get_content_ids(self):
+        return tuple(i for i, _ in _get_content_ids_tokens(self))
 
-        processed = self.text
-        for f in filters:
-            processed = f(processed)
-        return list(processed)
-
+    models.Sentence.tokens = property(get_tokens)
+    models.Sentence.words = property(get_words)
+    models.Sentence.content_tokens = property(get_content_tokens)
     models.Sentence.content_words = property(get_content_words)
+    models.Sentence.content_lemmas = property(get_content_lemmas)
+    models.Sentence.content_ids = property(get_content_ids)
 
 
 def equip_sentence_distances(models):
     """Define distances between sentences.
 
     Distances defined:
-    * `raw_distance`
-    * `ordered_content_distance`
-    * `unordered_content_distance`
+    * `raw_distance`: distance on raw sentence text
+    * `ow_distance`: ordered distance on all words
+    * `oc_distance`: ordered distance on content lemmas
+    * `uc_distance`: unordered distance on content lemmas
     * `cum_root_distance`: cumulative distance from root, for any of the above
       distances
 
@@ -99,28 +89,39 @@ def equip_sentence_distances(models):
         return distance / norm if normalized else distance
 
     @memoized
-    def ordered_content_distance(self, sentence, normalized=True):
-        """Normalized levenshtein distance on (ordered) content words
-        between `self` and `sentence`."""
+    def ow_distance(self, sentence, normalized=True):
+        """Normalized levenshtein distance on all (ordered) words between
+        `self` and `sentence`."""
 
-        self_content_words = self.content_words
-        sentence_content_words = sentence.content_words
-        distance = edit_distance(self_content_words, sentence_content_words)
-        norm = max(len(self_content_words), len(sentence_content_words))
+        self_words = self.words
+        sentence_words = sentence.words
+        distance = edit_distance(self_words, sentence_words)
+        norm = max(len(self_words), len(sentence_words))
         return distance / norm if normalized else distance
 
     @memoized
-    def unordered_content_distance(self, sentence):
-        """Jaccard distance on (unordered) content words between `self` and
+    def oc_distance(self, sentence, normalized=True):
+        """Normalized levenshtein distance on (ordered) content lemmas between
+        `self` and `sentence`."""
+
+        self_content_lemmas = self.content_lemmas
+        sentence_content_lemmas = sentence.content_lemmas
+        distance = edit_distance(self_content_lemmas, sentence_content_lemmas)
+        norm = max(len(self_content_lemmas), len(sentence_content_lemmas))
+        return distance / norm if normalized else distance
+
+    @memoized
+    def uc_distance(self, sentence):
+        """Jaccard distance on (unordered) content lemmas between `self` and
         `sentence`."""
-        return jaccard_distance(set(self.content_words),
-                                set(sentence.content_words))
+        return jaccard_distance(set(self.content_lemmas),
+                                set(sentence.content_lemmas))
 
     models.Sentence.raw_distance = raw_distance
-    models.Sentence.ordered_content_distance = ordered_content_distance
-    models.Sentence.unordered_content_distance = unordered_content_distance
-    models.Sentence.DISTANCE_TYPES = ['raw', 'ordered_content',
-                                      'unordered_content']
+    models.Sentence.ow_distance = ow_distance
+    models.Sentence.oc_distance = oc_distance
+    models.Sentence.uc_distance = uc_distance
+    models.Sentence.DISTANCE_TYPES = ['raw', 'ow', 'oc', 'uc']
 
     # Add cumulative distance from root
     @memoized
@@ -131,10 +132,10 @@ def equip_sentence_distances(models):
             raise ValueError("Unkown distance type (not one of {}): {}".format(
                     distance_type, models.Sentence.DISTANCE_TYPES))
         distance_name = distance_type + '_distance'
-        if distance_type == 'unordered_content':
+        if distance_type == 'uc':
             kwargs = {}
             if not normalized:
-                warn("'unordered_content' distance is always normalized, so "
+                warn('unordered content distance is always normalized, so '
                      "we're ignoring normalized=False")
         else:
             kwargs = {'normalized': normalized}
@@ -149,8 +150,8 @@ def equip_sentence_distances(models):
 
 
 def equip_profile_transformation_rate(models):
-    """Define `Profile.transformation_rate`; requires `content_words` and
-    `spam`."""
+    """Define `Profile.transformation_rate`; requires sentence distances and
+    shaping codings."""
 
     @memoized
     def transformation_rate(self, distance_type, with_spam=False):
@@ -165,7 +166,7 @@ def equip_profile_transformation_rate(models):
         transformations that profiles made, but that are rejected in the trees
         because they initiated a branch that died early): they are valid
         transformations that the profiles made, just not included in the final
-        trees because of branching.
+        trees because of branching. We also always drop doubleposts.
 
         """
 

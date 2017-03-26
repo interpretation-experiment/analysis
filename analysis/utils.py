@@ -4,6 +4,8 @@ import pickle
 import functools
 from itertools import zip_longest
 
+import spacy
+
 from . import settings
 
 
@@ -131,5 +133,10 @@ def import_spreadr_models():
         from gists import models
     except ImportError:
         raise ImportError('`gists` models not found for import, '
-                          'you might need to run `setup_spreadr() first')
+                          'you might need to run `setup_spreadr()` first')
     return models
+
+
+@memoized
+def get_nlp():
+    return spacy.load('en_core_web_md')

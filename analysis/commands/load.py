@@ -3,10 +3,9 @@ import os
 import pickle
 
 import click
-import spacy
 from nltk.corpus import brown
 
-from analysis.utils import setup_spreadr
+from analysis.utils import setup_spreadr, get_nlp
 from analysis.language_model import NgramModel
 from analysis import settings
 
@@ -48,7 +47,7 @@ def language_model(n, type):
 
     # Load spaCy model
     click.secho('Loading spaCy model')
-    nlp = spacy.load('en_core_web_md')
+    nlp = get_nlp()
 
     # Load brown training data
     click.secho('Loading Brown News training data')
