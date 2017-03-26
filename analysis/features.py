@@ -8,6 +8,10 @@ A few other utility functions that load data for the features are also defined.
 """
 
 
+# TODO: deal with word and sentence features
+# TODO: add equip capability
+
+
 import logging
 from csv import DictReader, reader as csvreader
 import warnings

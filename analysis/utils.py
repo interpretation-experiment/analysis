@@ -1,3 +1,5 @@
+import os
+import csv
 import pickle
 import functools
 from itertools import zip_longest
@@ -96,6 +98,32 @@ def mpl_palette(n_colors, variation='Set2'):  # or variation='colorblind'
             sb.blend_palette(palette, n_colors=n_colors))
 
 
+def load_codings(db, coding, mapper):
+    """Load the files for codings of `coding`, for the given `db`, extracting
+    key `coding` from each csv file, and processing the values with
+    `mapper`."""
+
+    # Get the list of files to load
+    folder = os.path.join(settings.CODINGS_FOLDER, db, coding)
+    filepaths = [os.path.join(folder, name)
+                 for name in next(os.walk(folder))[2]]
+
+    # Load the files
+    codings = {}
+    for filepath in filepaths:
+        coder = os.path.splitext(os.path.basename(filepath))[0]
+        with open(filepath, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                id = int(row['id'])
+                code = mapper(row[coding])
+                if id not in codings:
+                    codings[id] = []
+                codings[id].append((code, coder))
+
+    return codings
+
+
 def import_spreadr_models():
     """Get spreadr models, and bail if spreadr has not yet been setup."""
 
@@ -105,70 +133,3 @@ def import_spreadr_models():
         raise ImportError('`gists` models not found for import, '
                           'you might need to run `setup_spreadr() first')
     return models
-
-
-def equip_model_managers_with_bucket_type(models):
-    """Add `training`, `experiment`, `game` to `Sentence` and `Tree` model
-    managers.
-
-    These let you quickly narrow down a queryset to the named bucket.
-
-    """
-
-    from django.db.models.manager import Manager
-
-    def filter_bucket(self, bucket_name):
-        qs = self.get_queryset()
-        if self.model == models.Sentence:
-            return qs.filter(bucket__exact=bucket_name)
-        elif self.model == models.Tree:
-            return qs.filter(root__bucket__exact=bucket_name)
-        else:
-            raise ValueError('Only available on Sentence and Tree')
-
-    # This will work for Sentence and Tree
-    Manager.training = property(lambda self: filter_bucket(self, 'training'))
-    Manager.experiment = property(
-        lambda self: filter_bucket(self, 'experiment'))
-    Manager.game = property(lambda self: filter_bucket(self, 'game'))
-
-
-def equip_sentence_with_head_depth(models):
-    """Define `head` and `depth` on `Sentence`s."""
-
-    @memoized
-    def get_head(self):
-        """Get the head of the branch this sentence is in,
-        bailing if the sentence is root."""
-
-        if self.parent is None:
-            raise ValueError('Already at root')
-        if self.parent.parent is None:
-            return self
-        return self.parent.head
-
-    models.Sentence.head = property(get_head)
-
-    @memoized
-    def get_depth(self):
-        """Get the depth of the sentence in its branch."""
-
-        if self.parent is None:
-            return 0
-        return 1 + self.parent.depth
-
-    models.Sentence.depth = property(get_depth)
-
-
-def equip_spreadr_models():
-    """Equip spreadr models with useful tools.
-
-    Tools:
-    * Bucket selection on `Sentence` and `Tree` model managers
-    * Head of branch and depth in branch for a `Sentence`
-
-    """
-
-    models = import_spreadr_models()
-    equip_model_managers_with_bucket_type(models)
-    equip_sentence_with_head_depth(models)
