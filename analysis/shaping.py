@@ -169,8 +169,9 @@ def equip_sentence_shaping(models):
     QuerySet.with_dropped = lambda self, with_dropped: \
         self if with_dropped else self.kept
 
-    # TODO: make non-destructive
-    models.Sentence.LOADED_CODINGS = ['spam', 'doublepost', 'rogue']
+    LOADED_CODINGS = getattr(models.Sentence, 'LOADED_CODINGS', set())
+    LOADED_CODINGS.update(['spam', 'doublepost', 'rogue'])
+    models.Sentence.LOADED_CODINGS = LOADED_CODINGS
 
 
 # TODO: set on queryset too
