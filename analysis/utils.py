@@ -5,6 +5,7 @@ import functools
 from itertools import zip_longest
 
 import spacy
+import numpy as np
 
 from . import settings
 
@@ -36,6 +37,23 @@ def setup_spreadr(db_name):
     spreadr_settings['DATABASES']['default']['NAME'] = db_name
     django_settings.configure(**spreadr_settings)
     django.setup()
+
+
+def quantile_interval(values, target):
+    """Get the span of `target` in the distribution `values`.
+
+    This is the actual quantile occupied by `target` in the `values`
+    distribution, expressed as an interval in [0; 1].
+
+    """
+
+    if np.isnan(target) or (target not in values):
+        return np.nan, np.nan
+    finite_values = values[np.isfinite(values)]
+    sorted_values = np.array(sorted(finite_values))
+    length = len(sorted_values)
+    ours = np.where(sorted_values == target)[0]
+    return ours[0] / length, (ours[-1] + 1) / length
 
 
 def grouper(iterable, n, fillvalue=None):
