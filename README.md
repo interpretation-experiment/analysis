@@ -59,3 +59,5 @@ done
 * Open Jupyter and run any of the notebooks you want. They use the spreadr models, but augment them with utilities and any sentence-codings you provided from the previous step, thanks to stuff in `analysis/`.
 
 TODO: fix `exp_1` notebooks and tests. It at least needs to upgrade the django version so that it supports python 3.6, and an update to the `settings_analysis` (so it doesn't read `MY_CNF`).
+
+TODO: use a stub database for tests, instead of the real databases.
