@@ -11,9 +11,6 @@ from analysis.language_model import NgramModel
 from analysis import settings
 
 
-# TODO: make sure this still works
-
-
 @click.group()
 @click.option('--db', type=str, required=True, prompt='Database to connect to')
 @click.pass_obj
@@ -51,7 +48,7 @@ def language_model(n, type):
 
     # Load spaCy model
     click.secho('Loading spaCy model')
-    nlp = spacy.load('en')
+    nlp = spacy.load('en_core_web_md')
 
     # Load brown training data
     click.secho('Loading Brown News training data')
@@ -140,8 +137,10 @@ def sentences_to_codable_csv(obj, coding, filename):
     click.secho('Done', fg='green', bold=True)
     click.secho('''
 You can now:
-* import {filename} to a spreadsheet,
+* import '{filename}' to a spreadsheet,
 * {coding}-code it,
 * re-export it to csv,
-* and put it in 'codings/{db}/{coding}/name-of-coder.csv'
-'''.format(filename=filename, db=db, coding=coding), fg='cyan', bold=True)
+* and put it in '{codings_folder}/{db}/{coding}/name-of-coder.csv'
+'''.format(filename=filename,
+           codings_folder=os.path.relpath(settings.CODINGS_FOLDER),
+           db=db, coding=coding), fg='cyan', bold=True)
