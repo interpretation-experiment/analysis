@@ -1,6 +1,7 @@
 from . import utils
 from . import contents
 from . import shaping
+from . import features
 
 
 def setup(db_name):
@@ -14,5 +15,7 @@ def setup(db_name):
     contents.equip_sentence_words(models)
     contents.equip_sentence_distances(models)
     contents.equip_profile_transformation_rate(models)
+
+    features.equip_sentence_features(models)
 
     return models

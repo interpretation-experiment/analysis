@@ -8,7 +8,6 @@ A few other utility functions that load data for the features are also defined.
 """
 
 
-# TODO: add equip capability
 # TODO: test
 
 
@@ -28,6 +27,11 @@ from . import settings
 
 
 logger = logging.getLogger(__name__)
+
+
+def equip_sentence_features(models):
+    """Redefine the sentence class to add the :class:`Feature` mixin to it."""
+    models.Sentence.__bases__ = (Features,) + models.Sentence.__bases__
 
 
 @memoized
@@ -258,7 +262,7 @@ class Features:
 
     #: List of categorical features defined on words.
     CATEGORICAL_WORD_FEATURES = {
-        'POS'
+        'pos'
         'dep'
     }
 
@@ -591,7 +595,7 @@ class Features:
     #
 
     @classmethod
-    def _POS(cls, target=None):
+    def _pos(cls, target=None):
         """POS"""
         assert target is not None, "No coding pool for POS"
         _, tok, _ = target
