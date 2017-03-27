@@ -8,9 +8,6 @@ A few other utility functions that load data for the features are also defined.
 """
 
 
-# TODO: test
-
-
 import itertools
 import logging
 from csv import DictReader, reader as csvreader
@@ -20,6 +17,7 @@ import functools
 import numpy as np
 from nltk.corpus import cmudict
 from scipy import spatial
+import spacy
 
 from .contents import doc_tokens
 from .utils import memoized, unpickle
@@ -103,7 +101,7 @@ def _get_zipf_frequency():
         for row in reader:
             word = row['Spelling'].lower()
             if len(word) == 0:
-                # A few rows have empty data. Skip it.
+                # A few rows have empty data. Skip them.
                 continue
             freq = row['LogFreq(Zipf)']
             if word in freqs:
@@ -151,22 +149,24 @@ def _get_clearpond():
 
 
 @memoized
-def depth_under(tok):
+def _depth_under(tok):
     """Depth of the sentence dependency tree under `tok`."""
 
-    children_depths = [depth_under(child) for child in tok.children]
-    return 0 if len(children_depths) == 0 else 1 + np.max(children_depths)
+    children_depths = [_depth_under(child) + (child.dep != spacy.symbols.punct)
+                       for child in tok.children]
+    return 0 if len(children_depths) == 0 else np.max(children_depths)
 
 
 @memoized
-def depth_above(tok):
+def _depth_above(tok):
     """Depth of `tok` in its sentence's dependency tree."""
 
-    return 0 if tok.head == tok else (1 + depth_above(tok.head))
+    return (0 if tok.head == tok
+            else ((tok.dep != spacy.symbols.punct) + _depth_above(tok.head)))
 
 
 @memoized
-def depth_prop(tok):
+def _depth_prop(tok):
     """Depth of `tok` compared to the maximun depth of the sentence `tok` is
     in.
 
@@ -182,21 +182,19 @@ def depth_prop(tok):
     head = tok
     while head.head != head:
         head = head.head
-    depth_under_head = depth_under(head)
-    return (depth_above(tok) / depth_under_head
+    depth_under_head = _depth_under(head)
+    return (_depth_above(tok) / depth_under_head
             if depth_under_head != 0 else np.nan)
 
 
 @memoized
-def depth_subtree_prop(tok):
+def _depth_subtree_prop(tok):
     """Depth of `tok` compared to the maximun depth of tokens under it."""
-    num = depth_above(tok)
-    denom = (depth_above(tok) + depth_under(tok))
+    num = _depth_above(tok)
+    denom = (_depth_above(tok) + _depth_under(tok))
     if denom == 0:
-        if num == 0:
-            return 0.0
-        else:
-            return np.nan
+        # This implies num == 0, so return 0.0
+        return 0.0
     else:
         return num / denom
 
@@ -262,8 +260,8 @@ class Features:
 
     #: List of categorical features defined on words.
     CATEGORICAL_WORD_FEATURES = {
-        'pos'
-        'dep'
+        'pos',
+        'dep',
     }
 
     #: List of features defined on sentences.
@@ -301,11 +299,11 @@ class Features:
 
         # Check arguments
         assert name in (set(self.WORD_FEATURES.keys())
-                        .union(self.SENTENCE_FEATURES))
+                        .union(self.SENTENCE_FEATURES)), name
         from_words = name in self.WORD_FEATURES
         # self._SW_NAN is redundant with self._SW_EXCLUDE here, so we don't
         # allow it
-        assert stopwords in [self._SW_INCLUDE, self._SW_EXCLUDE]
+        assert stopwords in [self._SW_INCLUDE, self._SW_EXCLUDE], stopwords
 
         if from_words:
             return np.nanmean(self.features(name, stopwords=stopwords))
@@ -326,10 +324,10 @@ class Features:
         If `rel` is not `None`, it indicates a NumPy function used to aggregate
         word features in the sentence; this method then returns the feature
         values minus the corresponding aggregate value. For instance, if
-        `sentence_relative='median'`, this method returns the feature values
-        minus the median of the sentence (words valued at `np.nan` are
-        ignored). If `name` indicates a categorical feature, `rel` must be
-        `None` (else an exception is raised).
+        `rel='median'`, this method returns the feature values minus the median
+        of the sentence (words valued at `np.nan` are ignored). If `name`
+        indicates a categorical feature, `rel` must be `None` (else an
+        exception is raised).
 
         The method is :func:`~.utils.memoized` since it is called so often.
 
@@ -342,7 +340,7 @@ class Features:
             If not `None` (which is the default), return features relative to
             values of the sentence (with or without stopwords depending on
             `stopwords`) aggregated by this function; must be a name for which
-            `np.nan<sentence_relative>` exists.
+            `np.nan<rel>` exists.
         stopwords : {'include', 'nan', 'exclude'}, optional
             'include' keeps the stopwords; 'nan' replaces them with `np.nan`
             values; 'exclude' removes their values from the final array.
@@ -358,15 +356,16 @@ class Features:
 
         # Check arguments
         assert name in (set(self.WORD_FEATURES.keys())
-                        .union(self.CATEGORICAL_WORD_FEATURES))
+                        .union(self.CATEGORICAL_WORD_FEATURES)), name
         categorical = name in self.CATEGORICAL_WORD_FEATURES
-        assert rel is None or hasattr(np, 'nan' + rel)
-        assert stopwords in [self._SW_INCLUDE, self._SW_NAN, self._SW_EXCLUDE]
+        assert rel is None or hasattr(np, 'nan' + rel), rel
+        assert (stopwords in
+                [self._SW_INCLUDE, self._SW_NAN, self._SW_EXCLUDE]), stopwords
 
         # Compute the features
         tokens = (self.content_tokens
                   if stopwords == self._SW_EXCLUDE else self.tokens)
-        feature = (self._transformed_feature(name)
+        feature = (self._transformed_word_feature(name)
                    if not categorical else getattr(self, '_' + name))
         values = np.array([feature((tokens, tok, i))
                            for i, tok in enumerate(tokens)],
@@ -426,7 +425,7 @@ class Features:
 
         """
 
-        assert name in cls.WORD_FEATURES
+        assert name in cls.WORD_FEATURES, name
         _feature = getattr(cls, '_' + name)
         transform = cls.WORD_FEATURES[name]
 
@@ -507,8 +506,8 @@ class Features:
     @classmethod
     @memoized
     def _ngram_logprob(cls, model_n, model_type, target):
-        assert model_n in (1, 2, 3)
-        assert model_type in ('word', 'tag')
+        assert model_n in (1, 2, 3), model_n
+        assert model_type in ('word', 'tag'), model_type
         tags = (model_type == 'tag')
         model = unpickle(settings.MODEL_TEMPLATE.format(n=model_n,
                                                         type=model_type))
@@ -529,7 +528,8 @@ class Features:
         data_position = len(model._lpad) + position
         context = tuple(data[data_position - model_n + 1:data_position])
         final_tok = data[data_position]
-        assert target_tok == final_tok
+        assert final_tok == (target_tok.pos_.upper() if tags
+                             else target_tok.lower_), (target_tok, final_tok)
         return (- model.logprob(final_tok, context))
 
     @classmethod
@@ -567,28 +567,28 @@ class Features:
         """depth under"""
         assert target is not None, "No coding pool for depth_under"
         _, tok, _ = target
-        return depth_under(tok)
+        return _depth_under(tok)
 
     @classmethod
     def _depth_above(cls, target=None):
         """depth above"""
         assert target is not None, "No coding pool for depth_above"
         _, tok, _ = target
-        return depth_above(tok)
+        return _depth_above(tok)
 
     @classmethod
     def _depth_prop(cls, target=None):
         """depth %"""
         assert target is not None, "No coding pool for depth_prop"
         _, tok, _ = target
-        return depth_prop(tok)
+        return _depth_prop(tok)
 
     @classmethod
     def _depth_subtree_prop(cls, target=None):
         """depth subtree %"""
         assert target is not None, "No coding pool for depth_subtree_prop"
         _, tok, _ = target
-        return depth_subtree_prop(tok)
+        return _depth_subtree_prop(tok)
 
     #
     # CATEGORICAL WORD FEATURES
@@ -627,4 +627,4 @@ class Features:
         # Recover the parent doc
         doc = tokens[0].doc
         # Average depth of all doc heads (can span several sentences)
-        return np.mean([depth_under(tok) for tok in doc if tok.head == tok])
+        return np.mean([_depth_under(tok) for tok in doc if tok.head == tok])
