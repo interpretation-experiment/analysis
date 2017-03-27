@@ -8,7 +8,6 @@ A few other utility functions that load data for the features are also defined.
 """
 
 
-# TODO: check docs
 # TODO: add equip capability
 # TODO: test
 
@@ -149,17 +148,30 @@ def _get_clearpond():
 
 @memoized
 def depth_under(tok):
+    """Depth of the sentence dependency tree under `tok`."""
+
     children_depths = [depth_under(child) for child in tok.children]
     return 0 if len(children_depths) == 0 else 1 + np.max(children_depths)
 
 
 @memoized
 def depth_above(tok):
+    """Depth of `tok` in its sentence's dependency tree."""
+
     return 0 if tok.head == tok else (1 + depth_above(tok.head))
 
 
 @memoized
 def depth_prop(tok):
+    """Depth of `tok` compared to the maximun depth of the sentence `tok` is
+    in.
+
+    Note that the document `tok` comes from can span several sentences, but
+    we're only returning the depth of `tok` as a fraction of the full depth of
+    the particular sentence `tok` is in.
+
+    """
+
     # Find the head of the sentence this token is in
     # (careful that tok.doc could span several sentences,
     # so we need our specific head)
@@ -173,6 +185,7 @@ def depth_prop(tok):
 
 @memoized
 def depth_subtree_prop(tok):
+    """Depth of `tok` compared to the maximun depth of tokens under it."""
     num = depth_above(tok)
     denom = (depth_above(tok) + depth_under(tok))
     if denom == 0:
@@ -195,23 +208,25 @@ class Features:
     Methods in this class fall into 3 categories:
 
     * Raw feature methods: they are :func:`~.utils.memoized` class methods of
-      the form `cls._feature_name(cls, word=None)`. Calling them with a `word`
-      returns either the feature value of that word, or `np.nan` if the word is
-      not encoded. Calling them with `word=None` returns the set of words
-      encoded by that feature (which is used to compute e.g. averages over the
-      pool of words encoded by that feature). Their docstring (which you will
-      see below if you're reading this in a web browser) is the short name used
-      to identify e.g. the feature's column in analyses in notebooks. These
-      methods are used internally by the class, to provide the next category of
-      methods.
-    * Useful feature methods that can be used in analyses: :meth:`features`,
-      :meth:`sentence_features`. These methods use the raw feature methods
-      (previous category) and the utility methods (next category) to compute
-      feature values (possibly relative to sentence).
-    * Private utility methods: :meth:`_transformed_feature`. These methods are
-      used by the previous category of methods.
+      the form `cls._feature_name(cls, target=None)`. In general, calling them
+      with `target=(tokens, tok, i)`, where `i` is the position of `tok` in
+      `tokens`, will give you `tok`'s feature. For some feature, you can call
+      directly with a `target=word`. In both those cases, `np.nan` is returned
+      if the target is not coded.  For some features, calling with
+      `target=None` returns the set of words encoded by that feature (which is
+      used to compute e.g. averages over the pool of words encoded by that
+      feature). Their docstring (which you will see below if you're reading
+      this in a web browser) is the short name used to identify e.g. the
+      feature's column in analyses in notebooks. These methods are used
+      internally by the class, to provide the next category of methods.
+    * Useful feature methods that can be used in analyses: :meth:`feature`,
+      :meth:`features`. These methods use the raw feature methods (previous
+      category) and the utility methods (next category) to compute feature
+      values (possibly relative to sentence).
+    * Private utility methods: :meth:`_transformed_word_feature`. These methods
+      are used by the previous category of methods.
 
-    Read the source of the first category (raw features) to know how exactly an
+    Read the source of the first category (raw features) to know exactly how an
     individual feature is computed. Read the docstrings (and source) of the
     second category (useful methods for analyses) to learn how to use this
     class in analyses. Read the docstrings (and source) of the third category
@@ -220,12 +235,9 @@ class Features:
 
     """
 
-    #: Association of available features to `(source_type, transform)` tuples:
-    #: `source_type` defines if a feature is computed on tokens or lemmas, and
-    #: `transform` defines how a feature value is transformed (for now either
-    #: identity or log) because of the shape of its distribution (see the
-    #: brainscopypaste `notebook/feature_distributions.ipynb` notebook for more
-    #: details).
+    #: Association of available word features to `transform` operation,
+    #: defining how a feature value is transformed (for now either identity or
+    #: log).
     WORD_FEATURES = {
         # feature_name:           transform
         'letters_count':          _identity,
@@ -244,11 +256,13 @@ class Features:
         'depth_subtree_prop':     _identity,
     }
 
+    #: List of categorical features defined on words.
     CATEGORICAL_WORD_FEATURES = {
         'POS'
         'dep'
     }
 
+    #: List of features defined on sentences.
     SENTENCE_FEATURES = {
         'relatedness',
         'dep_depth',
@@ -260,6 +274,27 @@ class Features:
 
     @memoized
     def feature(self, name, stopwords=_SW_INCLUDE):
+        """Compute feature `name` for this sentence.
+
+        Parameters
+        ----------
+        name : str
+            Name of the sentence feature to compute; can be a feature defined
+            directly on the sentence (one of :attr:`SENTENCE_FEATURES`), or
+            defined on the sentence's words and averaged (one of
+            :attr:`WORD_FEATURES`).
+        stopwords : {'include', 'exclude'}, optional
+            Whether or not to include stopwords in the computation of the
+            feature; note that some features (e.g. "dep depth") ignore this
+            setting.
+
+        Returns
+        -------
+        scalar
+            Feature value.
+
+        """
+
         # Check arguments
         assert name in (set(self.WORD_FEATURES.keys())
                         .union(self.SENTENCE_FEATURES))
@@ -278,40 +313,42 @@ class Features:
 
     @memoized
     def features(self, name, rel=None, stopwords=_SW_INCLUDE):
-        """Compute the feature values for all words in `self`, possibly
-        sentence-relative.
+        """Compute the feature values for all words in this sentence, possibly
+        sentence-relative, with or without stopwords.
 
         Feature values are transformed as explained in
         :meth:`_transformed_word_feature`.
 
-        If `sentence_relative` is not `None`, it indicates a NumPy function
-        used to aggregate word features in the sentence; this method then
-        returns the sentence feature values minus the corresponding aggregate
-        value. For instance, if `sentence_relative='median'`, this method
-        returns the sentence features minus the median of the sentence (words
-        valued at `np.nan` are ignored).
+        If `rel` is not `None`, it indicates a NumPy function used to aggregate
+        word features in the sentence; this method then returns the feature
+        values minus the corresponding aggregate value. For instance, if
+        `sentence_relative='median'`, this method returns the feature values
+        minus the median of the sentence (words valued at `np.nan` are
+        ignored). If `name` indicates a categorical feature, `rel` must be
+        `None` (else an exception is raised).
 
         The method is :func:`~.utils.memoized` since it is called so often.
 
         Parameters
         ----------
         name : str
-            Name of the feature for which to compute source and destination
-            values.
+            Name of the word feature to compute; must be one of
+            :attr:`WORD_FEATURES` or :attr:`CATEGORICAL_WORD_FEATURES`.
         rel : str, optional
             If not `None` (which is the default), return features relative to
             values of the sentence (with or without stopwords depending on
             `stopwords`) aggregated by this function; must be a name for which
             `np.nan<sentence_relative>` exists.
-        stopwords : str, optional
-            One of 'include' (default), 'nan', 'exclude', defining how to treat
-            stopwords.
+        stopwords : {'include', 'nan', 'exclude'}, optional
+            'include' keeps the stopwords; 'nan' replaces them with `np.nan`
+            values; 'exclude' removes their values from the final array.
 
         Returns
         -------
-        sentence_features : array of float
+        features : array of float
             Array of feature values (possibly sentence-relative) for each word
-            in the sentence. Non-coded words appear as `np.nan`.
+            in the sentence (with or without stopwords). Non-coded words appear
+            as `np.nan`.
 
         """
 
@@ -353,9 +390,9 @@ class Features:
         Some features have a very skewed distribution (e.g. exponential, where
         a few words are valued orders of magnitude more than the vast majority
         of words), so we use their log-transformed values in the analysis to
-        make them comparable to more regular features. The
-        :attr:`WORD_FEATURES` attribute defines which features are transformed
-        how (:attr:`CATEGORICAL_WORD_FEATURES` cannot be transformed). Given a
+        make them comparable to more regular features. :attr:`WORD_FEATURES`
+        defines which features are transformed how
+        (:attr:`CATEGORICAL_WORD_FEATURES` cannot be transformed). Given a
         feature `name`, this method will generate a function that proxies calls
         to the raw feature method, and transforms the value if necessary.
 
@@ -368,7 +405,8 @@ class Features:
             Name of the feature for which to create a function, without
             preceding underscore; for instance, call
             `cls._transformed_word_feature('aoa')` to get a function that uses
-            the :meth:`_aoa` class method.
+            the :meth:`_aoa` class method; must be one of
+            :attr:`WORD_FEATURES`.
 
         Returns
         -------
