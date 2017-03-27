@@ -132,7 +132,11 @@ def test_depth_subtree_prop(nlp):
 
 
 def test_features_feature(models):
-    sentence = models.Sentence(id=1, text="Some real words in a new sentence")
+    # Note the id here is necessary to make the Sentence instance hashable, but
+    # that value must not exist elsewhere, or a cached value will be used. We
+    # use negative values to avoid conflict with sentences from the database,
+    # and these values must be distinct for all tests here.
+    sentence = models.Sentence(id=-1, text="Some real words in a new sentence")
     # Test some values
     assert sentence.feature('aoa') == np.mean([4.95, 4.72, 5.84])
     assert sentence.feature('orthographic_density') == \
@@ -154,7 +158,11 @@ def test_features_feature(models):
 
 
 def test_features_features(models, nlp):
-    sentence = models.Sentence(id=1, text="Some real words in a new sentence")
+    # Note the id here is necessary to make the Sentence instance hashable, but
+    # that value must not exist elsewhere, or a cached value will be used. We
+    # use negative values to avoid conflict with sentences from the database,
+    # and these values must be distinct for all tests here.
+    sentence = models.Sentence(id=-2, text="Some real words in a new sentence")
     # Test some values
     assert nanequal(sentence.features('aoa'),
                     [np.nan, 4.95, np.nan, np.nan, np.nan, 4.72, 5.84])
