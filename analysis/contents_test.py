@@ -1,6 +1,16 @@
 from numpy.testing import assert_approx_equal
 
 
+def test_is_stopword():
+    # TODO
+    pass
+
+
+def test_doc_tokens():
+    # TODO
+    pass
+
+
 def test_equip_sentence_words(models):
     from django.conf import settings as django_settings
 

@@ -66,7 +66,7 @@ def language_model(n, type):
                     if tags:
                         sent_training.append(subword.pos_.upper())
                     else:
-                        sent_training.append(subword.orth_.lower())
+                        sent_training.append(subword.lower_)
             else:
                 if doc[0].is_punct or doc[0].is_space:
                     continue

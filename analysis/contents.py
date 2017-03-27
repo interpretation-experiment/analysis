@@ -13,6 +13,13 @@ def is_stopword(tok):
             or tok.lemma_ in nlp.Defaults.stop_words)
 
 
+@memoized
+def doc_tokens(doc):
+    tokens = [tok for tok in doc
+              if not tok.is_punct and not tok.is_space]
+    return tuple(tokens)
+
+
 def equip_sentence_words(models):
     """Define sentence content-related word accessors.
 
@@ -30,9 +37,7 @@ def equip_sentence_words(models):
 
     @memoized
     def get_tokens(self):
-        tokens = [tok for tok in nlp(self.text)
-                  if not tok.is_punct and not tok.is_space]
-        return tuple(tokens)
+        return tuple(doc_tokens(nlp(self.text)))
 
     def get_words(self):
         return tuple(tok.lower_ for tok in self.tokens)

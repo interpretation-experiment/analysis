@@ -8,10 +8,12 @@ A few other utility functions that load data for the features are also defined.
 """
 
 
-# TODO: deal with word and sentence features
+# TODO: check docs
 # TODO: add equip capability
+# TODO: test
 
 
+import itertools
 import logging
 from csv import DictReader, reader as csvreader
 import warnings
@@ -19,9 +21,11 @@ import functools
 
 import numpy as np
 from nltk.corpus import cmudict
+from scipy import spatial
 
-from utils import memoized
-import settings
+from .contents import doc_tokens
+from .utils import memoized, unpickle
+from . import settings
 
 
 logger = logging.getLogger(__name__)
@@ -143,6 +147,47 @@ def _get_clearpond():
             'phonological': clearpond_phonological}
 
 
+@memoized
+def depth_under(tok):
+    children_depths = [depth_under(child) for child in tok.children]
+    return 0 if len(children_depths) == 0 else 1 + np.max(children_depths)
+
+
+@memoized
+def depth_above(tok):
+    return 0 if tok.head == tok else (1 + depth_above(tok.head))
+
+
+@memoized
+def depth_prop(tok):
+    # Find the head of the sentence this token is in
+    # (careful that tok.doc could span several sentences,
+    # so we need our specific head)
+    head = tok
+    while head.head != head:
+        head = head.head
+    depth_under_head = depth_under(head)
+    return (depth_above(tok) / depth_under_head
+            if depth_under_head != 0 else np.nan)
+
+
+@memoized
+def depth_subtree_prop(tok):
+    num = depth_above(tok)
+    denom = (depth_above(tok) + depth_under(tok))
+    if denom == 0:
+        if num == 0:
+            return 0.0
+        else:
+            return np.nan
+    else:
+        return num / denom
+
+
+def _identity(arg):
+    return arg
+
+
 class Features:
 
     """Feature loading and computing.
@@ -181,21 +226,63 @@ class Features:
     #: identity or log) because of the shape of its distribution (see the
     #: brainscopypaste `notebook/feature_distributions.ipynb` notebook for more
     #: details).
-    __features__ = {
-        # feature_name:           (source_type, transform)
-        'letters_count':          ('orth_', lambda x: x),
-        'aoa':                    ('lemma_', lambda x: x),
-        'zipf_frequency':         ('orth_', lambda x: x),
-        'orthographic_density':   ('orth_', np.log),
+    WORD_FEATURES = {
+        # feature_name:           transform
+        'letters_count':          _identity,
+        'aoa':                    _identity,
+        'zipf_frequency':         _identity,
+        'orthographic_density':   np.log,
+        '1_gram_word':            _identity,
+        '2_gram_word':            _identity,
+        '3_gram_word':            _identity,
+        '1_gram_tag':             _identity,
+        '2_gram_tag':             _identity,
+        '3_gram_tag':             _identity,
+        'depth_under':            _identity,
+        'depth_above':            _identity,
+        'depth_prop':             _identity,
+        'depth_subtree_prop':     _identity,
     }
 
+    CATEGORICAL_WORD_FEATURES = {
+        'POS'
+        'dep'
+    }
+
+    SENTENCE_FEATURES = {
+        'relatedness',
+        'dep_depth',
+    }
+
+    _SW_INCLUDE = 'include'
+    _SW_NAN = 'nan'
+    _SW_EXCLUDE = 'exclude'
+
     @memoized
-    def sentence_features(self, name, doc, sentence_relative=None):
-        """Compute the feature values for all words in `doc`, possibly
+    def feature(self, name, stopwords=_SW_INCLUDE):
+        # Check arguments
+        assert name in (set(self.WORD_FEATURES.keys())
+                        .union(self.SENTENCE_FEATURES))
+        from_words = name in self.WORD_FEATURES
+        # self._SW_NAN is redundant with self._SW_EXCLUDE here, so we don't
+        # allow it
+        assert stopwords in [self._SW_INCLUDE, self._SW_EXCLUDE]
+
+        if from_words:
+            return np.nanmean(self.features(name, stopwords=stopwords))
+
+        tokens = (self.content_tokens
+                  if stopwords == self._SW_EXCLUDE else self.tokens)
+        feature = getattr(self, '_' + name)
+        return feature(tokens)
+
+    @memoized
+    def features(self, name, rel=None, stopwords=_SW_INCLUDE):
+        """Compute the feature values for all words in `self`, possibly
         sentence-relative.
 
         Feature values are transformed as explained in
-        :meth:`_transformed_feature`.
+        :meth:`_transformed_word_feature`.
 
         If `sentence_relative` is not `None`, it indicates a NumPy function
         used to aggregate word features in the sentence; this method then
@@ -211,12 +298,14 @@ class Features:
         name : str
             Name of the feature for which to compute source and destination
             values.
-        doc : spacy.Doc
-            The spaCy doc representing the sentence.
-        sentence_relative : str, optional
+        rel : str, optional
             If not `None` (which is the default), return features relative to
-            values of their corresponding sentence aggregated by this function;
-            must be a name for which `np.nan<sentence_relative>` exists.
+            values of the sentence (with or without stopwords depending on
+            `stopwords`) aggregated by this function; must be a name for which
+            `np.nan<sentence_relative>` exists.
+        stopwords : str, optional
+            One of 'include' (default), 'nan', 'exclude', defining how to treat
+            stopwords.
 
         Returns
         -------
@@ -226,80 +315,47 @@ class Features:
 
         """
 
-        if name not in self.__features__:
-            raise ValueError("Unknown feature: '{}'".format(name))
+        # Check arguments
+        assert name in (set(self.WORD_FEATURES.keys())
+                        .union(self.CATEGORICAL_WORD_FEATURES))
+        categorical = name in self.CATEGORICAL_WORD_FEATURES
+        assert rel is None or hasattr(np, 'nan' + rel)
+        assert stopwords in [self._SW_INCLUDE, self._SW_NAN, self._SW_EXCLUDE]
 
-        # Get the sentence orth_'s or lemma_'s,
-        # depending on the requested feature.
-        source_type, _ = self.__features__[name]
-        sentence_words = [getattr(w, source_type).lower() for w in doc]
+        # Compute the features
+        tokens = (self.content_tokens
+                  if stopwords == self._SW_EXCLUDE else self.tokens)
+        feature = (self._transformed_feature(name)
+                   if not categorical else getattr(self, '_' + name))
+        values = np.array([feature((tokens, tok, i))
+                           for i, tok in enumerate(tokens)],
+                          dtype=np.float_)
+        if stopwords == self._SW_NAN:
+            values = [v if i in self.content_ids else np.nan
+                      for i, v in enumerate(values)]
 
-        # Compute the features.
-        feature = self._transformed_feature(name)
-        sentence_features = np.array([feature(word) for word
-                                      in sentence_words],
-                                     dtype=np.float_)
-
-        if sentence_relative is not None:
-            pool = getattr(np, 'nan' + sentence_relative)
+        if rel is not None:
+            assert not categorical, ("Categorical features can't "
+                                     "be sentence-relative")
+            pool = getattr(np, 'nan' + rel)
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', category=RuntimeWarning)
-                sentence_features -= pool(sentence_features)
+                values -= pool(values)
 
-        return sentence_features
-
-    @memoized
-    def feature(self, name, doc, i, sentence_relative=None):
-        """Compute feature `name` for the `i`-th word of `doc`, possibly
-        sentence-relative.
-
-        Feature values are transformed as explained in
-        :meth:`_transformed_feature`.
-
-        If `sentence_relative` is not `None`, it indicates a NumPy function
-        used to aggregate word features in the sentence; this method then
-        returns the word feature value minus the corresponding aggregate value.
-        For instance, if `sentence_relative='median'`, this method returns the
-        word feature minus the median of the sentence (words valued at `np.nan`
-        are ignored).
-
-        The method is :func:`~.utils.memoized` since it is called so often.
-
-        Parameters
-        ----------
-        name : str
-            Name of the feature for which to compute the value.
-        doc : spacy.Doc
-            The spaCy doc representing the sentence.
-        i : int
-            Index of the word in `doc` to look at.
-        sentence_relative : str, optional
-            If not `None` (which is the default), return feature relative to
-            values of the sentence aggregated by this function; must be a name
-            for which `np.nan<sentence_relative>` exists.
-
-        Returns
-        -------
-        tuple of float
-            Feature value (possibly sentence-relative) of the word.
-
-        """
-
-        return self.sentence_features(name, doc,
-                                      sentence_relative=sentence_relative)[i]
+        return values
 
     @classmethod
     @memoized
-    def _transformed_feature(cls, name):
-        """Get a function computing feature `name`, transformed as defined by
-        :attr:`__features__`.
+    def _transformed_word_feature(cls, name):
+        """Get a function computing word feature `name`, transformed as defined
+        by :attr:`WORD_FEATURES`.
 
         Some features have a very skewed distribution (e.g. exponential, where
         a few words are valued orders of magnitude more than the vast majority
         of words), so we use their log-transformed values in the analysis to
-        make them comparable to more regular features. The :attr:`__features__`
-        attribute (which appears in the source code but not in the web version
-        of these docs) defines which features are transformed how. Given a
+        make them comparable to more regular features. The
+        :attr:`WORD_FEATURES` attribute defines which features are transformed
+        how (:attr:`CATEGORICAL_WORD_FEATURES` cannot be transformed). Given a
         feature `name`, this method will generate a function that proxies calls
         to the raw feature method, and transforms the value if necessary.
 
@@ -311,29 +367,32 @@ class Features:
         name : str
             Name of the feature for which to create a function, without
             preceding underscore; for instance, call
-            `cls._transformed_feature('aoa')` to get a function that uses the
-            :meth:`_aoa` class method.
+            `cls._transformed_word_feature('aoa')` to get a function that uses
+            the :meth:`_aoa` class method.
 
         Returns
         -------
         feature : function
-            The feature function, with signature `feature(word=None)`. Call
-            `feature()` to get the set of words encoded by that feature. Call
-            `feature(word)` to get the transformed feature value of `word` (or
-            `np.nan` if `word` is not coded by that feature).
+            The feature function, with signature `feature(target=None)`. For
+            some features, call `feature()` to get the set of words encoded by
+            that feature. In general, call `feature((tokens, tok, i))`, where
+            `i` is the index of `tok` in `tokens`, to get the transformed
+            feature value of `tok`. For some features (those that don't depend
+            on the sentence), you can call directly `feature(word)` to get the
+            transformed feature value of `word`. In all cases, `np.nan` is
+            returned if `word` or `tok` is not coded by that feature.
 
         """
 
-        if name not in cls.__features__:
-            raise ValueError("Unknown feature: '{}'".format(name))
+        assert name in cls.WORD_FEATURES
         _feature = getattr(cls, '_' + name)
-        _, transform = cls.__features__[name]
+        transform = cls.WORD_FEATURES[name]
 
-        def feature(word=None):
-            if word is None:
+        def feature(target=None):
+            if target is None:
                 return _feature()
             else:
-                return transform(_feature(word))
+                return transform(_feature(target))
 
         # Set the right docstring and name on the transformed feature function.
         functools.update_wrapper(feature, _feature)
@@ -343,38 +402,187 @@ class Features:
 
         return feature
 
+    #
+    # WORD FEATURES
+    #
+
     @classmethod
     @memoized
-    def _letters_count(cls, word=None):
+    def _letters_count(cls, target=None):
         """#letters"""
-        if word is None:
+        if target is None:
             # Return the keys of the frequency data
             return _get_zipf_frequency().keys()
+        if isinstance(target, str):
+            word = target
+        else:
+            _, tok, _ = target
+            word = tok.lower_
         return len(word)
 
     @classmethod
     @memoized
-    def _aoa(cls, word=None):
+    def _aoa(cls, target=None):
         """age of acquisition"""
         aoa = _get_aoa()
-        if word is None:
+        if target is None:
             return aoa.keys()
+        if isinstance(target, str):
+            word = target
+        else:
+            _, tok, _ = target
+            word = tok.lower_
         return aoa.get(word, np.nan)
 
     @classmethod
     @memoized
-    def _zipf_frequency(cls, word=None):
+    def _zipf_frequency(cls, target=None):
         """zipf frequency"""
         frequency = _get_zipf_frequency()
-        if word is None:
+        if target is None:
             return frequency.keys()
+        if isinstance(target, str):
+            word = target
+        else:
+            _, tok, _ = target
+            word = tok.lower_
         return frequency.get(word, np.nan)
 
     @classmethod
     @memoized
-    def _orthographic_density(cls, word=None):
+    def _orthographic_density(cls, target=None):
         """orthographic nd"""
         clearpond_orthographic = _get_clearpond()['orthographic']
-        if word is None:
+        if target is None:
             return clearpond_orthographic.keys()
+        if isinstance(target, str):
+            word = target
+        else:
+            _, tok, _ = target
+            word = tok.lemma_
         return clearpond_orthographic.get(word, np.nan) or np.nan
+
+    @classmethod
+    @memoized
+    def _ngram_logprob(cls, model_n, model_type, target):
+        assert model_n in (1, 2, 3)
+        assert model_type in ('word', 'tag')
+        tags = (model_type == 'tag')
+        model = unpickle(settings.MODEL_TEMPLATE.format(n=model_n,
+                                                        type=model_type))
+        assert target is not None, "No coding pool for ngrams probs"
+        _, target_tok, position = target
+
+        # Since most Gistr sentences actually are single sentences,
+        # treat the doc as a single sentence
+        # (vs. averaging the scores of multiple sentences)
+        data = []
+        for tok in doc_tokens(target_tok.doc)[:position + 1]:
+            if tags:
+                data.append(tok.pos_.upper())
+            else:
+                data.append(tok.lower_)
+
+        data = list(model._lpad) + data
+        data_position = len(model._lpad) + position
+        context = tuple(data[data_position - model_n + 1:data_position])
+        final_tok = data[data_position]
+        assert target_tok == final_tok
+        return (- model.logprob(final_tok, context))
+
+    @classmethod
+    def _1_gram_word(cls, target=None):
+        """1-gram word logprob"""
+        return cls._ngram_logprob(1, 'word', target)
+
+    @classmethod
+    def _2_gram_word(cls, target=None):
+        """2-gram word logprob"""
+        return cls._ngram_logprob(2, 'word', target)
+
+    @classmethod
+    def _3_gram_word(cls, target=None):
+        """3-gram word logprob"""
+        return cls._ngram_logprob(3, 'word', target)
+
+    @classmethod
+    def _1_gram_tag(cls, target=None):
+        """1-gram tag logprob"""
+        return cls._ngram_logprob(1, 'tag', target)
+
+    @classmethod
+    def _2_gram_tag(cls, target=None):
+        """2-gram tag logprob"""
+        return cls._ngram_logprob(2, 'tag', target)
+
+    @classmethod
+    def _3_gram_tag(cls, target=None):
+        """3-gram tag logprob"""
+        return cls._ngram_logprob(3, 'tag', target)
+
+    @classmethod
+    def _depth_under(cls, target=None):
+        """depth under"""
+        assert target is not None, "No coding pool for depth_under"
+        _, tok, _ = target
+        return depth_under(tok)
+
+    @classmethod
+    def _depth_above(cls, target=None):
+        """depth above"""
+        assert target is not None, "No coding pool for depth_above"
+        _, tok, _ = target
+        return depth_above(tok)
+
+    @classmethod
+    def _depth_prop(cls, target=None):
+        """depth %"""
+        assert target is not None, "No coding pool for depth_prop"
+        _, tok, _ = target
+        return depth_prop(tok)
+
+    @classmethod
+    def _depth_subtree_prop(cls, target=None):
+        """depth subtree %"""
+        assert target is not None, "No coding pool for depth_subtree_prop"
+        _, tok, _ = target
+        return depth_subtree_prop(tok)
+
+    #
+    # CATEGORICAL WORD FEATURES
+    #
+
+    @classmethod
+    def _POS(cls, target=None):
+        """POS"""
+        assert target is not None, "No coding pool for POS"
+        _, tok, _ = target
+        return tok.pos
+
+    @classmethod
+    def _dep(cls, target=None):
+        """dep"""
+        assert target is not None, "No coding pool for dep"
+        _, tok, _ = target
+        return tok.dep
+
+    #
+    # SENTENCE FEATURES
+    #
+
+    @classmethod
+    @memoized
+    def _relatedness(cls, tokens):
+        """relatedness"""
+        tokens = [t for t in tokens if t.has_vector]
+        return np.mean([spatial.distance.cosine(t1.vector, t2.vector)
+                        for t1, t2 in itertools.combinations(tokens, 2)])
+
+    @classmethod
+    @memoized
+    def _dep_depth(cls, tokens):
+        """dep depth"""
+        # Recover the parent doc
+        doc = tokens[0].doc
+        # Average depth of all doc heads (can span several sentences)
+        return np.mean([depth_under(tok) for tok in doc if tok.head == tok])
