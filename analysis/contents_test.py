@@ -1,14 +1,20 @@
 from numpy.testing import assert_approx_equal
 
-
-def test_is_stopword():
-    # TODO
-    pass
+from . import contents
 
 
-def test_doc_tokens():
-    # TODO
-    pass
+def test_is_stopword(nlp):
+    doc = nlp("These were not real")
+    assert [t.is_stop for t in doc] == \
+        [False, False, False, False]
+    assert [contents.is_stopword(t) for t in doc] == \
+        [True, True, True, False]
+
+
+def test_doc_tokens(nlp):
+    doc = nlp("A word,   and another!")
+    assert [t.lower_ for t in contents.doc_tokens(doc)] == \
+        ['a', 'word', 'and', 'another']
 
 
 def test_equip_sentence_words(models):
