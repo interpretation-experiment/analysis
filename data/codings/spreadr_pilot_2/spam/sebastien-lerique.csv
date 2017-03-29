@@ -1,0 +1,214 @@
+id,bucket,is_root,spam,text,parent_text
+4,experiment,True,,The biggest challenge of the 21st century is the irony of technologies of abundance in the hands of those thinking in terms of scarcity,
+5,experiment,True,,This is the most serious financial situation we have known in generations,
+6,experiment,True,,Children from slum backgrounds are a potential menace to our society,
+7,experiment,True,,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto",
+8,experiment,True,,"It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life",
+9,experiment,True,,"This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty",
+10,experiment,True,,Dinosaurs and humans walked the earth at the same time,
+11,experiment,True,,"No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur",
+12,experiment,True,,"All horses have hooves, and no humans have hooves, therefore some humans are not horses",
+13,experiment,True,,"All squares are rectangles, and all squares are rhombuses, therefore some rhombuses are rectangles",
+14,experiment,False,0,"All squares are rectangles, and all squares are rhombuses, therefore some rhombuses are rectangles","All squares are rectangles, and all squares are rhombuses, therefore some rhombuses are rectangles"
+15,experiment,False,0,"All squares are rectangles, all squares are rhombuses. Therefore, some squares are rhombuses.","All squares are rectangles, and all squares are rhombuses, therefore some rhombuses are rectangles"
+16,experiment,False,0,Children from slum backgrounds are a potential menace to our society,Children from slum backgrounds are a potential menace to our society
+17,experiment,False,0,"No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur","No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur"
+18,experiment,False,0,Dinosaurs and humans walked the earth at the same time,Dinosaurs and humans walked the earth at the same time
+19,experiment,False,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+20,experiment,False,0,The biggest challenge of the 21st century is the irony of technology of abundance in the hands of those who think in terms of scarcity,The biggest challenge of the 21st century is the irony of technologies of abundance in the hands of those thinking in terms of scarcity
+21,experiment,False,0,"All horses have hooves, and no humans have hooves, therefore some humans are not horses","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+22,experiment,False,0,The biggest challenge of the 21t century is the irony of technologies of abudences of those thinking in terms of scarcity.,The biggest challenge of the 21st century is the irony of technologies of abundance in the hands of those thinking in terms of scarcity
+23,experiment,False,0,"All horses have hooves, and no humans have hooves, therefore some humans are not horses","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+24,experiment,False,0,This is the most serious financial situation we have known in generations,This is the most serious financial situation we have known in generations
+25,experiment,False,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+26,experiment,False,0,Children from slum backgrounds are a potential menace to our society.,Children from slum backgrounds are a potential menace to our society
+27,experiment,False,0,"This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't change that, we have to decide whether he's innocent or guilty","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty"
+28,experiment,False,0,Dinosaurs and humans walked the earth at the same time,Dinosaurs and humans walked the earth at the same time
+29,experiment,False,0,Children from slum backgrounds are a potential menace to our society,Children from slum backgrounds are a potential menace to our society
+30,experiment,False,0,"This boy lets say he's the product of a broken home and a filthy neighbourhood, we can't help that. We get to decide whether he's guilty or innocent.","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty"
+31,experiment,False,0,"This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty"
+32,experiment,False,0,The biggest challenge of the 21t century is the irony of those thinking in terms of abudences in the challenges of scarcity,The biggest challenge of the 21t century is the irony of technologies of abudences of those thinking in terms of scarcity.
+33,experiment,False,0,"They want to keep it all for themselves and I don't blame them, but it ends up becoming a rich ghetto.","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+34,experiment,False,0,Dinosaurs and humans walked the earth at the same time,Dinosaurs and humans walked the earth at the same time
+35,experiment,False,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+36,experiment,False,0,"It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+37,experiment,False,0,"No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur.","No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur"
+38,experiment,False,0,"It's not just for work, it's not just for play. We think it's the one phone you can use for your entire life.","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+39,experiment,False,0,Dinosaurs and humans walked the Earth at the same time,Dinosaurs and humans walked the earth at the same time
+40,experiment,False,0,"This boy, lets say he's the product of a broken home and a filthy neighbourhood, we can't change that.  We have to decide if he's innocent or guilty.","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't change that, we have to decide whether he's innocent or guilty"
+41,experiment,False,0,The biggest challenge of the 21st century is the irony of technology in abundance,The biggest challenge of the 21st century is the irony of technologies of abundance in the hands of those thinking in terms of scarcity
+42,experiment,False,0,"All squares are rectangles and all squares and rhombuses, therefore some rectangles are rhombuses.","All squares are rectangles, and all squares are rhombuses, therefore some rhombuses are rectangles"
+43,experiment,False,0,"All squares are rhombuses, and all rhombuses are squares, therefore some rhombuses are rectangles","All squares are rectangles, and all squares are rhombuses, therefore some rhombuses are rectangles"
+44,experiment,False,0,"no reptiles have fur, and all snakes are reptiles, therefor no snakes have fur.","No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur"
+45,experiment,False,0,Children from slum backgrounds are a potential menace to our society,Children from slum backgrounds are a potential menace to our society
+46,experiment,False,0,This is the most serious financial situation we have known for generations.,This is the most serious financial situation we have known in generations
+47,experiment,False,0,The biggest challenge of the 21st century is the irony of technology in abundance,The biggest challenge of the 21st century is the irony of technology in abundance
+48,experiment,False,0,"This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty"
+49,experiment,False,0,"All horses have hooves and no humans have hooves, therefore some humans are not horses.","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+50,experiment,False,0,It's not just for work. It's not just for play. We think it's the one phone that you can use your entire life,"It's not just for work, it's not just for play. We think it's the one phone you can use for your entire life."
+51,experiment,False,0,"All squares are rectangles, some squares are rhombuses.  Therefore all squares are rhombuses.","All squares are rectangles, all squares are rhombuses. Therefore, some squares are rhombuses."
+52,experiment,False,0,"They want to keep it all for themselves and I don't blame them, but it ends up becoming a rich ghetto.","They want to keep it all for themselves and I don't blame them, but it ends up becoming a rich ghetto."
+53,experiment,False,0,The biggest challenge of the 21st century is the irony of technological abundance in the hands of those who think in terms of scarcity,The biggest challenge of the 21st century is the irony of technology of abundance in the hands of those who think in terms of scarcity
+54,experiment,False,0,the biggest challenge of the 21st century is the irony of technology in abundance,The biggest challenge of the 21st century is the irony of technology in abundance
+55,experiment,False,0,"they want to keep it all for themselves and i don't blame them, but it ends up becoming a rich ghetto.","They want to keep it all for themselves and I don't blame them, but it ends up becoming a rich ghetto."
+56,experiment,False,0,Children from slum backgrounds are a potential menace to our society.,Children from slum backgrounds are a potential menace to our society.
+57,experiment,False,0,"All horses have hooves, no humans have hooves. Therefore, some humans are not horses.","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+58,experiment,False,0,This is the most serious financial situation we have known for generations,This is the most serious financial situation we have known for generations.
+59,experiment,False,0,Children from slum backgrounds are a potential menace to our society,Children from slum backgrounds are a potential menace to our society
+60,experiment,False,0,"It's not just for work, it's not just for play. We think it's the one phone you can use for y our entire life.","It's not just for work, it's not just for play. We think it's the one phone you can use for your entire life."
+61,experiment,False,0,dinosaurs and humans walked the earth at the same time,Dinosaurs and humans walked the earth at the same time
+62,experiment,False,0,"All horses have hooves, and no humans have hooves, therefore some humans are not horses","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+63,experiment,False,0,"All horses have hooves, and no humans have hooves, therefore some humans are not horses","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+64,experiment,False,0,"No reptiles have fur and no snakes have fur, therefore no snakes are reptiles.","no reptiles have fur, and all snakes are reptiles, therefor no snakes have fur."
+65,experiment,False,0,This is the most serious financial situation we have known for generations,This is the most serious financial situation we have known in generations
+66,experiment,False,0,"This boy let's say he's the product of a broken home and a filthy neighbourhood, we can't help that. We get to decide whether he's guilty or innocent.","This boy lets say he's the product of a broken home and a filthy neighbourhood, we can't help that. We get to decide whether he's guilty or innocent."
+67,experiment,False,0,"No reptiles have fur. No snakes are reptiles. Therefore, no snakes have fur.","No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur."
+68,experiment,False,0,"No reptiles have fur, all snakes are reptiles, so no snakes have fur.","no reptiles have fur, and all snakes are reptiles, therefor no snakes have fur."
+69,experiment,False,0,"this boy is the product of a broken home, we can't help that. but we have to judge whether he is innocent or guilty.","This boy lets say he's the product of a broken home and a filthy neighbourhood, we can't help that. We get to decide whether he's guilty or innocent."
+70,experiment,False,0,"no snakes have fur, and all snakes are reptiles, therfor no reptiles have fur","no reptiles have fur, and all snakes are reptiles, therefor no snakes have fur."
+71,experiment,False,0,children from slum backgrounds are a potential menace to our society,Children from slum backgrounds are a potential menace to our society
+72,experiment,False,0,This is the most serious financial situation that we have known in generations,This is the most serious financial situation we have known in generations
+73,experiment,False,0,"they want to keep it all for themselves, and I can't blame them.  It ends up becoming a  rich ghetto","they want to keep it all for themselves and i don't blame them, but it ends up becoming a rich ghetto."
+74,experiment,False,0,The biggest challenge of the 21st century is the irony of technology in abundance,The biggest challenge of the 21st century is the irony of technology in abundance
+75,experiment,False,0,"All squares are rhombuses and all rhombuses are squares, therefore some rhombuses are rectangles.","All squares are rhombuses, and all rhombuses are squares, therefore some rhombuses are rectangles"
+76,experiment,False,0,Dinosaurs and humans walked the earth at the same time.,Dinosaurs and humans walked the earth at the same time
+77,experiment,False,0,Children from slum backgrounds are a potential menace to our society,Children from slum backgrounds are a potential menace to our society
+78,experiment,False,0,"It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life.","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+79,experiment,False,0,This is the most serious financial situation we have known for  generations,This is the most serious financial situation we have known for generations
+80,experiment,False,0,"it's not just for work, it's not just for play, we think it's the one phone for the future","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+81,experiment,False,0,Children from slum backgrounds are potentially a menace to our society,Children from slum backgrounds are a potential menace to our society
+82,experiment,False,0,"No snakes have fur, and all reptiles have fur, therefore no snakes are reptiles","no snakes have fur, and all snakes are reptiles, therfor no reptiles have fur"
+83,experiment,False,0,Dinosaurs and humans walked the earth at the same time.,Dinosaurs and humans walked the earth at the same time.
+84,experiment,False,0,all squares are rhombuses and all rhombuses are squares thefore some rhombuses are rectangles,"All squares are rhombuses, and all rhombuses are squares, therefore some rhombuses are rectangles"
+85,experiment,False,0,"No snakes have fur and all snakes are reptiles, therefore all reptiles have fur","no snakes have fur, and all snakes are reptiles, therfor no reptiles have fur"
+86,experiment,False,0,"It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+87,experiment,False,0,children from slum backgrounds are a potential menace to our society,children from slum backgrounds are a potential menace to our society
+88,experiment,False,0,Dinosaurs and humans walked the Earth at the same time.,Dinosaurs and humans walked the earth at the same time.
+89,experiment,False,0,Dinosaurs and humans walked the Earth at the same time,Dinosaurs and humans walked the earth at the same time.
+90,experiment,False,0,it is not just for work it is just not for play we think it is the phone to use for your entire life.,"It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+91,experiment,False,0,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+92,experiment,False,0,"It's not just for work, it's not just for play, we think it's the phone of the future","it's not just for work, it's not just for play, we think it's the one phone for the future"
+93,experiment,False,0,The greatest challenge of the 21st century is the irony of those thinking in terms of abundances in times of scarcity.,The biggest challenge of the 21t century is the irony of those thinking in terms of abudences in the challenges of scarcity
+94,experiment,False,0,"All squares are rhombuses and all rhombuses are squares, therefore some squares are rectangles.","All squares are rhombuses and all rhombuses are squares, therefore some rhombuses are rectangles."
+95,experiment,False,0,"They want to keep it all for themselves and I don't blame them, but it ends up being a rich ghetto.","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+96,experiment,False,0,"All squares are rhombuses and rhombuses are squares, some rhombuses are rectangles","All squares are rhombuses and all rhombuses are squares, therefore some rhombuses are rectangles."
+97,experiment,False,0,Dinosaurs and humans walked the earth at the same time.,Dinosaurs and humans walked the Earth at the same time
+98,experiment,False,0,"all squares are rhombuses and all rectangles are rhombuses, therefore all rectangles are rhombuses","All squares are rectangles and all squares and rhombuses, therefore some rectangles are rhombuses."
+99,experiment,False,0,"this boy is the product of a broken home, we can't help that, but we have to judge if he is innocent or guilty","this boy is the product of a broken home, we can't help that. but we have to judge whether he is innocent or guilty."
+100,experiment,False,0,"they want to keep it all for themselves, and I dont blame them but it all ends up being a rich ghetto","They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+101,experiment,False,0,no reptiles have fur all snakes are reptiles therefore no snakes have fur,"No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur"
+102,experiment,False,0,The biggest challenge of the 21st Century is those thinking in terms of abundances instead of in terms of scarcity,The biggest challenge of the 21t century is the irony of those thinking in terms of abudences in the challenges of scarcity
+103,experiment,False,0,They want to keep it all for themselves. I don't blame them. It ends up a rich ghetto,"They want to keep it all for themselves, and I don't blame them, but it ends up being a rich ghetto"
+104,experiment,False,0,"All squares are rhombuses and some rhombuses are squares, therefore some rhombuses are rectangles","All squares are rhombuses and all rhombuses are squares, therefore some rhombuses are rectangles."
+105,experiment,False,0,this is the most serious financial situation that we have known in generations,This is the most serious financial situation that we have known in generations
+106,experiment,False,0,dinosaurs and reptiles walked the earth at the same time,Dinosaurs and humans walked the Earth at the same time
+107,experiment,False,0,"This boy, the product of a broken home and filthy neighbourhood, we can't help that, we get to decide if he's innocent or guilty.","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty"
+108,experiment,False,0,"all squares are rectangles, some squares are rhombuses, therefore all squares are rhombuses.","All squares are rectangles, some squares are rhombuses.  Therefore all squares are rhombuses."
+109,experiment,False,0,"no reptiles have fur, all snakes have no fur, therefore snakes are reptiles",no reptiles have fur all snakes are reptiles therefore no snakes have fur
+110,experiment,False,0,"All horses have hooves, all humans have hooves.  Therefore, some humans are horses","All horses have hooves, no humans have hooves. Therefore, some humans are not horses."
+111,experiment,False,0,"this boy lets say he's the product of a filthy home and neighborhood, we can't help that, but we  get to decide if hes innocent or guilty","This boy, let's say he's the product of a broken home and a filthy neighbourhood, we can't help that, we get to decide whether he's innocent or guilty"
+112,experiment,False,0,"All squares are rectangles, some squares are rhombuses. Therefore all squares are rhombuses.","All squares are rectangles, some squares are rhombuses.  Therefore all squares are rhombuses."
+113,experiment,False,0,This is the most serious financial situation we have known in generations,This is the most serious financial situation that we have known in generations
+114,experiment,False,0,This is the most serious financial situation we have known for generations.,This is the most serious financial situation we have known for  generations
+115,experiment,False,0,"This boy, he's the product of a broken home and filthy neighbourhood. We have to decide if he's innocent or guilty. We can't change it.","This boy, lets say he's the product of a broken home and a filthy neighbourhood, we can't change that.  We have to decide if he's innocent or guilty."
+116,experiment,False,0,this is the most serious financial situation we have seen in decades,This is the most serious financial situation we have known for  generations
+117,experiment,False,0,This is the most serious financial situation we have known for decades,This is the most serious financial situation we have known for  generations
+118,experiment,False,0,"no reptiles have fur, all snakes are reptiles, therfore no snakes have fur",no reptiles have fur all snakes are reptiles therefore no snakes have fur
+119,experiment,False,0,dinosaurs and humans walked the earth at the same time,dinosaurs and humans walked the earth at the same time
+120,experiment,False,0,the biggest challenge of the 21st century is the irony of technology from those who believe in scarcity,The biggest challenge of the 21st century is the irony of technological abundance in the hands of those who think in terms of scarcity
+121,experiment,False,0,"its not just for work, its not just for play, we think its the one phone you can use for your entire life","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life."
+122,experiment,False,0,"All horses have hooves, no humans have hooves. Some humans are not horses","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+123,experiment,False,0,"It's not just for work, it's not just for play.  We think it's the one phone you can use for life","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life."
+124,experiment,False,0,"This boy, let's say he's the product of a broken home or a filthy neighbourhood. We can't change that. We have to decide if he's innocent or guilty.","This boy, lets say he's the product of a broken home and a filthy neighbourhood, we can't change that.  We have to decide if he's innocent or guilty."
+125,experiment,False,0,all sqaures are rectangles some rectangles are rhombuses therefore some sqaures are rhombuses,"all squares are rectangles, some squares are rhombuses, therefore all squares are rhombuses."
+126,experiment,False,0,"all horses have hooves, and no humans have hooves, therefore some humans are horses","All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+127,experiment,False,0,"all horses have hooves, all humans have hooves, therefore some humans are horses","All horses have hooves, all humans have hooves.  Therefore, some humans are horses"
+128,experiment,False,0,all horses have hooves and no humans have hooves thefore some humans are not horses,"All horses have hooves, and no humans have hooves, therefore some humans are not horses"
+129,experiment,False,0,Dinosaurs and humans walked the earth at the same time.,Dinosaurs and humans walked the earth at the same time.
+130,experiment,False,0,"It's not just for work, it's not just for play, we think it's the one phone you can use your entire life","It's not just for work, it's not just for play, we think it's the one phone you can use for your entire life"
+131,experiment,False,0,children from slum backgrounds are potentially a menace to society,Children from slum backgrounds are potentially a menace to our society
+132,experiment,False,0,this is the most serious financial situation that we have known in generations,this is the most serious financial situation that we have known in generations
+133,experiment,False,0,"No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur.","No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur"
+134,experiment,False,0,"all horses have hooves, humans do not have hooves, therefore no humans are horses","All horses have hooves and no humans have hooves, therefore some humans are not horses."
+135,experiment,False,0,the biggest challenge of the 21st century is thoses thinking in terms of abundancys instead of  thinkig about scarecity,The biggest challenge of the 21st Century is those thinking in terms of abundances instead of in terms of scarcity
+136,experiment,False,0,This is the most serious financial situation we have known for decades.,This is the most serious financial situation we have known for decades
+137,experiment,False,0,"no reptiles have fur, snakes are reptiles, therfor all snakes are reptiles","no reptiles have fur, all snakes are reptiles, therfore no snakes have fur"
+138,experiment,False,0,dinosaurs and reptiles walked the earth at the same time,dinosaurs and reptiles walked the earth at the same time
+139,experiment,False,0,the biggest challenge of the 21st century is the irony of the abundance of technology,The biggest challenge of the 21st century is the irony of technology in abundance
+140,experiment,False,0,It's not just for work. It's not just for play. We think it's the one phone you can use your entire life.,It's not just for work. It's not just for play. We think it's the one phone that you can use your entire life
+141,experiment,False,0,children from slum backgrounds are potentially a menace to society,children from slum backgrounds are potentially a menace to society
+142,experiment,False,0,this is the most serious financial situation we have known for generations,This is the most serious financial situation we have known for generations
+143,experiment,False,0,They want to keep it all for themselves. I don't blame them. It ends up a rich ghetto.,They want to keep it all for themselves. I don't blame them. It ends up a rich ghetto
+144,experiment,False,0,"The boy, the product of a broken home and neighbourhood, we can't that, we get to decide if he is innocent or guilty","This boy, the product of a broken home and filthy neighbourhood, we can't help that, we get to decide if he's innocent or guilty."
+145,experiment,False,0,they want to keep it all to themseves i do not blame them it'll end up a rich ghetto,They want to keep it all for themselves. I don't blame them. It ends up a rich ghetto
+146,experiment,False,0,"it is not just for work, it is not just for play, we think it is the phone of the future","It's not just for work, it's not just for play, we think it's the phone of the future"
+147,experiment,False,0,"All horses have hooves, humans do not have hooves, therefore no humans are horses.","all horses have hooves, humans do not have hooves, therefore no humans are horses"
+148,experiment,False,0,"all horses have hooves and no humans have hooves, thefor some humans are not horses",all horses have hooves and no humans have hooves thefore some humans are not horses
+149,experiment,False,0,Children from slum backgrounds are potentially a menace to society.,children from slum backgrounds are potentially a menace to society
+150,experiment,False,0,"this boy, he's the product ofa broken home, we hall dto decide whether he's guilty or not","This boy, he's the product of a broken home and filthy neighbourhood. We have to decide if he's innocent or guilty. We can't change it."
+151,experiment,False,0,"they want to keep it all for themselves, and I cant blame them, it ends up becoming a rich ghetto","they want to keep it all for themselves, and I can't blame them.  It ends up becoming a  rich ghetto"
+152,experiment,False,0,The biggest challenge of the 21st centuty is the irony of technology from those who believe in scarcity,the biggest challenge of the 21st century is the irony of technology from those who believe in scarcity
+153,experiment,False,0,children from slum backgrounds are potenially a menace to society,Children from slum backgrounds are potentially a menace to society.
+154,experiment,False,0,This is the most serious financial situation that we've known in generations,this is the most serious financial situation that we have known in generations
+155,experiment,False,0,Children from slum backgrounds are potentially a menace to society,children from slum backgrounds are potenially a menace to society
+156,experiment,False,0,"all horses have hooves, all humans have hooves so some humans are horses","all horses have hooves, all humans have hooves, therefore some humans are horses"
+157,experiment,False,0,"no reptiles have fur, and snakes are all reptiles so no snakes have fur","No reptiles have fur, and all snakes are reptiles, therefore no snakes have fur."
+158,experiment,False,0,"they want to keep it all fir themselves. i dont blame them, it ends up a rich ghetto",They want to keep it all for themselves. I don't blame them. It ends up a rich ghetto.
+159,experiment,False,0,all rhombuses are squares and some rhombuses are rectangles so some rhombuses are rectangle,"All squares are rhombuses and rhombuses are squares, some rhombuses are rectangles"
+160,experiment,False,0,"This boy is the product of a broken home, we can't help that, but we have to judge if he is innocent or guilty","this boy is the product of a broken home, we can't help that, but we have to judge if he is innocent or guilty"
+161,experiment,False,0,this is the most serious financial situation we've known for decades,This is the most serious financial situation that we've known in generations
+162,experiment,False,0,"They want to keep it all for themselves and I don't blame them, but it ends up being a rich ghetto","They want to keep it all for themselves and I don't blame them, but it ends up being a rich ghetto."
+163,experiment,False,0,the biggest challenge of the 21st century is the irony of technology of scarcity,The biggest challenge of the 21st centuty is the irony of technology from those who believe in scarcity
+164,experiment,False,0,Dinosaurs and humans walked the earth at the same time.,Dinosaurs and humans walked the earth at the same time.
+165,experiment,False,0,the biggest challenge of the 21st century is the irony of the abundance of technology.,the biggest challenge of the 21st century is the irony of the abundance of technology
+166,experiment,False,0,the boy is the product of a broken home. we cant help that but we have to judge if he is innocent or guilty,"This boy is the product of a broken home, we can't help that, but we have to judge if he is innocent or guilty"
+167,experiment,False,0,"It's not just for work, it's not just for play, we think its the one phone you can use your entire life","It's not just for work, it's not just for play, we think it's the one phone you can use your entire life"
+168,experiment,False,0,no reptiles have fur and snakes are reptiles so they have no fur,"no reptiles have fur, and snakes are all reptiles so no snakes have fur"
+169,experiment,False,0,all horses have hooves and no humans have hooves so horses have hooves,"all horses have hooves and no humans have hooves, thefor some humans are not horses"
+170,experiment,False,0,all squares are rhombuses and rectangles are rhombuses so all are rhombuses,"all squares are rhombuses and all rectangles are rhombuses, therefore all rectangles are rhombuses"
+171,experiment,False,0,"its not just for work, its not just for play. we think its the one phone you can use your entire life",It's not just for work. It's not just for play. We think it's the one phone you can use your entire life.
+172,experiment,False,0,dinosaurs and reptiles walked the earth at the same time,dinosaurs and reptiles walked the earth at the same time
+173,experiment,False,0,children from slum backgrounds are potentially a menace to society,Children from slum backgrounds are potentially a menace to society
+174,experiment,False,0,"It is not just for work, it is not just for play, we think it is the phone of the future","it is not just for work, it is not just for play, we think it is the phone of the future"
+175,experiment,False,0,"they want to keep it all fir themselves. i don't blame them, it all ends up a rich ghetto","they want to keep it all fir themselves. i dont blame them, it ends up a rich ghetto"
+176,experiment,False,0,"all squares are rhombuses and all rectangles are rhombuses, so all are rhombuses",all squares are rhombuses and rectangles are rhombuses so all are rhombuses
+177,experiment,False,0,the biggest challenge of the 21st century is thoses thinking about abundancys instead of scarcitys,the biggest challenge of the 21st century is thoses thinking in terms of abundancys instead of  thinkig about scarecity
+178,experiment,False,0,dinosaurs and humans walked the earth at the same time,dinosaurs and humans walked the earth at the same time
+179,experiment,False,0,this is the most serious financial situation we have known for generations,this is the most serious financial situation we have known for generations
+180,experiment,False,0,"no reptiles have fur, snakes are reptiles, therfor all snakes are reptiles","no reptiles have fur, snakes are reptiles, therfor all snakes are reptiles"
+181,experiment,False,0,"all horses have hooves, all humans have hooves, so some humans are horses","all horses have hooves, all humans have hooves so some humans are horses"
+182,experiment,False,0,no reptiles have fur and snakes are reptiles so they have no fur,no reptiles have fur and snakes are reptiles so they have no fur
+183,experiment,False,0,"this boy, he's a product ofa broken home, hall dto decide if he's guilty or not","this boy, he's the product ofa broken home, we hall dto decide whether he's guilty or not"
+184,experiment,False,0,"all horses have hooves, humans do not have hooves, therefore no humans are horses","All horses have hooves, humans do not have hooves, therefore no humans are horses."
+185,experiment,False,0,children from slum backgrounds are a potential menace to our society,children from slum backgrounds are a potential menace to our society
+186,experiment,False,0,this is the most serious financial situation we have known for decades.,This is the most serious financial situation we have known for decades.
+187,experiment,False,0,all sqaures are rectangles and some rectangles are rhombuses therefore some sqaures are rhombuses,all sqaures are rectangles some rectangles are rhombuses therefore some sqaures are rhombuses
+188,experiment,False,0,"its not just for work, its not just for play. we thinks its the one phone you can use your entire life","its not just for work, its not just for play. we think its the one phone you can use your entire life"
+189,experiment,False,0,the biggest challenge of the 21st century is the irony of technology of scarcity,the biggest challenge of the 21st century is the irony of technology of scarcity
+190,experiment,False,0,"the boy, the product of a broken home and neighbourhood, we can't that. we get to decide if he is innocent or guilty","The boy, the product of a broken home and neighbourhood, we can't that, we get to decide if he is innocent or guilty"
+191,experiment,False,0,"they want to keep it all for themselves, and I can't blame them, it becomes a rich ghetto","they want to keep it all for themselves, and I cant blame them, it ends up becoming a rich ghetto"
+192,experiment,False,0,dinosaurs and humans walked the earth at the same time,dinosaurs and humans walked the earth at the same time
+193,experiment,False,0,children from slum backgrounds are a potential menace to society,children from slum backgrounds are a potential menace to our society
+194,experiment,False,0,"it's not just for work, it's not just for play, it's the one phone you can use for everything.","It's not just for work, it's not just for play, we think its the one phone you can use your entire life"
+195,experiment,False,0,"this boy, he's the product of a broken home hall dto decide if he's guilty or not","this boy, he's a product ofa broken home, hall dto decide if he's guilty or not"
+196,experiment,False,0,the biggest challenge of the 21st century is those thinking about abundencys instead of scarcitys,the biggest challenge of the 21st century is thoses thinking about abundancys instead of scarcitys
+197,experiment,False,0,"no snakes have fur, all snakes are reptiles, therefore all reptiles have fur","No snakes have fur and all snakes are reptiles, therefore all reptiles have fur"
+198,experiment,False,0,Dinosaurs and humans walked the earth at the same time,Dinosaurs and humans walked the earth at the same time.
+199,experiment,False,0,"they want to keep it all for themselves and I can't blame them, it becomes a rich ghetto","they want to keep it all for themselves, and I can't blame them, it becomes a rich ghetto"
+200,experiment,False,1,"all rhombus are squares, and some rhombus are rectangles, therefore ...",all rhombuses are squares and some rhombuses are rectangles so some rhombuses are rectangle
+201,experiment,False,0,"all horses have hooves, no humans  have hooves, so horses have hooves",all horses have hooves and no humans have hooves so horses have hooves
+202,experiment,False,0,this is the most serious financial situation we've known for decades,this is the most serious financial situation we've known for decades
+203,experiment,False,0,children from slum backgrounds are potentially a menace to society,children from slum backgrounds are potentially a menace to society
+204,experiment,False,0,The biggest challenge of the 21st century is the irony of the abundance of technology,the biggest challenge of the 21st century is the irony of the abundance of technology.
+205,experiment,False,0,This is the most serious financial situation we have known for generation,this is the most serious financial situation we have known for generations
+206,experiment,False,0,The boy is a product of a broken home. We can't help that but we have to judge if he's innocent or guilty,the boy is the product of a broken home. we cant help that but we have to judge if he is innocent or guilty
+207,experiment,False,0,They want to keep it all for themselves.  I don't blame them but they will build a rich ghetto,"they want to keep it all fir themselves. i don't blame them, it all ends up a rich ghetto"
+208,experiment,False,0,"It is not just for work, it is not just for play, we think it's the phone of the future","It is not just for work, it is not just for play, we think it is the phone of the future"
+209,experiment,False,0,"All horses have hooves, all humans have hooves, so some humans are horses","all horses have hooves, all humans have hooves, so some humans are horses"
+210,experiment,False,1,"All rhombus are squares, and some rhombus are rectangles, therefore ...","all rhombus are squares, and some rhombus are rectangles, therefore ..."
+211,experiment,False,0,"No reptiles have fur, all snakes are reptiles, therefore all snakes are reptiles","no reptiles have fur, snakes are reptiles, therfor all snakes are reptiles"
+212,experiment,False,0,Dinosaurs and reptiles walked the Earth at the same time,dinosaurs and reptiles walked the earth at the same time
+213,experiment,False,0,Children from slum backgrounds are a real menace to society,children from slum backgrounds are a potential menace to society
+1,training,True,,"Dream as if you'll live forever, live as if you'll die tomorrow",
+2,training,True,,"Listen I've lived among them all my life, you can't believe a word they say, you know that, they're born liars",
+3,training,True,,If there is a major attack on this country it will bear the fingerprints of al-qaeda,

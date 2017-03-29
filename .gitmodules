@@ -1,3 +1,21 @@
-[submodule "spreadr"]
-	path = spreadr
+[submodule "notebooks/exp_1/spreadr"]
+	path = notebooks/exp_1/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/exp_2/spreadr"]
+	path = notebooks/exp_2/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_4/spreadr"]
+	path = notebooks/pilot_4/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_4_jabberwocky/spreadr"]
+	path = notebooks/pilot_4_jabberwocky/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_5/spreadr"]
+	path = notebooks/pilot_5/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_6/spreadr"]
+	path = notebooks/pilot_6/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_7/spreadr"]
+	path = notebooks/pilot_7/spreadr
 	url = https://github.com/interpretation-experiment/spreadr.git

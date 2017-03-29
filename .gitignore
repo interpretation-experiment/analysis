@@ -14,3 +14,9 @@ __pycache__/
 # Editors
 *.swp
 .~lock.*#
+
+# Notebook spreadr environments
+notebooks/*/spreadr_env
+
+# Pytest
+.cache/
