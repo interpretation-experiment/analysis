@@ -512,13 +512,19 @@ class Features:
         model = unpickle(settings.MODEL_TEMPLATE.format(n=model_n,
                                                         type=model_type))
         assert target is not None, "No coding pool for ngrams probs"
-        _, target_tok, position = target
+        _, target_tok, target_position = target
+
+        # Find the position of target_tok in doc_tokens, which will be the list
+        # of tokens we use (i.e., never stopword-filtered, since the models are
+        # trained with all words).
+        tokens = doc_tokens(target_tok.doc)
+        position = tokens.index(target_tok)
 
         # Since most Gistr sentences actually are single sentences,
         # treat the doc as a single sentence
         # (vs. averaging the scores of multiple sentences)
         data = []
-        for tok in doc_tokens(target_tok.doc)[:position + 1]:
+        for tok in tokens[:position + 1]:
             if tags:
                 data.append(tok.pos_.upper())
             else:

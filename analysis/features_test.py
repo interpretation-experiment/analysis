@@ -146,6 +146,10 @@ def test_features_feature(models):
     assert_approx_equal(sentence.feature('relatedness'), 0.61913721635813002)
     assert_approx_equal(sentence.feature('relatedness', stopwords='exclude'),
                         0.68386334821245887)
+    assert_approx_equal(sentence.feature('1_gram_word'), 9.972048369785055)
+    sentence.feature('1_gram_word', stopwords='exclude')
+    assert_approx_equal(sentence.feature('1_gram_word', stopwords='exclude'),
+                        12.29075296049485)
     # Can't have stopwords='nan'
     with pytest.raises(AssertionError):
         sentence.feature('aoa', stopwords='nan')
