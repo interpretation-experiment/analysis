@@ -256,6 +256,7 @@ class Features:
         'depth_above':            _identity,
         'depth_prop':             _identity,
         'depth_subtree_prop':     _identity,
+        # 'sentence_prop':          _identity,
     }
 
     #: List of categorical features defined on words.
@@ -595,6 +596,13 @@ class Features:
         assert target is not None, "No coding pool for depth_subtree_prop"
         _, tok, _ = target
         return _depth_subtree_prop(tok)
+
+    # @classmethod
+    # def _sentence_prop(cls, target=None):
+    #     """sentence %"""
+    #     assert target is not None, "No coding pool for sentence_prop"
+    #     tokens, _, position = target
+    #     return np.nan if len(tokens) <= 1 else position / (len(tokens) - 1)
 
     #
     # CATEGORICAL WORD FEATURES
