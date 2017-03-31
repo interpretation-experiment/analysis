@@ -1,0 +1,89 @@
+id,bucket,is_root,spam,text,parent_text
+3,experiment,True,0,This is the first one that looked like it was hiding from the world at large.,
+4,experiment,True,0,"Don't piss me off, junior. Or I will repaint this office with your brains.",
+5,experiment,True,0,The first and most important rule of gunrunning is never get shot with your own merchandise.,
+6,experiment,True,0,"Actually, my friend will pronounce you dead shortly and I thought I might keep him company.",
+7,experiment,True,0,You don't have to tell me your secret if you don't want to.,
+8,experiment,True,0,"Can you think of anything else, Barbara, they might have told me about that party?",
+11,experiment,False,0,"Don't piss me off, junior. Or I will repaint this office with your brains.","Don't piss me off, junior. Or I will repaint this office with your brains."
+12,experiment,False,0,The first and most important rule of gunrunning is never get shot with your own merchandise.,The first and most important rule of gunrunning is never get shot with your own merchandise.
+13,experiment,False,0,"Actually, my friend will pronounce you dead shortly and I thought I might keep him company.","Actually, my friend will pronounce you dead shortly and I thought I might keep him company."
+14,experiment,False,0,You don't have to tell me your secret if you don't want to.,You don't have to tell me your secret if you don't want to.
+15,experiment,False,0,"Can you think of anything else, Barbara, they might have told me about that party?","Can you think of anything else, Barbara, they might have told me about that party?"
+16,experiment,False,0,This is the first one that looked like it was hiding from the world at large.,This is the first one that looked like it was hiding from the world at large.
+20,experiment,False,0,Actually my friend will pronounce you dead soon and I was going to keep him company,"Actually, my friend will pronounce you dead shortly and I thought I might keep him company."
+23,experiment,False,0,"Can you think of anything else Barbara, that they might have told you about the party?","Can you think of anything else, Barbara, they might have told me about that party?"
+26,experiment,False,0,The first and most important rule of gunrunning is never get shot with your own merchandise,The first and most important rule of gunrunning is never get shot with your own merchandise.
+27,experiment,False,0,This is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large.
+28,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to.
+31,experiment,False,0,Actually your friend might pronounce you dead shortly and I thought I might keep him company,"Actually, my friend will pronounce you dead shortly and I thought I might keep him company."
+32,experiment,False,0,"Don't piss me off Junior, or I will repaint this office with your brains","Don't piss me off, junior. Or I will repaint this office with your brains."
+34,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to.
+35,experiment,False,0,This is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large.
+36,experiment,False,0,"The first and most important rule of gunrunning, is not to be shot with your own merchandise",The first and most important rule of gunrunning is never get shot with your own merchandise.
+37,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to
+38,experiment,False,0,Actually your friend might pronounce you dead shortly and I thought I might keep him company,Actually your friend might pronounce you dead shortly and I thought I might keep him company
+39,experiment,False,0,"Can you think of anything else Barbara, that they might have told you about the party?","Can you think of anything else Barbara, that they might have told you about the party?"
+41,experiment,False,0,The first and most important rule of gunrunning is not to get shot with your own merchandise,The first and most important rule of gunrunning is never get shot with your own merchandise
+42,experiment,False,0,This is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large
+43,experiment,False,1,don't piss me off joiner or ill,"Don't piss me off Junior, or I will repaint this office with your brains"
+44,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to
+46,experiment,False,0,"Can you think of anything else Barbara, that they may have told me about that party","Can you think of anything else, Barbara, they might have told me about that party?"
+47,experiment,False,0,"Don't piss me off Junior, or I will repaint this office with your brains","Don't piss me off, junior. Or I will repaint this office with your brains."
+48,experiment,False,0,"the first and most important rule of gun running, is don't get shot","The first and most important rule of gunrunning, is not to be shot with your own merchandise"
+49,experiment,False,0,This is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large
+50,experiment,False,0,Actually your friend might pronounce you dead shortly and I might,Actually your friend might pronounce you dead shortly and I thought I might keep him company
+51,experiment,False,1,Don't piss me off junior or I shall repaint this office with,"Don't piss me off Junior, or I will repaint this office with your brains"
+53,experiment,False,0,This is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large
+54,experiment,False,0,"Actually my friend will pronounce you dead soon, and I was going to keep him company",Actually my friend will pronounce you dead soon and I was going to keep him company
+55,experiment,False,0,"Can you think of anything else Barbra, that might have told me about the party","Can you think of anything else Barbara, that they may have told me about that party"
+57,experiment,False,1,Don't piss me off junior or I shall repaint this office with,Don't piss me off junior or I shall repaint this office with
+58,experiment,False,0,you don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to
+59,experiment,False,0,"Can you think of anything else Barbra, that might have told me about the party","Can you think of anything else Barbra, that might have told me about the party"
+60,experiment,False,0,This is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large
+61,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to
+62,experiment,False,0,"The first and most important rule of gun running, is don't get shot","the first and most important rule of gun running, is don't get shot"
+63,experiment,False,1,Don't piss me off junior or I shall repaint this office with,Don't piss me off junior or I shall repaint this office with
+64,experiment,False,0,"Can you think of anything please Barbara, that might have told me about the party","Can you think of anything else Barbra, that might have told me about the party"
+65,experiment,False,1,Don't piss me joiner off ill,don't piss me off joiner or ill
+66,experiment,False,0,The first and most important rule of gunrunning is not to get shot with your own merchandise,The first and most important rule of gunrunning is not to get shot with your own merchandise
+67,experiment,False,0,you don't have to tell me your secret if you don't want to,you don't have to tell me your secret if you don't want to
+68,experiment,False,0,"The first and most important rule of gun running, is don't get shot","The first and most important rule of gun running, is don't get shot"
+69,experiment,False,0,"Actually my friend was going to pronounce you dead soon, and I was going to keep him company","Actually my friend will pronounce you dead soon, and I was going to keep him company"
+70,experiment,False,0,can you think of anything barb,"Can you think of anything please Barbara, that might have told me about the party"
+71,experiment,False,0,this was the first one that looked like it was hiding from the world,This is the first one that looked like it was hiding from the world at large
+72,experiment,False,0,my friend was going to pronounce you dead,"Actually my friend was going to pronounce you dead soon, and I was going to keep him company"
+76,experiment,False,0,can you think of anything else Barbara they might have told you about the party?,"Can you think of anything else Barbara, that they might have told you about the party?"
+77,experiment,False,0,don't mess with me joker,Don't piss me joiner off ill
+79,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to
+80,experiment,False,0,this is the first one that looked like it was hiding from the world at large,This is the first one that looked like it was hiding from the world at large
+81,experiment,False,0,My friend was going to pronounce you dead,my friend was going to pronounce you dead
+82,experiment,False,0,this is the first one I looked at,this is the first one that looked like it was hiding from the world at large
+83,experiment,False,0,the first and most important rule of gunrunning is not to get shot with your own merchandise,The first and most important rule of gunrunning is not to get shot with your own merchandise
+84,experiment,False,0,the first rule of gun running is not to get shot with your own merchandise,the first and most important rule of gunrunning is not to get shot with your own merchandise
+85,experiment,False,0,can you think about anything Barbara  told you about the party,can you think of anything else Barbara they might have told you about the party?
+86,experiment,False,0,you don't have to tell me a secret if you don't want to,you don't have to tell me your secret if you don't want to
+87,experiment,False,0,don't mess with me Jester,don't mess with me joker
+88,experiment,False,0,your friend might pronounce you dead and so shall I,Actually your friend might pronounce you dead shortly and I might
+1,training,True,0,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties.",
+2,training,True,0,Sometimes your whole life boils down to one insane move.,
+9,training,False,0,sometimes your whole life boils down to one insane moment,Sometimes your whole life boils down to one insane move.
+10,training,False,0,"It was that night I discovered that most things you consider consequential in life are down to being bored or lonely, and simply social niceties.","It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+17,training,False,0,Sometimes your whole life boils down to a few minutes,Sometimes your whole life boils down to one insane move.
+18,training,False,0,"Cant remember what it was,","It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+19,training,False,0,Sometimes your whole life boils down to one insane move,Sometimes your whole life boils down to one insane move.
+21,training,False,0,Sometimes your whole life feels,Sometimes your whole life boils down to one insane move.
+22,training,False,0,It was that night I discovered that sometimes things you do are considered evil,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+24,training,False,0,It was that night that I discovered most things you think are evil are simply,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+25,training,False,0,It was that night that I discovered that,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+29,training,False,0,one night I woke to,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+30,training,False,0,sometimes your whole life boils down to one thing,Sometimes your whole life boils down to one insane move.
+33,training,False,0,sometimes your whole life boils down to,Sometimes your whole life boils down to one insane move.
+40,training,False,0,It was that night I discovered that most things you find evil or wicked,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+45,training,False,0,Sometimes your whole life boils down to one insane,Sometimes your whole life boils down to one insane move.
+52,training,False,0,Sometimes your whole life boils down to one thing,Sometimes your whole life boils down to one insane move.
+56,training,False,0,It was in that night that I remembered that most evil things are down to lacking in social niceties,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+73,training,False,0,I was right that I could not remember,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+74,training,False,0,sometimes your whole  life boils down to one insane move,Sometimes your whole life boils down to one insane move.
+75,training,False,0,sometimes your life boils down to one,Sometimes your whole life boils down to one insane move.
+78,training,False,0,its was that night that I discovered that most things belong to either wicked or evil,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
