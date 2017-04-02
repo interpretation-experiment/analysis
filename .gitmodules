@@ -19,3 +19,15 @@
 [submodule "notebooks/pilot_7/spreadr"]
 	path = notebooks/pilot_7/spreadr
 	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_8a/spreadr"]
+	path = notebooks/pilot_8a/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_8b/spreadr"]
+	path = notebooks/pilot_8b/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_8c/spreadr"]
+	path = notebooks/pilot_8c/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/pilot_9a/spreadr"]
+	path = notebooks/pilot_9a/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
