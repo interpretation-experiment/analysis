@@ -1,0 +1,89 @@
+id,bucket,is_root,spam,text,parent_text
+3,experiment,True,0,This is the first one that looked like it was hiding from the world at large.,
+4,experiment,True,0,"Don't piss me off, junior. Or I will repaint this office with your brains.",
+5,experiment,True,0,The first and most important rule of gunrunning is never get shot with your own merchandise.,
+6,experiment,True,0,"Actually, my friend will pronounce you dead shortly and I thought I might keep him company.",
+7,experiment,True,0,You don't have to tell me your secret if you don't want to.,
+8,experiment,True,0,"Can you think of anything else, Barbara, they might have told me about that party?",
+11,experiment,False,1,"Can you think of anything, Barbara, that they","Can you think of anything else, Barbara, they might have told me about that party?"
+12,experiment,False,0,"Actually, my friend will pronounce you dead","Actually, my friend will pronounce you dead shortly and I thought I might keep him company."
+13,experiment,False,0,"Don't piss me off junior, or I will repaint","Don't piss me off, junior. Or I will repaint this office with your brains."
+15,experiment,False,0,This is the first time I looked at hiding from the world at large.,This is the first one that looked like it was hiding from the world at large.
+17,experiment,False,1,The first and most important rule of gunrunning is to,The first and most important rule of gunrunning is never get shot with your own merchandise.
+18,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to.
+19,experiment,False,0,Can you think of anything,"Can you think of anything, Barbara, that they"
+20,experiment,False,0,You don't have to tell me your secret if you don't want to,You don't have to tell me your secret if you don't want to
+21,experiment,False,0,Don't piss me off junior or I will repaint your house,"Don't piss me off, junior. Or I will repaint this office with your brains."
+23,experiment,False,0,This is the first look of the boy from the stage,This is the first one that looked like it was hiding from the world at large.
+24,experiment,False,0,The first and most important rule of gunrunning is not to get caught,The first and most important rule of gunrunning is never get shot with your own merchandise.
+26,experiment,False,0,"Actually, my friend will pronounce you dead shortly.","Actually, my friend will pronounce you dead shortly and I thought I might keep him company."
+27,experiment,False,0,you do not   have to tell me your secret,You don't have to tell me your secret if you don't want to.
+28,experiment,False,1,the first and most important rule of,The first and most important rule of gunrunning is not to get caught
+29,experiment,False,0,this is the first look of the boy,This is the first look of the boy from the stage
+30,experiment,False,1,did not have chance to read it,"Actually, my friend will pronounce you dead"
+31,experiment,False,0,do not piss me off junior or i will repaint your house,Don't piss me off junior or I will repaint your house
+33,experiment,False,0,ca you think of anything else Barbara they might have told,"Can you think of anything else, Barbara, they might have told me about that party?"
+35,experiment,False,1,don't piss me off etc,"Don't piss me off junior, or I will repaint"
+36,experiment,False,1,did not have a chance to read,did not have chance to read it
+37,experiment,False,0,this is the first look up key,this is the first look of the boy
+39,experiment,False,1,ca you find then nothing,ca you think of anything else Barbara they might have told
+41,experiment,False,1,it was much too fast,don't piss me off etc
+42,experiment,False,0,You don't have to tell me the secret,You don't have to tell me your secret if you don't want to
+43,experiment,False,1,it was much too fast to read,this is the first look up key
+44,experiment,False,0,you do not have to read,you do not   have to tell me your secret
+45,experiment,False,0,the first and most important,the first and most important rule of
+46,experiment,False,0,"actually, my friend will pronounce","Actually, my friend will pronounce you dead shortly."
+47,experiment,False,0,can you think of something,Can you think of anything
+48,experiment,False,0,this and the most important rule,The first and most important rule of gunrunning is to
+51,experiment,False,0,Can you find the following,ca you find then nothing
+52,experiment,False,0,You do not have to read,you do not have to read
+54,experiment,False,0,"Actually, my friend will pronounce","actually, my friend will pronounce"
+56,experiment,False,1,It was much too fast,it was much too fast
+57,experiment,False,0,this is the first time i looked at hiding,This is the first time I looked at hiding from the world at large.
+58,experiment,False,0,This and the most important rule,this and the most important rule
+59,experiment,False,0,can you think of something,can you think of something
+60,experiment,False,0,this and the most important rule,This and the most important rule
+61,experiment,False,0,This is the first time I looked at hiding,this is the first time i looked at hiding
+62,experiment,False,0,you do not have to read,You do not have to read
+63,experiment,False,0,do not piss me off junior i will paint your house,do not piss me off junior or i will repaint your house
+64,experiment,False,1,did not have a chance to read,did not have a chance to read
+68,experiment,False,1,this is the first time i looked at,This is the first time I looked at hiding
+69,experiment,False,1,actually my friend will pro,"Actually, my friend will pronounce"
+71,experiment,False,0,the first and most important,the first and most important
+72,experiment,False,1,Actually wait a few seconds,actually my friend will pro
+73,experiment,False,0,you don't have to tell me the secret,You don't have to tell me the secret
+74,experiment,False,1,it was much too fast,It was much too fast
+75,experiment,False,1,It was much to fast to read,it was much too fast to read
+76,experiment,False,0,can you think of something,can you think of something
+77,experiment,False,0,You don't have to tell me excellent,you don't have to tell me the secret
+78,experiment,False,0,Can you find the following,Can you find the following
+79,experiment,False,0,Do not piss me off! I am in a good mood,do not piss me off junior i will paint your house
+80,experiment,False,0,the first and most important,the first and most important
+83,experiment,False,1,Didn't have a chance to read that,did not have a chance to read
+84,experiment,False,0,this and the most important,this and the most important rule
+85,experiment,False,0,this is the first time I looked at it,this is the first time i looked at
+86,experiment,False,0,Can you find the following,Can you find the following
+87,experiment,False,0,Do not piss me off! I am in a good mood,Do not piss me off! I am in a good mood
+88,experiment,False,0,you do not have to read,you do not have to read
+1,training,True,0,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties.",
+2,training,True,0,Sometimes your whole life boils down to one insane move.,
+9,training,False,1,Sometimes - the text disappeared before i had chance to read it,Sometimes your whole life boils down to one insane move.
+10,training,False,0,It was the night I discovered most things wicked and evil,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+14,training,False,1,Sometimes you can't read it because it's too fast,Sometimes your whole life boils down to one insane move.
+16,training,False,1,It was the night I discovered that most things,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+22,training,False,0,sometimes you whole life boils down,Sometimes your whole life boils down to one insane move.
+25,training,False,1,it was night i discovered that things you consider evil,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+32,training,False,0,it was discovered that night,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+34,training,False,1,sometimes your it went to fast to read,Sometimes your whole life boils down to one insane move.
+38,training,False,0,It was right after something,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+40,training,False,0,sometimes things happen too quick,Sometimes your whole life boils down to one insane move.
+49,training,False,1,Wait just a few seconds,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+50,training,False,0,Sometimes your whole life sinks like a boat,Sometimes your whole life boils down to one insane move.
+53,training,False,0,sometimes your whole life boils down to something,Sometimes your whole life boils down to one insane move.
+55,training,False,1,it was night that i discovered,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+65,training,False,1,it was night that we,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+66,training,False,1,sometimes your whole life is,Sometimes your whole life boils down to one insane move.
+67,training,False,0,It was the night before,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+70,training,False,0,Sometimes on the move I will have breakfast,Sometimes your whole life boils down to one insane move.
+81,training,False,0,It was night when I remember,"It was that night I discovered that most things you consider evil or wicked are simply lonely, and lacking in the social niceties."
+82,training,False,0,Sometimes your whole live passes,Sometimes your whole life boils down to one insane move.
