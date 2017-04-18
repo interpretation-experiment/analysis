@@ -31,3 +31,6 @@
 [submodule "notebooks/pilot_9a/spreadr"]
 	path = notebooks/pilot_9a/spreadr
 	url = https://github.com/interpretation-experiment/spreadr.git
+[submodule "notebooks/exp_3/spreadr"]
+	path = notebooks/exp_3/spreadr
+	url = https://github.com/interpretation-experiment/spreadr.git
