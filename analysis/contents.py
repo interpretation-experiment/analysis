@@ -105,6 +105,18 @@ def equip_sentence_distances(models):
         return distance / norm if normalized else distance
 
     @memoized
+    def ncow_distance(self, sentence, normalized=True):
+        """Normalized levenshtein distance on all (ordered) words between
+        `self` and `sentence`, modulo sentence cropping."""
+
+        self_words = self.words
+        sentence_words = sentence.words
+        length_diff = np.abs(len(self_words) - len(sentence_words))
+        distance = edit_distance(self_words, sentence_words) - length_diff
+        norm = min(len(self_words), len(sentence_words))
+        return distance / norm if normalized else distance
+
+    @memoized
     def oc_distance(self, sentence, normalized=True):
         """Normalized levenshtein distance on (ordered) content lemmas between
         `self` and `sentence`."""
@@ -116,6 +128,19 @@ def equip_sentence_distances(models):
         return distance / norm if normalized else distance
 
     @memoized
+    def ncoc_distance(self, sentence, normalized=True):
+        """Normalized levenshtein distance on (ordered) content lemmas between
+        `self` and `sentence`, modulo sentence cropping."""
+
+        self_content_lemmas = self.content_lemmas
+        sentence_content_lemmas = sentence.content_lemmas
+        length_diff = np.abs(len(self_content_lemmas) - len(sentence_content_lemmas))
+        distance = (edit_distance(self_content_lemmas, sentence_content_lemmas)
+        	    - length_diff)
+        norm = min(len(self_content_lemmas), len(sentence_content_lemmas))
+        return distance / norm if normalized else distance
+
+    @memoized
     def uc_distance(self, sentence):
         """Jaccard distance on (unordered) content lemmas between `self` and
         `sentence`."""
@@ -124,9 +149,11 @@ def equip_sentence_distances(models):
 
     models.Sentence.raw_distance = raw_distance
     models.Sentence.ow_distance = ow_distance
+    models.Sentence.ncow_distance = ncow_distance
     models.Sentence.oc_distance = oc_distance
+    models.Sentence.ncoc_distance = ncoc_distance
     models.Sentence.uc_distance = uc_distance
-    models.Sentence.DISTANCE_TYPES = ['raw', 'ow', 'oc', 'uc']
+    models.Sentence.DISTANCE_TYPES = ['raw', 'ow', 'ncow', 'oc', 'ncoc', 'uc']
 
     # Add cumulative distance from root
     @memoized
