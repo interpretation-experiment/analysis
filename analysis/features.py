@@ -16,7 +16,6 @@ import functools
 
 import numpy as np
 from nltk.corpus import cmudict
-from scipy import spatial
 import spacy
 
 from .contents import doc_tokens
@@ -631,7 +630,7 @@ class Features:
     def _relatedness(cls, tokens):
         """relatedness"""
         tokens = [t for t in tokens if t.has_vector]
-        return np.mean([t1.similarity(t2))
+        return np.mean([t1.similarity(t2)
                         for t1, t2 in itertools.combinations(tokens, 2)])
 
     @classmethod
