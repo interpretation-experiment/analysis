@@ -3,7 +3,7 @@ import itertools
 import spacy
 from Bio import pairwise2
 
-from .utils import memoized, color, clear_colours, TermColors
+from .utils import memoized, color, clear_colors, TermColors
 
 
 # TODO: test
