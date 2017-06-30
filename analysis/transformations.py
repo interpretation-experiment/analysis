@@ -78,7 +78,7 @@ def format_alignment(alignment, width=80):
         orth2, space2 = _token_orth_whitespace(tok2, next_tok2)
         len2 = len(orth2)
 
-        # Set colours
+        # Set colors
         if not isinstance(tok1, spacy.tokens.Token):
             # Insertion
             orth2 = color(orth2, TermColors.green)
@@ -109,7 +109,7 @@ def format_alignment(alignment, width=80):
             space2 += space2 * (len1 - len2)
 
         # Flush line if necessary
-        if len(clear_colours(line1)) + len1 + len(space1) > width:
+        if len(clear_colors(line1)) + len1 + len(space1) > width:
             out += line1 + '\n' + line2 + '\n\n'
             line1 = ''
             line2 = ''
@@ -195,20 +195,20 @@ def equip_sentence_alignments(models):
     """
 
     @memoized
-    def align_lemmas(self, sentence):
+    def _align_lemmas(self, sentence):
         """Find optimal alignments between `self`'s and `sentence`'s lemmas,
         returning alignments of `spacy.tokens.Token` objects."""
 
         return align_lemmas(self.tokens, sentence.tokens)
 
-    models.Sentence.align_lemmas = align_lemmas
+    models.Sentence.align_lemmas = _align_lemmas
 
     @memoized
-    def align_content_lemmas(self, sentence):
+    def _align_content_lemmas(self, sentence):
         """Find optimal alignments between `self`'s and `sentence`'s lemmas,
         returning alignments of `spacy.tokens.Token` objects."""
 
         return align_lemmas(self.content_tokens, sentence.content_tokens)
 
-    models.Sentence.align_content_lemmas = align_content_lemmas
+    models.Sentence.align_content_lemmas = _align_content_lemmas
     models.Sentence.ALIGNMENT_TYPES = ['lemmas', 'content_lemmas']
