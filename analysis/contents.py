@@ -73,7 +73,9 @@ def equip_sentence_distances(models):
     Distances defined:
     * `raw_distance`: distance on raw sentence text
     * `ow_distance`: ordered distance on all words
+    * `ncow_distance`: non-cropping ordered distance on all words
     * `oc_distance`: ordered distance on content lemmas
+    * `ncoc_distance`: non-cropping ordered distance on content lemmas
     * `uc_distance`: unordered distance on content lemmas
     * `cum_root_distance`: cumulative distance from root, for any of the above
       distances
@@ -134,9 +136,10 @@ def equip_sentence_distances(models):
 
         self_content_lemmas = self.content_lemmas
         sentence_content_lemmas = sentence.content_lemmas
-        length_diff = np.abs(len(self_content_lemmas) - len(sentence_content_lemmas))
-        distance = (edit_distance(self_content_lemmas, sentence_content_lemmas)
-        	    - length_diff)
+        length_diff = np.abs(len(self_content_lemmas) -
+                             len(sentence_content_lemmas))
+        distance = (edit_distance(self_content_lemmas,
+                                  sentence_content_lemmas) - length_diff)
         norm = min(len(self_content_lemmas), len(sentence_content_lemmas))
         return distance / norm if normalized else distance
 
