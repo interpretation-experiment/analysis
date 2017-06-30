@@ -67,6 +67,7 @@ def equip_sentence_words(models):
     models.Sentence.content_ids = property(get_content_ids)
 
 
+# TODO: test nc* variants
 def equip_sentence_distances(models):
     """Define distances between sentences.
 
