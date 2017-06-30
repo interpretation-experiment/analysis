@@ -143,9 +143,9 @@ def test_features_feature(models):
         np.mean(np.log([9, 15, 12, 26, 13, 16, 2]))
     assert sentence.feature('orthographic_density', stopwords='exclude') == \
         np.mean(np.log([15, 12, 16, 2]))
-    assert_approx_equal(sentence.feature('relatedness'), 0.61913721635813002)
+    assert_approx_equal(sentence.feature('relatedness'), 1 - 0.61913721635813002)
     assert_approx_equal(sentence.feature('relatedness', stopwords='exclude'),
-                        0.68386334821245887)
+                        1 - 0.68386334821245887)
     assert_approx_equal(sentence.feature('1_gram_word'), 9.972048369785055)
     sentence.feature('1_gram_word', stopwords='exclude')
     assert_approx_equal(sentence.feature('1_gram_word', stopwords='exclude'),
@@ -414,9 +414,9 @@ def test_features_dep(models, nlp):
 def test_features_relatedness(models, nlp):
     doc = nlp("This is a sentence")
     assert models.Sentence._relatedness(tuple(doc[0:3])) == \
-        np.mean([spatial.distance.cosine(doc[0].vector, doc[1].vector),
-                 spatial.distance.cosine(doc[1].vector, doc[2].vector),
-                 spatial.distance.cosine(doc[0].vector, doc[2].vector)])
+        np.mean([1 - spatial.distance.cosine(doc[0].vector, doc[1].vector),
+                 1 - spatial.distance.cosine(doc[1].vector, doc[2].vector),
+                 1 - spatial.distance.cosine(doc[0].vector, doc[2].vector)])
 
 
 def test_features_dep_depth(models, nlp):
