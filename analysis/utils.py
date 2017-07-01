@@ -3,7 +3,7 @@ import csv
 import pickle
 import functools
 import enum
-from itertools import zip_longest
+import itertools
 
 import spacy
 import numpy as np
@@ -62,7 +62,32 @@ def grouper(iterable, n, fillvalue=None):
     last slice with `fillvalue`."""
 
     args = [iter(iterable)] * n
-    return zip_longest(*args, fillvalue=fillvalue)
+    return itertools.zip_longest(*args, fillvalue=fillvalue)
+
+
+# TODO: test
+def mappings(iter1, iter2, n):
+    """Iterate over all mappings of `n` elements from `iter1` to `iter2`."""
+
+    if n == 0:
+        yield frozenset()
+        return
+
+    all_links = itertools.product(iter1, iter2)
+    for combination in itertools.combinations(all_links, n):
+        # Filter out unordered combinations
+        ordered = True
+        for i in range(n - 1):
+            if combination[i] >= combination[i+1]:
+                ordered = False
+                break
+        if not ordered:
+            break
+
+        # Check all sources and destinations are used only once
+        sources, destinations = zip(*combination)
+        if len(set(sources)) == n and len(set(destinations)) == n:
+            yield frozenset(combination)
 
 
 class memoized(object):
