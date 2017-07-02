@@ -1,4 +1,5 @@
 appdirs==1.4.3
+biopython==1.69
 bleach==2.0.0
 click==6.7
 cycler==0.10.0
