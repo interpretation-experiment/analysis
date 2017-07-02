@@ -5,7 +5,7 @@ from Bio import pairwise2
 import colors
 
 from .utils import memoized, mappings
-from .settings import ALIGNMENT_GAP_CHAR, ALIGNMENT_PARAMETERS
+import settings
 
 
 # TODO: test
@@ -189,7 +189,8 @@ def _in_exchange(i, exchanges):
 
 
 # TODO: test
-def _encode_exchange(i, orth1, space1, orth2, space2, exchanges):
+def _encode_exchange(i, orth1, space1, orth2, space2, exchanges,
+                     gap_char=settings.ALIGNMENT_GAP_CHAR):
     """TODO: docs."""
     exchange_idx = _find_exchange_idx(i, exchanges)
     if exchange_idx is None:
@@ -201,7 +202,7 @@ def _encode_exchange(i, orth1, space1, orth2, space2, exchanges):
     pad = 'right'
     if i == start1 or i == start2:
         exchange_orth = '|E{}'.format(exchange_idx)
-        space_orth = ALIGNMENT_GAP_CHAR
+        space_orth = gap_char
         if i == stop1 - 1 or i == stop2 - 1:
             pad = 'center'
             exchange_orth += '|'
@@ -212,12 +213,12 @@ def _encode_exchange(i, orth1, space1, orth2, space2, exchanges):
         space_orth = False  # Will be replaced with space1 or space2
     else:
         # i is not at the border of one of the gaps
-        exchange_orth = ALIGNMENT_GAP_CHAR
-        space_orth = ALIGNMENT_GAP_CHAR
+        exchange_orth = gap_char
+        space_orth = gap_char
 
     # And pad accordingly
     max_length = max(map(len, [orth1, orth2, exchange_orth]))
-    padding = ALIGNMENT_GAP_CHAR * (max_length - len(exchange_orth))
+    padding = gap_char * (max_length - len(exchange_orth))
     if pad == 'left':
         exchange_orth = padding + exchange_orth
     elif pad == 'center':
@@ -226,17 +227,16 @@ def _encode_exchange(i, orth1, space1, orth2, space2, exchanges):
         exchange_orth += padding
 
     # Then change either orth1 or orth2 to exchange_orth
-    if orth1 == ALIGNMENT_GAP_CHAR:
+    if orth1 == gap_char:
         return exchange_orth, space_orth or space1, orth2, space2
-    elif orth2 == ALIGNMENT_GAP_CHAR:
+    elif orth2 == gap_char:
         return orth1, space1, exchange_orth, space_orth or space2
     else:
         raise ValueError("i (={}) detected in an exchange (={}), "
                          "but neither orth1 (={}) not orth2 (={}) "
                          "equal the gap character (={})"
                          .format(i, exchanges[exchange_idx],
-                                 orth1, orth2,
-                                 ALIGNMENT_GAP_CHAR))
+                                 orth1, orth2, gap_char))
 
 
 # TODO: test
@@ -279,7 +279,7 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
         # Set colors
         if _in_exchange(i, exchanges):
             # Exchange. Also set the space's color as it could
-            # be an ALIGNMENT_GAP_CHAR.
+            # be a gap_char.
             orth1 = colors.color(orth1, fg='yellow')
             space1 = colors.color(space1, fg='yellow')
             orth2 = colors.color(orth2, fg='yellow')
@@ -341,7 +341,8 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
 
 # TODO: test
 @memoized
-def align_lemmas(tokens1, tokens2):
+def align_lemmas(tokens1, tokens2, gap_char=settings.ALIGNMENT_GAP_CHAR,
+                 parameters=settings.ALIGNMENT_PARAMETERS):
     """Find optimal alignments between the lemmas of two lists of tokens.
 
     Alignments are computed between lists of lemmas (for now without a
@@ -354,8 +355,7 @@ def align_lemmas(tokens1, tokens2):
     # Create the index-token map
     idx2token = []
     token2idx = {}
-    for i, tok in enumerate(itertools.chain(tokens1, tokens2,
-                                            [ALIGNMENT_GAP_CHAR])):
+    for i, tok in enumerate(itertools.chain(tokens1, tokens2, [gap_char])):
         idx2token.append(tok)
         if tok in token2idx:
             # This is not a problem in fact, we can simply overwrite
@@ -382,14 +382,14 @@ def align_lemmas(tokens1, tokens2):
         # else:
         #     similarity = tok1.similarity(tok2)
 
-        return (ALIGNMENT_PARAMETERS['COMPARE_FACTOR'] * similarity +
-                ALIGNMENT_PARAMETERS['COMPARE_ORIGIN'])
+        return (parameters['COMPARE_FACTOR'] * similarity +
+                parameters['COMPARE_ORIGIN'])
 
     # Align the indices
     alignments_idx = pairwise2.align.globalcs(
         tokens1_idx, tokens2_idx, match_score,
-        ALIGNMENT_PARAMETERS['GAP_OPEN'], ALIGNMENT_PARAMETERS['GAP_EXTEND'],
-        gap_char=[token2idx[ALIGNMENT_GAP_CHAR]])
+        parameters['GAP_OPEN'], parameters['GAP_EXTEND'],
+        gap_char=[token2idx[gap_char]])
 
     # Convert the alignment back into tokens
     alignments = []
@@ -410,9 +410,9 @@ def align_lemmas(tokens1, tokens2):
 
 
 # TODO: test
-def gaps(sequence):
-    """Find contiguous chunks of `settings.ALIGNMENT_GAP_CHAR` in `sequence`,
-    returning a list of `(start, outer-end)` indices."""
+def gaps(sequence, gap_char=settings.ALIGNMENT_GAP_CHAR):
+    """Find contiguous chunks of `gap_char=settings.ALIGNMENT_GAP_CHAR` in
+    `sequence`, returning a list of `(start, outer-end)` indices."""
 
     found_gaps = []
     gap_start = None
@@ -420,7 +420,7 @@ def gaps(sequence):
     for i, el in enumerate(sequence):
         # We must check for type before checking for value, as spacy bails
         # on us when comparing a Token to something of another type
-        if type(el) == type(ALIGNMENT_GAP_CHAR) and el == ALIGNMENT_GAP_CHAR:
+        if type(el) == type(gap_char) and el == gap_char:
             if gap_start is None:
                 # Open a gap
                 gap_start = i
@@ -447,7 +447,9 @@ def log(depth, *strings):
 
 
 # TODO: test
-def deep_align_lemmas(tokens1, tokens2, depth=0):
+def deep_align_lemmas(tokens1, tokens2, depth=0,
+                      gap_char=settings.ALIGNMENT_GAP_CHAR,
+                      parameters=settings.ALIGNMENT_PARAMETERS):
     """TODO: docs."""
 
     log(depth, 'deep-aligning', tokens1, tokens2)
@@ -517,7 +519,7 @@ def deep_align_lemmas(tokens1, tokens2, depth=0):
                 )
                 # Add to that the cost of n_exchanges
                 subalignments_scores[mapping] = (
-                    n_exchanges * ALIGNMENT_PARAMETERS['EXCHANGE']
+                    n_exchanges * parameters['EXCHANGE']
                     + mapping_score
                 )
         best_subalignment_score = max(subalignments_scores.values())
