@@ -5,7 +5,7 @@ from Bio import pairwise2
 import colors
 
 from .utils import memoized, mappings
-import settings
+from . import settings
 
 
 # TODO: test
