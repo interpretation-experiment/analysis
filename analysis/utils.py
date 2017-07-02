@@ -2,7 +2,6 @@ import os
 import csv
 import pickle
 import functools
-import enum
 import itertools
 
 import spacy
@@ -184,26 +183,3 @@ def import_spreadr_models():
 @memoized
 def get_nlp():
     return spacy.load('en_core_web_md')
-
-
-@enum.unique
-class TermColors(enum.Enum):
-    blue = '\033[94m'
-    green = '\033[92m'
-    yellow = '\033[93m'
-    red = '\033[91m'
-    end = '\033[0m'
-    bold = '\033[1m'
-    faint = '\033[2m'
-    italics = '\033[3m'
-    underline = '\033[4m'
-
-
-def clear_colors(string):
-    for c in TermColors:
-        string = string.replace(c.value, '')
-    return string
-
-
-def color(string, termcolor):
-    return termcolor.value + string + TermColors.end.value

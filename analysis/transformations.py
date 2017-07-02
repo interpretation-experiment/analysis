@@ -2,8 +2,9 @@ import itertools
 
 import spacy
 from Bio import pairwise2
+import colors
 
-from .utils import memoized, color, clear_colors, TermColors, mappings
+from .utils import memoized, mappings
 from .settings import ALIGNMENT_GAP_CHAR, ALIGNMENT_PARAMETERS
 
 
@@ -81,25 +82,25 @@ def format_alignment(alignment, width=80, depth=0):
         # Set colors
         if not isinstance(tok1, spacy.tokens.Token):
             # Insertion
-            orth2 = color(orth2, TermColors.green)
+            orth2 = colors.color(orth2, fg='green')
         elif not isinstance(tok2, spacy.tokens.Token):
             # Deletion
-            orth1 = color(orth1, TermColors.red)
+            orth1 = colors.color(orth1, fg='red')
         elif orth1 != orth2:
             if tok1.lemma != tok2.lemma:
                 # Replacement
-                orth1 = color(orth1, TermColors.blue)
-                orth2 = color(orth2, TermColors.blue)
+                orth1 = colors.color(orth1, fg='blue')
+                orth2 = colors.color(orth2, fg='blue')
             else:
                 # Change in inflexion
-                orth1 = color(orth1, TermColors.italics)
-                orth2 = color(orth2, TermColors.italics)
+                orth1 = colors.color(orth1, style='italic')
+                orth2 = colors.color(orth2, style='italic')
 
         # Gray out stopwords
         if isinstance(tok1, spacy.tokens.Token) and is_stopword(tok1):
-            orth1 = color(orth1, TermColors.faint)
+            orth1 = colors.color(orth1, style='faint')
         if isinstance(tok2, spacy.tokens.Token) and is_stopword(tok2):
-            orth2 = color(orth2, TermColors.faint)
+            orth2 = colors.color(orth2, style='faint')
 
         # Pad length
         if len1 < len2:
@@ -108,7 +109,7 @@ def format_alignment(alignment, width=80, depth=0):
             space2 += space2 * (len1 - len2)
 
         # Flush line if necessary
-        if len(clear_colors(line1)) + len1 + len(space1) > width:
+        if colors.ansilen(line1) + len1 + len(space1) > width:
             out += line1 + '\n' + line2 + '\n\n'
             line1 = line2 = margin
 
@@ -279,31 +280,31 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
         if _in_exchange(i, exchanges):
             # Exchange. Also set the space's color as it could
             # be an ALIGNMENT_GAP_CHAR.
-            orth1 = color(orth1, TermColors.yellow)
-            space1 = color(space1, TermColors.yellow)
-            orth2 = color(orth2, TermColors.yellow)
-            space2 = color(space2, TermColors.yellow)
+            orth1 = colors.color(orth1, fg='yellow')
+            space1 = colors.color(space1, fg='yellow')
+            orth2 = colors.color(orth2, fg='yellow')
+            space2 = colors.color(space2, fg='yellow')
         elif not isinstance(tok1, spacy.tokens.Token):
             # Insertion
-            orth2 = color(orth2, TermColors.green)
+            orth2 = colors.color(orth2, fg='green')
         elif not isinstance(tok2, spacy.tokens.Token):
             # Deletion
-            orth1 = color(orth1, TermColors.red)
+            orth1 = colors.color(orth1, fg='red')
         elif orth1 != orth2:
             if tok1.lemma != tok2.lemma:
                 # Replacement
-                orth1 = color(orth1, TermColors.blue)
-                orth2 = color(orth2, TermColors.blue)
+                orth1 = colors.color(orth1, fg='blue')
+                orth2 = colors.color(orth2, fg='blue')
             else:
                 # Change in inflexion
-                orth1 = color(orth1, TermColors.italics)
-                orth2 = color(orth2, TermColors.italics)
+                orth1 = colors.color(orth1, style='italic')
+                orth2 = colors.color(orth2, style='italic')
 
         # Gray out stopwords
         if isinstance(tok1, spacy.tokens.Token) and is_stopword(tok1):
-            orth1 = color(orth1, TermColors.faint)
+            orth1 = colors.color(orth1, style='faint')
         if isinstance(tok2, spacy.tokens.Token) and is_stopword(tok2):
-            orth2 = color(orth2, TermColors.faint)
+            orth2 = colors.color(orth2, style='faint')
 
         # Pad length
         if len1 < len2:
@@ -312,7 +313,7 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
             space2 += space2 * (len1 - len2)
 
         # Flush line if necessary
-        if len(clear_colors(line1)) + len1 + len(space1) > width:
+        if colors.ansilen(line1) + len1 + len(space1) > width:
             out += line1 + '\n' + line2 + '\n\n'
             line1 = line2 = margin
 
