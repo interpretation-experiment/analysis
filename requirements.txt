@@ -10,12 +10,14 @@ decorator==4.0.11
 dill==0.2.6
 #en-core-web-md==1.2.1
 entrypoints==0.2.2
+frozendict==1.2
 html5lib==0.999999999
 ipykernel==4.5.2
 ipython==5.3.0
 ipython-genutils==0.2.0
 ipywidgets==6.0.0
 Jinja2==2.9.5
+joblib==0.11
 jsonschema==2.6.0
 jupyter==1.0.0
 jupyter-client==5.0.0
@@ -40,6 +42,7 @@ pexpect==4.2.1
 pickleshare==0.7.4
 plac==0.9.6
 preshed==1.0.0
+progressbar2==3.30.2
 prompt-toolkit==1.0.13
 ptyprocess==0.5.1
 py==1.4.33
@@ -47,6 +50,7 @@ Pygments==2.2.0
 pyparsing==2.2.0
 pytest==3.0.7
 python-dateutil==2.6.0
+python-utils==2.1.0
 pytz==2016.10
 pyzmq==16.0.2
 qtconsole==4.2.1

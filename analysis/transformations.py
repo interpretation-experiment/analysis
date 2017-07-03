@@ -3,6 +3,7 @@ import itertools
 import spacy
 from Bio import pairwise2
 import colors
+from frozendict import frozendict
 
 from .utils import memoized, mappings
 from . import settings
@@ -342,7 +343,7 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
 # TODO: test
 @memoized
 def align_lemmas(tokens1, tokens2, gap_char=settings.ALIGNMENT_GAP_CHAR,
-                 parameters=settings.ALIGNMENT_PARAMETERS):
+                 parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
     """Find optimal alignments between the lemmas of two lists of tokens.
 
     Alignments are computed between lists of lemmas (for now without a
@@ -375,12 +376,10 @@ def align_lemmas(tokens1, tokens2, gap_char=settings.ALIGNMENT_GAP_CHAR,
         tok1 = idx2token[idx1[0]]
         tok2 = idx2token[idx2[0]]
 
-        similarity = int(tok1.lemma == tok2.lemma)
-        # Or if using semantic distance
-        # if not tok1.has_vector or not tok2.has_vector:
-        #     similarity = int(tok1.lemma == tok2.lemma)
-        # else:
-        #     similarity = tok1.similarity(tok2)
+        if not tok1.has_vector or not tok2.has_vector:
+            similarity = int(tok1.lemma == tok2.lemma)
+        else:
+            similarity = tok1.similarity(tok2)
 
         return (parameters['COMPARE_FACTOR'] * similarity +
                 parameters['COMPARE_ORIGIN'])
@@ -449,7 +448,7 @@ def log(depth, *strings):
 # TODO: test
 def deep_align_lemmas(tokens1, tokens2, depth=0,
                       gap_char=settings.ALIGNMENT_GAP_CHAR,
-                      parameters=settings.ALIGNMENT_PARAMETERS):
+                      parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
     """TODO: docs."""
 
     log(depth, 'deep-aligning', tokens1, tokens2)
