@@ -39,7 +39,7 @@ def _token_orth_whitespace(token, next_token):
 
 
 # TODO: test
-def format_alignment(alignment, width=80, depth=0):
+def format_alignment(alignment, width=80, depth=0, format='ansi'):
     """Pretty-print an alignment as returned by `align_lemmas`,
     `width` characters wide, width a margin proportional to `depth`.
 
@@ -58,12 +58,18 @@ def format_alignment(alignment, width=80, depth=0):
 
     from .contents import is_stopword
 
+    known_formats = ('ansi', 'rich')
+    if format not in known_formats:
+        raise ValueError("Unknown format type ('{}'), must be one of {}"
+                         .format(format, known_formats))
+
     margin = _margin(depth)
 
     seq1, seq2, score = alignment[:3]
     assert len(seq1) == len(seq2)
-    out = ''
-    line1 = line2 = margin
+    out = {'score': score, 'text1': [], 'text2': []}
+    line1 = [((), margin)]
+    line2 = [((), margin)]
 
     for i in range(len(seq1)):
         # Get current and succeeding tokens
@@ -81,27 +87,28 @@ def format_alignment(alignment, width=80, depth=0):
         len2 = len(orth2)
 
         # Set colors
+        style1 = style2 = ()
         if not isinstance(tok1, spacy.tokens.Token):
             # Insertion
-            orth2 = colors.color(orth2, fg='green')
+            style2 += (('fg', 'green'),)
         elif not isinstance(tok2, spacy.tokens.Token):
             # Deletion
-            orth1 = colors.color(orth1, fg='red')
+            style1 += (('fg', 'red'),)
         elif orth1 != orth2:
             if tok1.lemma != tok2.lemma:
                 # Replacement
-                orth1 = colors.color(orth1, fg='blue')
-                orth2 = colors.color(orth2, fg='blue')
+                style1 += (('fg', 'blue'),)
+                style2 += (('fg', 'blue'),)
             else:
                 # Change in inflexion
-                orth1 = colors.color(orth1, style='italic')
-                orth2 = colors.color(orth2, style='italic')
+                style1 += (('style', 'italic'),)
+                style2 += (('style', 'italic'),)
 
         # Gray out stopwords
         if isinstance(tok1, spacy.tokens.Token) and is_stopword(tok1):
-            orth1 = colors.color(orth1, style='faint')
+            style1 += (('style', 'faint'),)
         if isinstance(tok2, spacy.tokens.Token) and is_stopword(tok2):
-            orth2 = colors.color(orth2, style='faint')
+            style2 += (('style', 'faint'),)
 
         # Pad length
         if len1 < len2:
@@ -110,19 +117,36 @@ def format_alignment(alignment, width=80, depth=0):
             space2 += space2 * (len1 - len2)
 
         # Flush line if necessary
-        if colors.ansilen(line1) + len1 + len(space1) > width:
-            out += line1 + '\n' + line2 + '\n\n'
-            line1 = line2 = margin
+        if sum(len(word1) for _, word1 in line1) + len1 + len(space1) > width:
+            out['text1'].append(line1)
+            out['text2'].append(line2)
+            line1 = [((), margin)]
+            line2 = [((), margin)]
 
         # Append what we got
-        line1 += orth1 + space1
-        line2 += orth2 + space2
+        line1.extend([(style1, orth1), ((), space1)])
+        line2.extend([(style2, orth2), ((), space2)])
 
     # Flush line when finishing
-    out += line1 + '\n' + line2 + '\n\n'
-    out += margin + 'score={}'.format(score)
+    out['text1'].append(line1)
+    out['text2'].append(line2)
 
-    return out
+    # Return this representation if asked to
+    if format == 'rich':
+        return out
+
+    # Otherwise, convert to ANSI encoding and make into a string
+    ansiout = ''
+    for line1, line2 in zip(out['text1'], out['text2']):
+        for style1, word1 in line1:
+            ansiout += colors.color(word1, **dict(style1))
+        ansiout += '\n'
+        for style2, word2 in line2:
+            ansiout += colors.color(word2, **dict(style2))
+        ansiout += '\n\n'
+    ansiout += margin + 'score={}'.format(score)
+
+    return ansiout
 
 
 # TODO: test
