@@ -5,7 +5,7 @@ from Bio import pairwise2
 import colors
 from frozendict import frozendict
 
-from .utils import memoized, mappings
+from .utils import memoized, mappings, token_eq
 from . import settings
 
 
@@ -26,9 +26,7 @@ def _token_orth_whitespace(token, next_token):
         except IndexError:
             nbor = None
         space = (token.whitespace_
-                 or ' ' * (nbor is None
-                           or type(nbor) != type(next_token)  # spacy bug
-                           or nbor != next_token)
+                 or ' ' * (nbor is None or not token_eq(nbor, next_token))
                  or '_')
     else:
         orth = token
@@ -68,8 +66,8 @@ def format_alignment(alignment, width=80, depth=0, format='ansi'):
     seq1, seq2, score = alignment[:3]
     assert len(seq1) == len(seq2)
     out = {'score': score, 'text1': [], 'text2': []}
-    line1 = [((), margin)]
-    line2 = [((), margin)]
+    line1 = []
+    line2 = []
 
     for i in range(len(seq1)):
         # Get current and succeeding tokens
@@ -88,17 +86,19 @@ def format_alignment(alignment, width=80, depth=0, format='ansi'):
 
         # Set colors
         style1 = style2 = ()
-        if not isinstance(tok1, spacy.tokens.Token):
+        if (token_eq(tok1, settings.ALIGNMENT_GAP_CHAR) and
+                not token_eq(tok2, settings.ALIGNMENT_GAP_CHAR)):
             # Insertion
             style2 += (('fg', 'green'),)
-        elif not isinstance(tok2, spacy.tokens.Token):
+        elif (not token_eq(tok1, settings.ALIGNMENT_GAP_CHAR) and
+              token_eq(tok2, settings.ALIGNMENT_GAP_CHAR)):
             # Deletion
             style1 += (('fg', 'red'),)
         elif orth1 != orth2:
             if tok1.lemma != tok2.lemma:
                 # Replacement
-                style1 += (('fg', 'blue'),)
-                style2 += (('fg', 'blue'),)
+                style1 += (('fg', 'yellow'),)
+                style2 += (('fg', 'yellow'),)
             else:
                 # Change in inflexion
                 style1 += (('style', 'italic'),)
@@ -120,8 +120,8 @@ def format_alignment(alignment, width=80, depth=0, format='ansi'):
         if sum(len(word1) for _, word1 in line1) + len1 + len(space1) > width:
             out['text1'].append(line1)
             out['text2'].append(line2)
-            line1 = [((), margin)]
-            line2 = [((), margin)]
+            line1 = []
+            line2 = []
 
         # Append what we got
         line1.extend([(style1, orth1), ((), space1)])
@@ -138,9 +138,10 @@ def format_alignment(alignment, width=80, depth=0, format='ansi'):
     # Otherwise, convert to ANSI encoding and make into a string
     ansiout = ''
     for line1, line2 in zip(out['text1'], out['text2']):
+        ansiout += margin
         for style1, word1 in line1:
             ansiout += colors.color(word1, **dict(style1))
-        ansiout += '\n'
+        ansiout += '\n' + margin
         for style2, word2 in line2:
             ansiout += colors.color(word2, **dict(style2))
         ansiout += '\n\n'
@@ -305,10 +306,10 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
         if _in_exchange(i, exchanges):
             # Exchange. Also set the space's color as it could
             # be a gap_char.
-            orth1 = colors.color(orth1, fg='yellow')
-            space1 = colors.color(space1, fg='yellow')
-            orth2 = colors.color(orth2, fg='yellow')
-            space2 = colors.color(space2, fg='yellow')
+            orth1 = colors.color(orth1, fg='blue')
+            space1 = colors.color(space1, fg='blue')
+            orth2 = colors.color(orth2, fg='blue')
+            space2 = colors.color(space2, fg='blue')
         elif not isinstance(tok1, spacy.tokens.Token):
             # Insertion
             orth2 = colors.color(orth2, fg='green')
@@ -318,8 +319,8 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
         elif orth1 != orth2:
             if tok1.lemma != tok2.lemma:
                 # Replacement
-                orth1 = colors.color(orth1, fg='blue')
-                orth2 = colors.color(orth2, fg='blue')
+                orth1 = colors.color(orth1, fg='yellow')
+                orth2 = colors.color(orth2, fg='yellow')
             else:
                 # Change in inflexion
                 orth1 = colors.color(orth1, style='italic')
@@ -441,9 +442,7 @@ def gaps(sequence, gap_char=settings.ALIGNMENT_GAP_CHAR):
     gap_start = None
 
     for i, el in enumerate(sequence):
-        # We must check for type before checking for value, as spacy bails
-        # on us when comparing a Token to something of another type
-        if type(el) == type(gap_char) and el == gap_char:
+        if token_eq(el, gap_char):
             if gap_start is None:
                 # Open a gap
                 gap_start = i

@@ -183,3 +183,9 @@ def import_spreadr_models():
 @memoized
 def get_nlp():
     return spacy.load('en_core_web_md')
+
+
+def token_eq(token1, token2):
+    # Spacy can't compare a token to a non-token,
+    # so this works around the bug
+    return type(token1) == type(token2) and token1 == token2
