@@ -266,6 +266,7 @@ def _encode_exchange(i, orth1, space1, orth2, space2, exchanges,
 
 
 # TODO: test
+# TODO: add support for rich format
 def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
                                               width=80, depth=0):
     """TODO: docs."""
@@ -366,6 +367,53 @@ def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
 
 
 # TODO: test
+def normalise_alignment(alignment, clean_inside=True,
+                        gap_char=settings.ALIGNMENT_GAP_CHAR):
+    """TODO: docs."""
+    seq1, seq2, score = alignment
+    seq1 = tuple(seq1)
+    seq2 = tuple(seq2)
+
+    # Make both sequences equally long, and remove double
+    # gaps if asked to
+    seq1, seq2 = zip(
+        *[(token1, token2)
+          for token1, token2 in itertools.zip_longest(
+              seq1, seq2, fillvalue=gap_char)
+          if (not clean_inside or
+              not token_eq(token1, gap_char) or
+              not token_eq(token2, gap_char))]
+    )
+
+    # Always strip trailing gaps
+    while (token_eq(seq1[-1], gap_char) and
+           token_eq(seq2[-1], gap_char)):
+        seq1 = seq1[:-1]
+        seq2 = seq2[:-1]
+
+    # Reorder contiguous gaps if cleaning inside too
+    if clean_inside:
+        keep_reordering = True
+        while keep_reordering:
+            gaps1 = gaps(seq1)
+            gaps2 = gaps(seq2)
+            keep_reordering = False
+            for (start1, stop1), (start2, stop2) \
+                    in itertools.product(gaps1, gaps2):
+                if stop1 == start2:
+                    # Reorder these two gaps
+                    seq1 = (seq1[:start1] + seq1[start2:stop2] +
+                            seq1[start1:stop1] + seq1[stop2:])
+                    seq2 = (seq2[:start1] + seq2[start2:stop2] +
+                            seq2[start1:stop1] + seq2[stop2:])
+                    # And restart in case the gaps to reorder have changed
+                    keep_reordering = True
+                    break
+
+    return (seq1, seq2, score)
+
+
+# TODO: test
 @memoized
 def align_lemmas(tokens1, tokens2, gap_char=settings.ALIGNMENT_GAP_CHAR,
                  parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
@@ -428,9 +476,9 @@ def align_lemmas(tokens1, tokens2, gap_char=settings.ALIGNMENT_GAP_CHAR,
                 else:
                     assert isinstance(idx_chunk, int)
                     tokens_lists[i].append(idx2token[idx_chunk])
-        alignments.append(tokens_lists + (a[2], a[3], a[4]))
+        alignments.append(normalise_alignment(tokens_lists + (a[2],)))
 
-    return alignments
+    return list(set(alignments))
 
 
 # TODO: test
@@ -495,7 +543,7 @@ def deep_align_lemmas(tokens1, tokens2, depth=0,
     len1 = len(tokens1)
     len2 = len(tokens2)
 
-    for seq1, seq2, shallow_score, _, _ in base_alignments:
+    for seq1, seq2, shallow_score in base_alignments:
         log(depth, 'new base alignment...')
         gaps1 = gaps(seq1)
         gaps2 = gaps(seq2)

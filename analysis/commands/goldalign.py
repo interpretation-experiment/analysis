@@ -6,15 +6,19 @@ from curses import textpad
 import functools
 import random
 import logging
-import itertools
 
 import numpy as np
 import click
 
 from analysis import setup as setup_spreadr
-from analysis.transformations import format_alignment
+from analysis import transformations
 from analysis.utils import memoized, token_eq
 from analysis.settings import ALIGNMENT_GAP_CHAR
+
+
+# TODO: add a --read option to read/review alignments that are already done.
+#       It starts with those, noting them as being reviewed,
+#       then moves on to the rest.
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +26,7 @@ logger.setLevel(logging.INFO)
 MARGIN = 2
 KEY_INSTRUCTIONS = \
     '''←→: move, s: save and open next sentence, esc: discard and quit
-1/2: add/remove gap above, 9/0: add/remove gap below, c: clean double gaps'''
+1/2: add/remove gap above, 9/0: add/remove gap below, n: normalise gaps'''
 
 
 @click.command()
@@ -86,8 +90,6 @@ def cli(db, outfile):
 
 def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
         outmessages):
-    from gists.models import Sentence
-
     # Hide cursor
     curses.curs_set(False)
 
@@ -125,11 +127,7 @@ def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
     logger.addHandler(log_handler)
 
     # Prepare our tracking state
-    sid = alignable_sentence_ids.pop()
-    sentence = Sentence.objects.get(id=sid)
-    alignment = equalise_alignment(
-        (sentence.parent.tokens, sentence.tokens, 0), True)
-    cursor = 0
+    sentence, alignment, cursor = load_sentence(alignable_sentence_ids)
 
     # Layout formatting
     textpad.rectangle(screen, header_y - 1, header_x - 1,
@@ -188,7 +186,7 @@ def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
         elif key == ord('s'):
             logger.info('Save current alignment')
             int_alignment = int_encode_alignment(
-                equalise_alignment(alignment, True))
+                transformations.normalise_alignment(alignment))
             writer.writerow({
                 'sentence_id': sentence.id,
                 'parent_coding': json.dumps(int_alignment[0]),
@@ -196,37 +194,36 @@ def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
             })
             n_aligned_session += 1
 
-            if len(alignable_sentence_ids) > 0:
+            try:
+                sentence, alignment, cursor = \
+                    load_sentence(alignable_sentence_ids)
                 logger.info('Load next sentence')
-                sid = alignable_sentence_ids.pop()
-                sentence = Sentence.objects.get(id=sid)
-                alignment = equalise_alignment(
-                    (sentence.parent.tokens, sentence.tokens, 0), True)
-                cursor = 0
                 message = ('Sentence saved, next sentence (#{}) loaded.'
                            .format(sentence.id))
-            else:
+            except IndexError:
                 # No sentences left to align
                 outmessages.append('No more sentences to align. quitting.')
                 break
-        elif key == ord('c'):
-            # Clean double gaps
-            logger.info('Clean double gaps')
-            alignment = equalise_alignment(alignment, True)
-            message = 'Double gaps cleaned.'
+        elif key == ord('n'):
+            # Normalise gaps
+            logger.info('Normalise gaps')
+            alignment = transformations.normalise_alignment(alignment)
+            message = 'Gaps normalised.'
         elif key == ord('1'):
             # Add gap above
             logger.info('+gap↑ at index %d', cursor)
             seq1, seq2, score = alignment
             seq1 = seq1[:cursor] + (ALIGNMENT_GAP_CHAR,) + seq1[cursor:]
-            alignment = equalise_alignment((seq1, seq2, score), False)
+            alignment = transformations.normalise_alignment(
+                (seq1, seq2, score), clean_inside=False)
         elif key == ord('2'):
             # Remove gap above
             seq1, seq2, score = alignment
             if token_eq(seq1[cursor], ALIGNMENT_GAP_CHAR):
                 logger.info('-gap↑ at index %d', cursor)
                 seq1 = seq1[:cursor] + seq1[cursor + 1:]
-                alignment = equalise_alignment((seq1, seq2, score), False)
+                alignment = transformations.normalise_alignment(
+                    (seq1, seq2, score), clean_inside=False)
             else:
                 logger.info('Ignore -gap↑ at index %d (not a gap)',
                             cursor)
@@ -235,14 +232,16 @@ def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
             logger.info('+gap↓ at index %d', cursor)
             seq1, seq2, score = alignment
             seq2 = seq2[:cursor] + (ALIGNMENT_GAP_CHAR,) + seq2[cursor:]
-            alignment = equalise_alignment((seq1, seq2, score), False)
+            alignment = transformations.normalise_alignment(
+                (seq1, seq2, score), clean_inside=False)
         elif key == ord('0'):
             # Remove gap below
             seq1, seq2, score = alignment
             if token_eq(seq2[cursor], ALIGNMENT_GAP_CHAR):
                 logger.info('-gap↓ at index %d', cursor)
                 seq2 = seq2[:cursor] + seq2[cursor + 1:]
-                alignment = equalise_alignment((seq1, seq2, score), False)
+                alignment = transformations.normalise_alignment(
+                    (seq1, seq2, score), clean_inside=False)
             else:
                 logger.info('Ignore -gap↓ at index %d (not a gap)',
                             cursor)
@@ -261,6 +260,23 @@ def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
                        .format(n_aligned_session, filename))
 
 
+def load_sentence(alignable_sentence_ids):
+    from gists.models import Sentence
+
+    while True:
+        sid = alignable_sentence_ids.pop()
+        sentence = Sentence.objects.get(id=sid)
+        # Only a sentence if it actually has changes
+        if sentence.parent.ow_distance(sentence) > 0:
+            break
+
+    alignment = transformations.normalise_alignment(
+        (sentence.parent.tokens, sentence.tokens, 0))
+    cursor = 0
+
+    return sentence, alignment, cursor
+
+
 def get_window_sizes_coords():
     screen_width = curses.COLS
     screen_height = curses.LINES
@@ -272,7 +288,7 @@ def get_window_sizes_coords():
     footer_height = 3
 
     log_width = screen_width - 2 * MARGIN
-    log_height = 20
+    log_height = 10
 
     main_width = screen_width - 2 * MARGIN
     main_height = (screen_height
@@ -319,32 +335,9 @@ def int_encode_alignment(alignment):
     return (iseq1, iseq2)
 
 
-def equalise_alignment(alignment, clean_inside):
-    seq1, seq2, score = alignment
-    seq1 = tuple(seq1)
-    seq2 = tuple(seq2)
-
-    seq1, seq2 = zip(
-        *[(token1, token2)
-          for token1, token2 in itertools.zip_longest(
-              seq1, seq2, fillvalue=ALIGNMENT_GAP_CHAR)
-          if (not clean_inside or
-              not token_eq(token1, ALIGNMENT_GAP_CHAR) or
-              not token_eq(token2, ALIGNMENT_GAP_CHAR))]
-    )
-
-    # Always strip trailing gaps
-    while (token_eq(seq1[-1], ALIGNMENT_GAP_CHAR) and
-           token_eq(seq2[-1], ALIGNMENT_GAP_CHAR)):
-        seq1 = seq1[:-1]
-        seq2 = seq2[:-1]
-
-    return (seq1, seq2, score)
-
-
 def draw_alignment(screen, alignment, cursor):
-    formatted = format_alignment(alignment, width=screen.getmaxyx()[1],
-                                 format='rich')
+    formatted = transformations.format_alignment(
+        alignment, width=screen.getmaxyx()[1], format='rich')
     tokens_passed = 0
 
     for i, (line1, line2) in enumerate(zip(formatted['text1'],
