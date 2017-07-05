@@ -16,9 +16,9 @@ from analysis.utils import memoized, token_eq
 from analysis.settings import ALIGNMENT_GAP_CHAR
 
 
-# TODO: add a --read option to read/review alignments that are already done.
-#       It starts with those, noting them as being reviewed,
-#       then moves on to the rest.
+# TODO[feat]: add a --read option to read/review alignments that are already
+#             done. It starts with those, noting them as being reviewed,
+#             then moves on to the rest.
 
 
 logger = logging.getLogger(__name__)

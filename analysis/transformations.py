@@ -266,7 +266,7 @@ def _encode_exchange(i, orth1, space1, orth2, space2, exchanges,
 
 
 # TODO: test
-# TODO: add support for rich format
+# TODO[feat]: add support for rich format
 def format_deep_alignment_single_subalignment(alignment, subalignemnt_idx,
                                               width=80, depth=0):
     """TODO: docs."""
@@ -503,6 +503,8 @@ def gaps(sequence, gap_char=settings.ALIGNMENT_GAP_CHAR):
     # Close an ending gap
     if gap_start is not None:
         found_gaps.append((gap_start, i + 1))
+
+    # TODO[feat]: split gaps at sentence change
 
     return found_gaps
 
