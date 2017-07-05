@@ -10,6 +10,42 @@ from . import settings
 
 
 # TODO: test
+def int_encode_scoreless_alignment(alignment,
+                                   gap_char=settings.ALIGNMENT_GAP_CHAR):
+    """TODO: docs."""
+    seq1, seq2, _ = alignment
+    iseq1 = []
+    iseq2 = []
+
+    for seq, iseq in zip([seq1, seq2], [iseq1, iseq2]):
+        i = 0
+        for token in seq:
+            if token_eq(token, gap_char):
+                iseq.append(-1)
+            else:
+                iseq.append(i)
+                i += 1
+        assert i == sum(not token_eq(token, gap_char)
+                        for token in seq)
+
+    return (iseq1, iseq2)
+
+
+# TODO: test
+def int_decode_scoreless_alignment(tokens1, tokens2, int_alignment,
+                                   gap_char=settings.ALIGNMENT_GAP_CHAR):
+    """TODO: docs."""
+    iseq1, iseq2 = int_alignment
+    assert max(iseq1) == len(tokens1) - 1
+    assert max(iseq2) == len(tokens2) - 1
+    assert len(iseq1) == sum(idx == -1 for idx in iseq1) + len(tokens1)
+    assert len(iseq2) == sum(idx == -1 for idx in iseq2) + len(tokens2)
+    seq1 = [tokens1[idx] if idx >= 0 else gap_char for idx in iseq1]
+    seq2 = [tokens2[idx] if idx >= 0 else gap_char for idx in iseq2]
+    return (seq1, seq2)
+
+
+# TODO: test
 def _token_orth_whitespace(token, next_token):
     """Gets a `token`'s `orth_` and following whitespace, depending on
     the `next_token` that will be printed after it.

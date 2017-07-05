@@ -185,7 +185,7 @@ def tui(screen, writer, filename, n_aligned_file, alignable_sentence_ids,
                 cursor -= 1
         elif key == ord('s'):
             logger.info('Save current alignment')
-            int_alignment = int_encode_alignment(
+            int_alignment = transformations.int_encode_scoreless_alignment(
                 transformations.normalise_alignment(alignment))
             writer.writerow({
                 'sentence_id': sentence.id,
@@ -314,25 +314,6 @@ def addrichlist(screen, i, j, richlist):
     for style, span in richlist:
         screen.addstr(i, cursor, span, style_to_curses(style))
         cursor += len(span)
-
-
-def int_encode_alignment(alignment):
-    seq1, seq2, _ = alignment
-    iseq1 = []
-    iseq2 = []
-
-    for seq, iseq in zip([seq1, seq2], [iseq1, iseq2]):
-        i = 0
-        for token in seq:
-            if token_eq(token, ALIGNMENT_GAP_CHAR):
-                iseq.append(-1)
-            else:
-                iseq.append(i)
-                i += 1
-        assert i == sum(not token_eq(token, ALIGNMENT_GAP_CHAR)
-                        for token in seq)
-
-    return (iseq1, iseq2)
 
 
 def draw_alignment(screen, alignment, cursor):
