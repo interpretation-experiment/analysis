@@ -639,7 +639,7 @@ def deep_align_lemmas(tokens1, tokens2, depth=0,
                 )
         best_subalignment_score = max(subalignments_scores.values())
 
-        # Store the best mappingss in our deep_alignment
+        # Store the best mappings in our deep_alignment
         subalignments = []
         for mapping, subalignment_score in subalignments_scores.items():
             if subalignment_score == best_subalignment_score:
