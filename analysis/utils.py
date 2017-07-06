@@ -65,28 +65,33 @@ def grouper(iterable, n, fillvalue=None):
 
 
 # TODO: test
-def mappings(iter1, iter2, n):
-    """Iterate over all mappings of `n` elements from `iter1` to `iter2`."""
+def mappings(set1, set2, n):
+    """Iterate over all mappings of `n` elements from `set1` to `set2`."""
 
-    if n == 0:
+    set1 = set(set1)
+    set2 = set(set2)
+    assert n <= len(set1) and n <= len(set2)
+
+    if n == 0 or len(set1) == 0 or len(set2) == 0:
         yield frozenset()
         return
 
-    all_links = itertools.product(iter1, iter2)
-    for combination in itertools.combinations(all_links, n):
-        # Filter out unordered combinations
-        ordered = True
-        for i in range(n - 1):
-            if combination[i] >= combination[i+1]:
-                ordered = False
-                break
-        if not ordered:
-            break
+    if n == 1:
+        yield from map(lambda pair: frozenset([pair]),
+                       itertools.product(set1, set2))
+        return
 
-        # Check all sources and destinations are used only once
-        sources, destinations = zip(*combination)
-        if len(set(sources)) == n and len(set(destinations)) == n:
-            yield frozenset(combination)
+    list1 = list(set1)
+    if n < len(set1):
+        for mapping in mappings(list1[:-1], set2, n):
+            yield mapping
+
+    last = list1[-1]
+    for mapping in mappings(list1[:-1], set2, n - 1):
+        dests = map(lambda pair: pair[1], mapping)
+        unused_destinations = set2.difference(dests)
+        for dest in unused_destinations:
+            yield mapping.union([(last, dest)])
 
 
 class memoized(object):
