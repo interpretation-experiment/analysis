@@ -540,8 +540,6 @@ def gaps(sequence, gap_char=settings.ALIGNMENT_GAP_CHAR):
     if gap_start is not None:
         found_gaps.append((gap_start, i + 1))
 
-    # TODO[feat]: split gaps at sentence change
-
     return found_gaps
 
 
@@ -561,7 +559,8 @@ def deep_align_lemmas(tokens1, tokens2, depth=0,
     """TODO: docs."""
 
     log(depth, 'deep-aligning', tokens1, tokens2)
-    base_alignments = align_lemmas(tokens1, tokens2)
+    base_alignments = align_lemmas(tokens1, tokens2, gap_char=gap_char,
+                                   parameters=parameters)
     # deep_alignments =
     #     [ { 'seq1': sequence
     #       , 'seq2': sequence
@@ -611,7 +610,8 @@ def deep_align_lemmas(tokens1, tokens2, depth=0,
             subseq1 = tuple(seq1[slice(*gap2)])
             subseq2 = tuple(seq2[slice(*gap1)])
             exchanges_deep_alignments[(gap1, gap2)] = \
-                deep_align_lemmas(subseq1, subseq2, depth+1)
+                deep_align_lemmas(subseq1, subseq2, depth=depth+1,
+                                  gap_char=gap_char, parameters=parameters)
 
         # Score all the subalignments of gaps1 to gaps2
         subalignments_scores = {}
@@ -625,9 +625,16 @@ def deep_align_lemmas(tokens1, tokens2, depth=0,
                     exchanges_deep_alignments[exchange][0]['deep_score']
                     for exchange in mapping
                 )
+                mapping_recovery = sum(
+                    2 * parameters['GAP_OPEN']
+                    + (stop1 - start1 - 1) * parameters['GAP_EXTEND']
+                    + (stop2 - start2 - 1) * parameters['GAP_EXTEND']
+                    for (start1, stop1), (start2, stop2) in mapping
+                )
                 # Add to that the cost of n_exchanges
                 subalignments_scores[mapping] = (
                     n_exchanges * parameters['EXCHANGE']
+                    - mapping_recovery
                     + mapping_score
                 )
         best_subalignment_score = max(subalignments_scores.values())
@@ -674,38 +681,50 @@ def equip_sentence_alignments(models):
     """
 
     @memoized
-    def _align_lemmas(self, sentence):
+    def _align_lemmas(
+            self, sentence,
+            parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
         """Find optimal alignments between `self`'s and `sentence`'s lemmas,
         returning alignments of `spacy.tokens.Token` objects."""
 
-        return align_lemmas(self.tokens, sentence.tokens)
+        return align_lemmas(self.tokens, sentence.tokens,
+                            parameters=parameters)
 
     models.Sentence.align_lemmas = _align_lemmas
 
     @memoized
-    def _align_content_lemmas(self, sentence):
+    def _align_content_lemmas(
+            self, sentence,
+            parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
         """Find optimal alignments between `self`'s and `sentence`'s lemmas,
         returning alignments of `spacy.tokens.Token` objects."""
 
-        return align_lemmas(self.content_tokens, sentence.content_tokens)
+        return align_lemmas(self.content_tokens, sentence.content_tokens,
+                            parameters=parameters)
 
     models.Sentence.align_content_lemmas = _align_content_lemmas
 
     @memoized
-    def _align_deep_lemmas(self, sentence):
+    def _align_deep_lemmas(
+            self, sentence,
+            parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
         """Find optimal deep-alignments between `self`'s and `sentence`'s
         lemmas, returning deep-alignments of `spacy.tokens.Token` objects."""
 
-        return deep_align_lemmas(self.tokens, sentence.tokens)
+        return deep_align_lemmas(self.tokens, sentence.tokens,
+                                 parameters=parameters)
 
     models.Sentence.align_deep_lemmas = _align_deep_lemmas
 
     @memoized
-    def _align_deep_content_lemmas(self, sentence):
+    def _align_deep_content_lemmas(
+            self, sentence,
+            parameters=frozendict(settings.ALIGNMENT_PARAMETERS)):
         """Find optimal deep-alignments between `self`'s and `sentence`'s
         lemmas, returning deep-alignments of `spacy.tokens.Token` objects."""
 
-        return deep_align_lemmas(self.content_tokens, sentence.content_tokens)
+        return deep_align_lemmas(self.content_tokens, sentence.content_tokens,
+                                 parameters=parameters)
 
     models.Sentence.align_deep_content_lemmas = _align_deep_content_lemmas
     models.Sentence.ALIGNMENT_TYPES = ['lemmas', 'content_lemmas',
