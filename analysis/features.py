@@ -371,8 +371,8 @@ class Features:
                            for i, tok in enumerate(tokens)],
                           dtype=np.float_)
         if stopwords == self._SW_NAN:
-            values = [v if i in self.content_ids else np.nan
-                      for i, v in enumerate(values)]
+            values = np.array([v if i in self.content_ids else np.nan
+                               for i, v in enumerate(values)])
 
         if rel is not None:
             assert not categorical, ("Categorical features can't "
