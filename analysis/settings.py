@@ -16,12 +16,11 @@ MODELS_FOLDER = join(DATA_FOLDER, 'models')
 MODEL_TEMPLATE = join(MODELS_FOLDER, '{n}-gram_{type}.pickle')
 
 ALIGNMENT_GAP_CHAR = '-'
+# Obtained through optimisation in notebooks/exp_3/optimise_alignment.ipynb
 ALIGNMENT_PARAMETERS = {
-    'COMPARE_FACTOR': 1.5,
-    'COMPARE_ORIGIN': -.5,
-    'GAP_OPEN': -.5,
-    'GAP_EXTEND': -.1,
-    'EXCHANGE': -1,
-    # We could also add an exchange factor whith which to
-    # scale all operations behind an exchange
+    'COMPARE_FACTOR': 1.0,
+    'COMPARE_ORIGIN': -0.88888888888888884,
+    'GAP_OPEN': -0.29222222222222227,
+    'GAP_EXTEND': -0.11888888888888893,
+    'EXCHANGE': -.2,
 }
