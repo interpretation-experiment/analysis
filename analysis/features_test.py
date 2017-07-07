@@ -200,14 +200,15 @@ def test_features_features(models, nlp):
     assert nanequal(sentence.features('pos', stopwords='exclude'),
                     [spacy.symbols.ADJ, spacy.symbols.NOUN, spacy.symbols.ADJ,
                      spacy.symbols.NOUN])
-    # assert sentence.features('sentence_prop') == \
-    #     np.arange(len(sentence.tokens)) / (len(sentence.tokens) - 1)
-    # assert nanequal(sentence.features('sentence_prop', stopwords='nan'),
-    #                 np.array([np.nan, 1, 2, np.nan, np.nan, 5, 6])
-    #                 / (len(sentence.tokens) - 1))
-    # assert sentence.features('sentence_prop', stopwords='exclude') == \
-    #     (np.arange(len(sentence.content_tokens))
-    #      / (len(sentence.content_tokens) - 1))
+    assert nanequal(sentence.features('sentence_prop'),
+                    np.arange(len(sentence.tokens))
+                    / (len(sentence.tokens) - 1))
+    assert nanequal(sentence.features('sentence_prop', stopwords='nan'),
+                    np.array([np.nan, 1, 2, np.nan, np.nan, 5, 6])
+                    / (len(sentence.tokens) - 1))
+    assert nanequal(sentence.features('sentence_prop', stopwords='exclude'),
+                    np.arange(len(sentence.content_tokens))
+                    / (len(sentence.content_tokens) - 1))
     # Categorical variables can't be sentence-relative
     with pytest.raises(AssertionError):
         sentence.features('pos', rel='mean')
@@ -368,21 +369,21 @@ def test_features_depth_subtree_prop(models, nlp):
     assert models.Sentence._depth_subtree_prop((None, doc[6], None)) == .5
 
 
-# def test_features_sentence_prop(models, nlp):
-#     doc = nlp("It is, he, in there")
-#
-#     # No target is not possible
-#     with pytest.raises(AssertionError):
-#         models.Sentence._sentence_prop(None)
-#     # Test a few values
-#     assert models.Sentence._sentence_prop((doc, doc[0], 0)) == 0
-#     assert models.Sentence._sentence_prop((doc, doc[1], 1)) == 1 / 6
-#     assert models.Sentence._sentence_prop((doc, doc[2], 2)) == 2 / 6
-#     assert models.Sentence._sentence_prop((doc, doc[3], 3)) == 3 / 6
-#     assert models.Sentence._sentence_prop((doc, doc[4], 4)) == 4 / 6
-#     assert models.Sentence._sentence_prop((doc[2:5], doc[2], 0)) == 0
-#     assert models.Sentence._sentence_prop((doc[2:5], doc[3], 1)) == 1 / 2
-#     assert models.Sentence._sentence_prop((doc[2:5], doc[4], 2)) == 2 / 2
+def test_features_sentence_prop(models, nlp):
+    doc = nlp("It is, he, in there")
+
+    # No target is not possible
+    with pytest.raises(AssertionError):
+        models.Sentence._sentence_prop(None)
+    # Test a few values
+    assert models.Sentence._sentence_prop((doc, doc[0], 0)) == 0
+    assert models.Sentence._sentence_prop((doc, doc[1], 1)) == 1 / 6
+    assert models.Sentence._sentence_prop((doc, doc[2], 2)) == 2 / 6
+    assert models.Sentence._sentence_prop((doc, doc[3], 3)) == 3 / 6
+    assert models.Sentence._sentence_prop((doc, doc[4], 4)) == 4 / 6
+    assert models.Sentence._sentence_prop((doc[2:5], doc[2], 0)) == 0
+    assert models.Sentence._sentence_prop((doc[2:5], doc[3], 1)) == 1 / 2
+    assert models.Sentence._sentence_prop((doc[2:5], doc[4], 2)) == 2 / 2
 
 
 def test_features_pos(models, nlp):
