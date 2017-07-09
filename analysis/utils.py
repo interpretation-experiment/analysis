@@ -3,6 +3,7 @@ import csv
 import pickle
 import functools
 import itertools
+import weakref
 
 import spacy
 import numpy as np
@@ -102,10 +103,13 @@ class memoized(object):
 
     """
 
+    instances = weakref.WeakSet()
+
     def __init__(self, func):
         self.func = func
         self.cache = {}
         functools.update_wrapper(self, self.func)
+        self.instances.add(self)
 
     def __call__(self, *args, **kwargs):
         key = (args, frozenset(kwargs.items()))

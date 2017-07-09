@@ -46,7 +46,6 @@ def equip_sentence_shaping(models):
     ))
 
     # Give easy access to non-spam sentences
-    @memoized
     def get_nonspam(self):
         if self.model != models.Sentence:
             raise ValueError('Only available on Sentence')
@@ -58,7 +57,6 @@ def equip_sentence_shaping(models):
     QuerySet.nonspam = property(get_nonspam)
 
     # Create doublepost codings
-    @memoized
     def get_self_doublepost(self):
         if self.parent is None:
             # Root sentences are not doubleposts
@@ -78,14 +76,13 @@ def equip_sentence_shaping(models):
         # with smaller id, we're self_doublepost.
         return (others.count() > 0 and others.first().id < self.id)
 
-    models.Sentence._self_doublepost = property(get_self_doublepost)
+    models.Sentence._self_doublepost = property(memoized(get_self_doublepost))
     models.Sentence.doublepost = property(memoized(
         lambda self: (self._self_doublepost or
                       (self.parent is not None and self.parent.doublepost))
     ))
 
     # Give easy access to non-doublepost sentences
-    @memoized
     def get_nondoublepost(self):
         if self.model != models.Sentence:
             raise ValueError('Only available on Sentence')
@@ -97,7 +94,6 @@ def equip_sentence_shaping(models):
     QuerySet.nondoublepost = property(get_nondoublepost)
 
     # Create rogue codings
-    @memoized
     def get_self_rogue(self):
         if self.parent is None:
             # Root sentences are not rogue
@@ -133,7 +129,7 @@ def equip_sentence_shaping(models):
         # No better competitor, so we're not self_rogue
         return False
 
-    models.Sentence._self_rogue = property(get_self_rogue)
+    models.Sentence._self_rogue = property(memoized(get_self_rogue))
     models.Sentence.rogue = property(memoized(
         lambda self: (self._self_rogue or
                       (self.children.nonspam.nondoublepost.count() > 0 and
@@ -142,7 +138,6 @@ def equip_sentence_shaping(models):
     ))
 
     # Give easy access to non-rogue sentences
-    @memoized
     def get_nonrogue(self):
         if self.model != models.Sentence:
             raise ValueError('Only available on Sentence')
@@ -153,13 +148,17 @@ def equip_sentence_shaping(models):
     Manager.nonrogue = property(get_nonrogue)
     QuerySet.nonrogue = property(get_nonrogue)
 
+    models.Sentence.kept = property(memoized(
+        lambda self: not self.spam and not self.doublepost and not self.rogue
+    ))
+
     # Easily access sentences we want to keep
-    @memoized
     def get_kept(self):
         if self.model != models.Sentence:
             raise ValueError('Only available on Sentence')
 
-        return self.nonspam.nondoublepost.nonrogue
+        ids = [s.id for s in self.all() if s.kept]
+        return self.filter(pk__in=ids)
 
     Manager.kept = property(get_kept)
     QuerySet.kept = property(get_kept)
