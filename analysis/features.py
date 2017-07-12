@@ -18,7 +18,7 @@ import numpy as np
 from nltk.corpus import cmudict, wordnet
 import spacy
 
-from .contents import doc_tokens
+from .contents import doc_tokens, equip_sentence_words
 from .utils import memoized, unpickle
 from . import settings
 
@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 def equip_sentence_features(models):
     """Redefine the sentence class to add the :class:`Feature` mixin to it."""
     models.Sentence.__bases__ = (Features,) + models.Sentence.__bases__
+    equip_sentence_words(MockModels)
 
 
 @memoized
@@ -406,7 +407,7 @@ class Features:
                 # necessary as some features are context-sensitive)
                 syn_text = (self.text[:target_tok.idx] + syn
                             + self.text[target_tok.idx + len(target_tok):])
-                syn_sentence = self.__class__(id=np.nan, text=syn_text)
+                syn_sentence = MockSentence(syn_text)
                 # Never compute sentence-relative, as we take care of
                 # that below. Also, deal with stopwords ourselves, as the
                 # reconstituted sentence could infer different stopwords from
@@ -808,3 +809,20 @@ class Features:
         doc = tokens[0].doc
         # Average depth of all doc heads (can span several sentences)
         return np.mean([_depth_under(tok) for tok in doc if tok.head == tok])
+
+
+class MockSentence(Features):
+
+    """Mock a Gistr sentence to compute feature values on, without the
+    Django overhead."""
+
+    def __init__(self, text):
+        self.text = text
+
+
+class MockModels:
+
+    """Mock a models namespace that we can pass to
+    `contents.equip_sentence_words`."""
+
+    Sentence = MockSentence
