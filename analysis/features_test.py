@@ -132,11 +132,10 @@ def test_depth_subtree_prop(nlp):
 
 
 def test_features_feature(models):
-    # Note the id here is necessary to make the Sentence instance hashable, but
-    # that value must not exist elsewhere, or a cached value will be used. We
-    # use negative values to avoid conflict with sentences from the database,
-    # and these values must be distinct for all tests here.
-    sentence = models.Sentence(id=-1, text="Some real words in a new sentence")
+    # Note the id here is necessary to make the Sentence instance hashable,
+    # and using np.nan makes sure no cached values will be used.
+    sentence = models.Sentence(id=np.nan,
+                               text="Some real words in a new sentence")
     # Test some values
     assert sentence.feature('aoa') == np.mean([4.95, 4.72, 5.84])
     assert sentence.feature('orthographic_density') == \
@@ -162,12 +161,87 @@ def test_features_feature(models):
         sentence.feature('dep_depth', stopwords='exclude')
 
 
+def test_features_token_average(models):
+    sentence = models.Sentence(id=np.nan,
+                               text="Some real words in a new sentence")
+
+    # Global average with or without stopwords
+    assert_approx_equal(sentence.token_average(0, 'aoa'), 11.098342635040861)
+    assert_approx_equal(sentence.token_average(1, 'aoa', stopwords='exclude'),
+                        11.098342635040861)
+    assert_approx_equal(sentence.token_average(2, 'aoa'), 11.098342635040861)
+
+    # Global average with nan stopwords
+    assert np.isnan(sentence.token_average(0, 'aoa', stopwords='nan'))
+    assert_approx_equal(sentence.token_average(1, 'aoa', stopwords='nan'),
+                        11.098342635040861)
+    assert_approx_equal(sentence.token_average(2, 'aoa', stopwords='nan'),
+                        11.098342635040861)
+
+    # Global sentence-relative average with or without stopwords
+    assert_approx_equal(sentence.token_average(0, 'aoa', rel='mean'),
+                        11.098342635040861 - 6.6520856587602148)
+    assert_approx_equal(sentence.token_average(1, 'aoa', rel='median'),
+                        11.098342635040861 - 5.84)
+    assert_approx_equal(sentence.token_average(2, 'aoa', rel='mean',
+                                               stopwords='exclude'),
+                        11.098342635040861 - 7.2961142116802868)
+
+    # Global sentence-relative average with nan stopwords
+    assert np.isnan(sentence.token_average(0, 'aoa', rel='mean',
+                                           stopwords='nan'))
+
+    # Synonyms average with or without stopwords
+    # first test: none of the synonyms of 'some' are coded in aoa
+    assert np.isnan(sentence.token_average(0, 'aoa', restrict_synonyms=True))
+    assert_approx_equal(sentence.token_average(1, 'aoa',
+                                               restrict_synonyms=True),
+                        9.6671428571428581)
+    assert_approx_equal(sentence.token_average(3, 'aoa', stopwords='exclude',
+                                               restrict_synonyms=True),
+                        10.215999999999999)
+
+    # Synonyms average with nan stopwords
+    assert np.isnan(sentence.token_average(0, 'aoa', stopwords='nan',
+                                           restrict_synonyms=True))
+    assert_approx_equal(sentence.token_average(1, 'aoa', stopwords='nan',
+                                               restrict_synonyms=True),
+                        9.6671428571428581)
+
+    # Synonyms sentence-relative average
+    # first test: none of the synonyms of 'some' are coded in aoa
+    assert np.isnan(sentence.token_average(0, 'aoa', rel='mean',
+                                           restrict_synonyms=True))
+    assert_approx_equal(sentence.token_average(1, 'aoa', rel='mean',
+                                               restrict_synonyms=True),
+                        9.6671428571428581 - 6.7423809523809526)
+    assert_approx_equal(sentence.token_average(1, 'aoa', rel='median',
+                                               restrict_synonyms=True),
+                        9.6671428571428581 - 5.84)
+
+    # No categorical features
+    with pytest.raises(AssertionError):
+        sentence.token_average(0, 'pos')
+
+    # No coding pool available
+    with pytest.raises(features.PoolError):
+        sentence.token_average(0, '1_gram_word')
+    with pytest.raises(features.PoolError):
+        sentence.token_average(0, '1_gram_word', stopwords='exclude')
+    with pytest.raises(features.PoolError):
+        sentence.token_average(0, '1_gram_word', stopwords='nan')
+
+    # No coding pool available, but restrict_synonyms asked
+    assert_approx_equal(sentence.token_average(0, '1_gram_word',
+                                               restrict_synonyms=True),
+                        12.891901296190158)
+
+
 def test_features_features(models, nlp):
-    # Note the id here is necessary to make the Sentence instance hashable, but
-    # that value must not exist elsewhere, or a cached value will be used. We
-    # use negative values to avoid conflict with sentences from the database,
-    # and these values must be distinct for all tests here.
-    sentence = models.Sentence(id=-2, text="Some real words in a new sentence")
+    # Note the id here is necessary to make the Sentence instance hashable,
+    # and using np.nan makes sure no cached values will be used.
+    sentence = models.Sentence(id=np.nan,
+                               text="Some real words in a new sentence")
     # Test some values
     assert nanequal(sentence.features('aoa'),
                     [np.nan, 4.95, np.nan, np.nan, np.nan, 4.72, 5.84])
@@ -224,6 +298,24 @@ def test_features_features(models, nlp):
         sentence.features('xxx')
 
 
+def test_strict_synonyms(models):
+    assert models.Sentence._strict_synonyms('frisbee') == set()
+    assert models.Sentence._strict_synonyms('dog') == \
+        {'frump', 'cad', 'bounder', 'blackguard', 'hound', 'heel', 'frank',
+         'frankfurter', 'hotdog', 'wiener', 'wienerwurst', 'weenie', 'pawl',
+         'detent', 'click', 'andiron', 'firedog', 'chase', 'trail', 'tail',
+         'tag', 'track'}
+    assert models.Sentence._strict_synonyms('dog', compounds=True) == \
+        {'domestic_dog', 'canis_familiaris', 'frump', 'cad', 'bounder',
+         'blackguard', 'hound', 'heel', 'frank', 'frankfurter', 'hotdog',
+         'hot_dog', 'wiener', 'wienerwurst', 'weenie', 'pawl', 'detent',
+         'click', 'andiron', 'firedog', 'dog-iron', 'chase', 'chase_after',
+         'trail', 'tail', 'tag', 'give_chase', 'go_after', 'track'}
+    assert models.Sentence._strict_synonyms('makakiki') == set()
+    assert models.Sentence.\
+        _strict_synonyms('makakiki', compounds=True) == set()
+
+
 def test_features_letters_count(models):
     assert models.Sentence._letters_count(
         (None, Namespace(lower_='dog'), None)) == 3
@@ -270,7 +362,7 @@ def test_features_ngram_logprob(models, nlp):
     tok = doc[2]
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._ngram_logprob(1, 'word', None)
     # Unknown models are rejected
     with pytest.raises(AssertionError):
@@ -301,7 +393,7 @@ def test_features_n_gram_type(models, nlp):
         models.Sentence._3_gram_tag((doc, tok, 2)),
         5.443133027293688)
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._1_gram_word()
 
 
@@ -309,7 +401,7 @@ def test_features_depth_under(models, nlp):
     doc = nlp("It is, he, in there")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._depth_under(None)
     # Test a few values
     assert models.Sentence._depth_under((None, doc[0], None)) == 0
@@ -325,7 +417,7 @@ def test_features_depth_above(models, nlp):
     doc = nlp("It is, he, in there")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._depth_above(None)
     # Test a few values
     assert models.Sentence._depth_above((None, doc[0], None)) == 1
@@ -341,7 +433,7 @@ def test_features_depth_prop(models, nlp):
     doc = nlp("It is, he, in there")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._depth_prop(None)
     # Test a few values
     assert models.Sentence._depth_prop((None, doc[0], None)) == .5
@@ -357,7 +449,7 @@ def test_features_depth_subtree_prop(models, nlp):
     doc = nlp("It is, he, in there")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._depth_subtree_prop(None)
     # Test a few values
     assert models.Sentence._depth_subtree_prop((None, doc[0], None)) == 1
@@ -373,7 +465,7 @@ def test_features_sentence_prop(models, nlp):
     doc = nlp("It is, he, in there")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._sentence_prop(None)
     # Test a few values
     assert models.Sentence._sentence_prop((doc, doc[0], 0)) == 0
@@ -390,7 +482,7 @@ def test_features_pos(models, nlp):
     doc = nlp("This is a sentence")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._pos(None)
     # Test a few values
     assert models.Sentence._pos((None, doc[0], None)) == spacy.symbols.DET
@@ -403,7 +495,7 @@ def test_features_dep(models, nlp):
     doc = nlp("This is a sentence")
 
     # No target is not possible
-    with pytest.raises(AssertionError):
+    with pytest.raises(features.PoolError):
         models.Sentence._dep(None)
     # Test a few values
     assert models.Sentence._dep((None, doc[0], None)) == spacy.symbols.nsubj

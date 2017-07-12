@@ -15,7 +15,7 @@ import warnings
 import functools
 
 import numpy as np
-from nltk.corpus import cmudict
+from nltk.corpus import cmudict, wordnet
 import spacy
 
 from .contents import doc_tokens
@@ -198,6 +198,13 @@ def _depth_subtree_prop(tok):
         return num / denom
 
 
+class PoolError(Exception):
+    """Raised when a coding pool is requested for a feature that doesn't
+    have any."""
+
+    pass
+
+
 def _identity(arg):
     return arg
 
@@ -312,6 +319,116 @@ class Features:
                   if stopwords == self._SW_EXCLUDE else self.tokens)
         feature = getattr(self, '_' + name)
         return feature(tokens)
+
+    @memoized
+    def token_average(self, position, name, rel=None, restrict_synonyms=False,
+                      stopwords=_SW_INCLUDE):
+        """Compute an average feature value for the position a token occupies
+        in the sentence.
+
+        Use this method to compute null-values for a feature for a given
+        position in the sentence.
+
+        Parameters
+        ----------
+        position : int
+            Index of the token for which to compute an average feature value;
+            the meaning of this value depends on the `stopwords` argument.
+        name : str
+            Feature name.
+        rel : str, optional
+            If not `None` (which is the default), return average relative to
+            values of the sentence (with or without stopwords depending on
+            `stopwords`) aggregated by this function; must be a name for which
+            `np.nan<rel>` exists.
+        restrict_synonyms : bool, optional
+            If `True`, the average returned is the average value of synonyms of
+            the token at position `position`; if `False` (the default), the
+            average is computed over all words coded in the feature's coding
+            pool (raising `PoolError` if there is none).
+        stopwords : {'include', 'nan', 'exclude'}, optional
+            How stopwords should be treated in computing features on the
+            sentence. 'include' keeps the stopwords; 'nan' replaces them with
+            `np.nan`, meaning they're not included in making the average
+            relative to the sentence, but `position` is still relative to all
+            words in the sentence (if `position` falls on a stopword the method
+            returns `np.nan`); 'exclude' removes the stopwords, such that
+            `position` is relative to content words only, and making the
+            average relative to the sentence is the same as for
+            `stopwords=nan`.
+
+        Returns
+        -------
+        avg : scalar
+            The average feature value as defined by the parameters.
+
+        """
+
+        # Check arguments
+        assert name in set(self.WORD_FEATURES.keys()), name
+        assert rel is None or hasattr(np, 'nan' + rel), rel
+        assert (stopwords in
+                [self._SW_INCLUDE, self._SW_NAN, self._SW_EXCLUDE]), stopwords
+
+        if not restrict_synonyms:
+            # If we average on the whole pool, we want to fail for a missing
+            # pool before returning nan for a nan-ed stopword. This will raise
+            # a PoolError if the feature has no coding pool.
+            feature = self._transformed_word_feature(name)
+            coded_words = feature()
+
+        if stopwords == self._SW_NAN and position not in self.content_ids:
+            # `position` is a stopword, which we convert to np.nan.
+            return np.nan
+
+        if restrict_synonyms:
+            target_tok = (self.content_tokens
+                          if stopwords == self._SW_EXCLUDE
+                          else self.tokens)[position]
+            # Compute the feature value for all synonyms of the target_tok
+            values_to_avg = []
+            for syn in self._strict_synonyms(target_tok.lemma_):
+                # Reconstitute a sentence to compute features on (this is
+                # necessary as some features are context-sensitive)
+                syn_text = (self.text[:target_tok.idx] + syn
+                            + self.text[target_tok.idx + len(target_tok):])
+                syn_sentence = self.__class__(id=np.nan, text=syn_text)
+                # Never compute sentence-relative, as we take care of
+                # that below. Also, deal with stopwords ourselves, as the
+                # reconstituted sentence could infer different stopwords from
+                # our sentence's.
+                syn_sentence_values = syn_sentence.features(name)
+                if stopwords == self._SW_EXCLUDE:
+                    syn_value = syn_sentence_values[self.content_ids[position]]
+                elif (stopwords == self._SW_NAN and
+                      position not in self.content_ids):
+                    # This should never happen as we test for above
+                    syn_value = np.nan
+                else:
+                    # stopwords is _SW_INCLUDE
+                    syn_value = syn_sentence_values[position]
+                values_to_avg.append(syn_value)
+        else:
+            # Average the feature over all coded words.
+            values_to_avg = [feature(word) for word in coded_words]
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', category=RuntimeWarning)
+            avg = np.nanmean(values_to_avg)
+
+        if rel is not None:
+            pool = getattr(np, 'nan' + rel)
+
+            # Get sentence feature values, never relative to sentence
+            # as we take care of that below
+            values = self.features(name, stopwords=stopwords).copy()
+            values[position] = avg
+
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', category=RuntimeWarning)
+                avg -= pool(values)
+
+        return avg
 
     @memoized
     def features(self, name, rel=None, stopwords=_SW_INCLUDE):
@@ -443,6 +560,31 @@ class Features:
 
         return feature
 
+    @classmethod
+    def _strict_synonyms(cls, word, compounds=False):
+        """Get the set of synonyms of `word` through WordNet, excluding `word`
+        itself; empty if nothing is found.
+
+        If `compounds=True`, also include compound synonyms.
+
+        """
+
+        # wordnet.synsets() lemmatizes words, so we might as well control it.
+        # This also lets us check the lemma is present in the generated
+        # synonym list further down.
+        lemma = wordnet.morphy(word)
+        if lemma is None:
+            return set()
+
+        # Skip multi-word synonyms
+        synonyms = set(word.lower() for synset in wordnet.synsets(lemma)
+                       for word in synset.lemma_names()
+                       if compounds or ('_' not in word and '-' not in word))
+        if len(synonyms) > 0:
+            assert lemma in synonyms
+            synonyms.remove(lemma)
+        return synonyms
+
     #
     # WORD FEATURES
     #
@@ -511,7 +653,8 @@ class Features:
         tags = (model_type == 'tag')
         model = unpickle(settings.MODEL_TEMPLATE.format(n=model_n,
                                                         type=model_type))
-        assert target is not None, "No coding pool for ngrams probs"
+        if target is None:
+            raise PoolError("No coding pool for ngrams probs")
         _, target_tok, target_position = target
 
         # Find the position of target_tok in doc_tokens, which will be the list
@@ -571,35 +714,40 @@ class Features:
     @classmethod
     def _depth_under(cls, target=None):
         """depth under"""
-        assert target is not None, "No coding pool for depth_under"
+        if target is None:
+            raise PoolError("No coding pool for depth_under")
         _, tok, _ = target
         return _depth_under(tok)
 
     @classmethod
     def _depth_above(cls, target=None):
         """depth above"""
-        assert target is not None, "No coding pool for depth_above"
+        if target is None:
+            raise PoolError("No coding pool for depth_above")
         _, tok, _ = target
         return _depth_above(tok)
 
     @classmethod
     def _depth_prop(cls, target=None):
         """depth %"""
-        assert target is not None, "No coding pool for depth_prop"
+        if target is None:
+            raise PoolError("No coding pool for depth_prop")
         _, tok, _ = target
         return _depth_prop(tok)
 
     @classmethod
     def _depth_subtree_prop(cls, target=None):
         """depth subtree %"""
-        assert target is not None, "No coding pool for depth_subtree_prop"
+        if target is None:
+            raise PoolError("No coding pool for depth_subtree_prop")
         _, tok, _ = target
         return _depth_subtree_prop(tok)
 
     @classmethod
     def _sentence_prop(cls, target=None):
         """sentence %"""
-        assert target is not None, "No coding pool for sentence_prop"
+        if target is None:
+            raise PoolError("No coding pool for sentence_prop")
         tokens, _, position = target
         return np.nan if len(tokens) <= 1 else position / (len(tokens) - 1)
 
@@ -610,14 +758,16 @@ class Features:
     @classmethod
     def _pos(cls, target=None):
         """POS"""
-        assert target is not None, "No coding pool for POS"
+        if target is None:
+            raise PoolError("No coding pool for POS")
         _, tok, _ = target
         return tok.pos
 
     @classmethod
     def _dep(cls, target=None):
         """dep"""
-        assert target is not None, "No coding pool for dep"
+        if target is None:
+            raise PoolError("No coding pool for dep")
         _, tok, _ = target
         return tok.dep
 
