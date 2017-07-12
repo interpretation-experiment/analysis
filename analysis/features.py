@@ -32,7 +32,7 @@ def equip_sentence_features(models):
     equip_sentence_words(MockModels)
 
 
-@memoized
+@memoized(level=1)
 def _get_pronunciations():
     """Get the CMU pronunciation data as a dict.
 
@@ -49,7 +49,7 @@ def _get_pronunciations():
     return cmudict.dict()
 
 
-@memoized
+@memoized(level=1)
 def _get_aoa():
     """Get the Age-of-Acquisition data as a dict.
 
@@ -80,7 +80,7 @@ def _get_aoa():
     return aoa
 
 
-@memoized
+@memoized(level=1)
 def _get_zipf_frequency():
     """Get the Frequency data as a dict.
 
@@ -111,7 +111,7 @@ def _get_zipf_frequency():
     return freqs
 
 
-@memoized
+@memoized(level=1)
 def _get_clearpond():
     """Get CLEARPOND neighbourhood density data as a dict.
 
@@ -283,7 +283,7 @@ class Features:
     _SW_EXCLUDE = 'exclude'
 
     @staticmethod
-    @memoized
+    @memoized(level=1)
     def _static_average(func):
         """Static version of :meth:`_average`, without the `source_synonyms`
         argument.

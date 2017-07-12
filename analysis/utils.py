@@ -95,7 +95,15 @@ def mappings(set1, set2, n):
             yield mapping.union([(last, dest)])
 
 
-class memoized(object):
+def memoized(level=0):
+    if callable(level):
+        # Direct memoization: `level` is the function to decorate
+        return Memoize(level)
+    else:
+        return functools.partial(Memoize, level=level)
+
+
+class Memoize:
     """Decorate a function to cache its return value each time it is called.
 
     If called later with the same arguments, the cached value is returned
@@ -105,8 +113,9 @@ class memoized(object):
 
     instances = weakref.WeakSet()
 
-    def __init__(self, func):
+    def __init__(self, func, level=0):
         self.func = func
+        self.level = level
         self.cache = {}
         functools.update_wrapper(self, self.func)
         self.instances.add(self)
@@ -130,8 +139,14 @@ class memoized(object):
     def drop_cache(self):
         self.cache = {}
 
+    @classmethod
+    def drop_caches(self, level=0):
+        for inst in self.instances:
+            if inst.level <= level:
+                inst.drop_cache()
 
-@memoized
+
+@memoized(level=1)
 def unpickle(filename):
     """Load a pickle file at path `filename`.
 
@@ -189,7 +204,7 @@ def import_spreadr_models():
     return models
 
 
-@memoized
+@memoized(level=1)
 def get_nlp():
     return spacy.load('en_core_web_md')
 
