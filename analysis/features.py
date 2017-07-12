@@ -281,6 +281,20 @@ class Features:
     _SW_NAN = 'nan'
     _SW_EXCLUDE = 'exclude'
 
+    @staticmethod
+    @memoized
+    def _static_average(func):
+        """Static version of :meth:`_average`, without the `source_synonyms`
+        argument.
+
+        The method is :func:`~.utils.memoized` since it is called so often.
+
+        """
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', category=RuntimeWarning)
+            return np.nanmean([func(word) for word in func()])
+
     @memoized
     def feature(self, name, stopwords=_SW_INCLUDE):
         """Compute feature `name` for this sentence.
@@ -375,7 +389,7 @@ class Features:
             # pool before returning nan for a nan-ed stopword. This will raise
             # a PoolError if the feature has no coding pool.
             feature = self._transformed_word_feature(name)
-            coded_words = feature()
+            feature()
 
         if stopwords == self._SW_NAN and position not in self.content_ids:
             # `position` is a stopword, which we convert to np.nan.
@@ -402,19 +416,21 @@ class Features:
                     syn_value = syn_sentence_values[self.content_ids[position]]
                 elif (stopwords == self._SW_NAN and
                       position not in self.content_ids):
-                    # This should never happen as we test for above
+                    # This should never happen as we test for it above
                     syn_value = np.nan
                 else:
                     # stopwords is _SW_INCLUDE
                     syn_value = syn_sentence_values[position]
                 values_to_avg.append(syn_value)
+
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', category=RuntimeWarning)
+                avg = np.nanmean(values_to_avg)
         else:
             # Average the feature over all coded words.
-            values_to_avg = [feature(word) for word in coded_words]
-
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', category=RuntimeWarning)
-            avg = np.nanmean(values_to_avg)
+            # This static version is called so often we factor it out and
+            # memoize it
+            avg = self._static_average(feature)
 
         if rel is not None:
             pool = getattr(np, 'nan' + rel)
@@ -561,6 +577,7 @@ class Features:
         return feature
 
     @classmethod
+    @memoized
     def _strict_synonyms(cls, word, compounds=False):
         """Get the set of synonyms of `word` through WordNet, excluding `word`
         itself; empty if nothing is found.
