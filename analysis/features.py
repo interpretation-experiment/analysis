@@ -608,7 +608,6 @@ class Features:
     #
 
     @classmethod
-    @memoized
     def _letters_count(cls, target=None):
         """#letters"""
         if target is None:
@@ -622,7 +621,6 @@ class Features:
         return len(word)
 
     @classmethod
-    @memoized
     def _aoa(cls, target=None):
         """age of acquisition"""
         aoa = _get_aoa()
@@ -636,7 +634,6 @@ class Features:
         return aoa.get(word, np.nan)
 
     @classmethod
-    @memoized
     def _zipf_frequency(cls, target=None):
         """zipf frequency"""
         frequency = _get_zipf_frequency()
@@ -650,7 +647,6 @@ class Features:
         return frequency.get(word, np.nan)
 
     @classmethod
-    @memoized
     def _orthographic_density(cls, target=None):
         """orthographic nd"""
         clearpond_orthographic = _get_clearpond()['orthographic']
@@ -664,7 +660,6 @@ class Features:
         return clearpond_orthographic.get(word, np.nan) or np.nan
 
     @classmethod
-    @memoized
     def _ngram_logprob(cls, model_n, model_type, target):
         assert model_n in (1, 2, 3), model_n
         assert model_type in ('word', 'tag'), model_type
