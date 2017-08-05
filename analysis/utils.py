@@ -65,6 +65,41 @@ def grouper(iterable, n, fillvalue=None):
     return itertools.zip_longest(*args, fillvalue=fillvalue)
 
 
+def pairwise(iterable):
+    """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return zip(a, b)
+
+
+# TODO: test
+def contiguous_chunks(ids):
+    """Get the list of contiguous chunks in `ids`.
+
+    A contiguous chunk here is a suite of ids that follow each other.
+    If `ids` is empty, returns an empty list.
+
+    """
+
+    assert len(set(ids)) == len(ids)
+    ids = sorted(ids)
+    if len(ids) == 0:
+        return []
+
+    chunks = []
+    chunk = [ids[0]]
+
+    for id in ids[1:]:
+        if id == max(chunk) + 1:
+            chunk.append(id)
+        else:
+            chunks.append(chunk)
+            chunk = [id]
+
+    chunks.append(chunk)
+    return chunks
+
+
 # TODO: test
 def mappings(set1, set2, n):
     """Iterate over all mappings of `n` elements from `set1` to `set2`."""

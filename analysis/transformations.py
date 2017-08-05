@@ -1,12 +1,244 @@
 import itertools
+from collections import Counter
 
 import spacy
 from Bio import pairwise2
 import colors
 from frozendict import frozendict
+import numpy as np
 
 from .utils import memoized, mappings, token_eq
 from . import settings
+
+
+# TODO: a huge cleanup is needed here, to unify data structures
+# and notations, add tests and docs
+
+# TODO: test
+def _gapless(sequence, idx):
+    """TODO: docs."""
+    if token_eq(sequence[idx], settings.ALIGNMENT_GAP_CHAR):
+        raise ValueError("index {} is a gap in sequence {}"
+                         .format(idx, sequence))
+    return idx - int(np.sum([token_eq(el, settings.ALIGNMENT_GAP_CHAR)
+                             for el in sequence[:idx]]))
+
+
+# TODO: test
+def _set_order_array(ids):
+    """TODO: docs."""
+    return np.array(list(sorted(set(ids))), dtype=int)
+
+
+# TODO: test
+def _chunk_indices_with_children_exc(deep_alignments):
+    """TODO: docs."""
+
+    for dal in deep_alignments:
+        seq1 = dal['seq1']
+        seq2 = dal['seq2']
+        subalignments = dal['subalignments']
+
+        # Compute this level's ins/del/insrpl/delrpl/stb ids
+        base_del_ids = []
+        base_ins_ids = []
+        base_rpl_pairs = []
+        base_stb_pairs = []
+        for i, (tok1, tok2) in enumerate(zip(seq1, seq2)):
+            if token_eq(tok2, settings.ALIGNMENT_GAP_CHAR):
+                assert not token_eq(tok1, settings.ALIGNMENT_GAP_CHAR)
+                base_del_ids.append(_gapless(seq1, i))
+            elif token_eq(tok1, settings.ALIGNMENT_GAP_CHAR):
+                assert not token_eq(tok2, settings.ALIGNMENT_GAP_CHAR)
+                base_ins_ids.append(_gapless(seq2, i))
+            elif tok1.lemma == tok2.lemma or tok1.orth == tok2.orth:
+                base_stb_pairs.append((_gapless(seq1, i),
+                                       _gapless(seq2, i),
+                                       False))
+            else:
+                base_rpl_pairs.append((_gapless(seq1, i),
+                                       _gapless(seq2, i),
+                                       False))
+
+        # Check we saw all the parent ids exactly once
+        parent_ids = (base_del_ids +
+                      [pid for pid, _, _ in base_rpl_pairs] +
+                      [pid for pid, _, _ in base_stb_pairs])
+        assert len(set(parent_ids)) == max(parent_ids) + 1
+
+        # See if that's all the work we have to do
+        if len(subalignments) == 0:
+            yield (_set_order_array(base_del_ids),
+                   _set_order_array(base_ins_ids),
+                   _set_order_array(base_rpl_pairs),
+                   _set_order_array(base_stb_pairs))
+            # Don't recurse more since there are no subalignments.
+            # Instead move on to the next deep_alignment.
+            continue
+
+        # Nope, we must combine this level with all
+        # the combinations of subalignments
+        for subalignment in subalignments:
+
+            if len(subalignment) == 0:
+                # This subalignment is the base alignment (which was as good as
+                # or better than other subalignments)
+                yield (_set_order_array(base_del_ids),
+                       _set_order_array(base_ins_ids),
+                       _set_order_array(base_rpl_pairs),
+                       _set_order_array(base_stb_pairs))
+                continue
+
+            # For this mapping, get the list of exchanges and the list of
+            # chunk_indices iterators from each exchange
+            excs, excs_chunk_indices_iter = \
+                zip(*[(exc, _chunk_indices_with_children_exc(exc_dals))
+                      for exc, exc_dals in subalignment.items()])
+            # Loop through the product of paths from each exchange
+            for excs_chunk_indices_tuple in \
+                    itertools.product(*excs_chunk_indices_iter):
+                del_ids = set(base_del_ids)
+                ins_ids = set(base_ins_ids)
+                rpl_pairs = set(base_rpl_pairs)
+                stb_pairs = set(base_stb_pairs)
+
+                for (((start1, stop1), (start2, stop2)),
+                     (exc_del_ids, exc_ins_ids,
+                      exc_rpl_pairs, exc_stb_pairs)) in \
+                        zip(excs, excs_chunk_indices_tuple):
+
+                    gapless1_start2 = _gapless(seq1, start2)
+                    gapless1_stop2 = _gapless(seq1, stop2 - 1) + 1
+                    gapless2_start1 = _gapless(seq2, start1)
+                    gapless2_stop1 = _gapless(seq2, stop1 - 1) + 1
+
+                    del_ids.difference_update(range(gapless1_start2,
+                                                    gapless1_stop2))
+                    ins_ids.difference_update(range(gapless2_start1,
+                                                    gapless2_stop1))
+
+                    del_ids.update(gapless1_start2 + exc_del_ids)
+                    ins_ids.update(gapless2_start1 + exc_ins_ids)
+                    rpl_pairs.update([(gapless1_start2 + pid,
+                                       gapless2_start1 + cid,
+                                       True)
+                                      for pid, cid, _ in exc_rpl_pairs])
+                    stb_pairs.update([(gapless1_start2 + pid,
+                                       gapless2_start1 + cid,
+                                       True)
+                                      for pid, cid, _ in exc_stb_pairs])
+
+                yield (_set_order_array(del_ids),
+                       _set_order_array(ins_ids),
+                       _set_order_array(rpl_pairs),
+                       _set_order_array(stb_pairs))
+
+
+# TODO: test
+def consensus_relationships(parent, child):
+    """TODO: docs."""
+
+    all_chunk_indices = list(
+        _chunk_indices_with_children_exc(parent.align_deep_lemmas(child)))
+
+    consensus_del = []
+    consensus_stb_pairs = []
+    consensus_rpl_pairs = []
+
+    for parent_token_id in range(len(parent.tokens)):
+        # See if more than half the deep alignments give the
+        # parent_token_id as stable
+        da_id_stable = []
+        da_id_child = []
+        for _, _, rpl_pairs, stb_pairs in all_chunk_indices:
+            if len(rpl_pairs) > 0:
+                token_rpl = np.where(rpl_pairs[:, 0] == parent_token_id)[0]
+            else:
+                token_rpl = []
+            if len(stb_pairs) > 0:
+                token_stb = np.where(stb_pairs[:, 0] == parent_token_id)[0]
+            else:
+                token_stb = []
+            if len(token_rpl) > 0:
+                assert len(token_rpl) == 1
+                assert len(token_stb) == 0
+                da_id_stable.append(True)
+                da_id_child.append(rpl_pairs[token_rpl[0], 1])
+            elif len(token_stb) > 0:
+                assert len(token_rpl) == 0
+                assert len(token_stb) == 1
+                da_id_stable.append(True)
+                da_id_child.append(stb_pairs[token_stb[0], 1])
+            else:
+                da_id_stable.append(False)
+
+        if np.mean(da_id_stable) >= .5:
+            # parent_token_id is stable, so get its majority child
+            child_token_id = sorted(Counter(da_id_child).items(),
+                                    key=lambda t: (t[1], t[0]))[-1][0]
+            # and store either as stability or replacement
+            if ((parent.tokens[parent_token_id].lemma
+                 != child.tokens[child_token_id].lemma)
+                    and (parent.tokens[parent_token_id].orth
+                         != child.tokens[child_token_id].orth)):
+                # it's a replacement
+                consensus_rpl_pairs.append((parent_token_id, child_token_id))
+            else:
+                # it's a stability
+                consensus_stb_pairs.append((parent_token_id, child_token_id))
+        else:
+            # parent_token_id is not stable
+            consensus_del.append(parent_token_id)
+
+    # Check for conflicts
+    parent2child = np.array(list(itertools.chain(consensus_rpl_pairs,
+                                                 consensus_stb_pairs)))
+    if len(set(parent2child[:, 1])) < len(parent2child[:, 1]):
+        # We have conflicts, i.e. child tokens assigned to several
+        # parent tokens. Remove the parent tokens with smallest ids.
+        conflicts_child = [cid for (cid, n_parents)
+                           in Counter(parent2child[:, 1]).items()
+                           if n_parents >= 2]
+
+        for conflict_child in conflicts_child:
+            conflict_parents = sorted([pid for (pid, cid) in parent2child
+                                       if cid == conflict_child])
+            assert len(conflict_parents) == 2, "Triple assignment found!"
+            # Remove the lowest parent
+            if (conflict_parents[0], conflict_child) in consensus_stb_pairs:
+                consensus_stb_pairs.remove((conflict_parents[0],
+                                            conflict_child))
+            elif (conflict_parents[0], conflict_child) in consensus_rpl_pairs:
+                consensus_rpl_pairs.remove((conflict_parents[0],
+                                            conflict_child))
+            else:
+                raise ValueError("Conflict not found for deletion")
+            consensus_del = sorted(consensus_del + [conflict_parents[0]])
+
+    # Cleanup and sanity checks
+    consensus_stb_pairs = np.array(consensus_stb_pairs)
+    consensus_rpl_pairs = np.array(consensus_rpl_pairs)
+    consensus_del = np.array(consensus_del)
+    assert (sorted(set(consensus_del)
+                   .union([pid for pid, _
+                           in itertools.chain(consensus_rpl_pairs,
+                                              consensus_stb_pairs)]))
+            == list(range(len(parent.tokens))))
+    assert (len(set([cid for _, cid in itertools.chain(consensus_rpl_pairs,
+                                                       consensus_stb_pairs)]))
+            == len([cid for _, cid in itertools.chain(consensus_rpl_pairs,
+                                                      consensus_stb_pairs)]))
+
+    # Get the insertions
+    consensus_ins = set(range(len(child.tokens)))
+    if len(consensus_stb_pairs) > 0:
+        consensus_ins = consensus_ins.difference(consensus_stb_pairs[:, 1])
+    if len(consensus_rpl_pairs) > 0:
+        consensus_ins = consensus_ins.difference(consensus_rpl_pairs[:, 1])
+    consensus_ins = np.array(sorted(consensus_ins))
+
+    return (consensus_del, consensus_ins,
+            consensus_rpl_pairs, consensus_stb_pairs)
 
 
 # TODO: test
@@ -729,3 +961,5 @@ def equip_sentence_alignments(models):
     models.Sentence.align_deep_content_lemmas = _align_deep_content_lemmas
     models.Sentence.ALIGNMENT_TYPES = ['lemmas', 'content_lemmas',
                                        'deep_lemmas', 'deep_content_lemmas']
+
+    models.Sentence.consensus_relationships = memoized(consensus_relationships)

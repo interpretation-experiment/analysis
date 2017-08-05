@@ -12,6 +12,7 @@ def setup(db_name):
     shaping.equip_sentence_shaping(models)
     shaping.equip_model_managers_with_bucket_type(models)
     shaping.equip_sentence_with_head_depth(models)
+    shaping.equip_sentence_branch_sentences(models)
 
     contents.equip_sentence_words(models)
     contents.equip_sentence_distances(models)

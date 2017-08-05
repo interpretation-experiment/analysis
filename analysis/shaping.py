@@ -3,6 +3,39 @@ import numpy as np
 from .utils import memoized, load_codings
 
 
+# TODO: test
+def _branch_sentences(sentence, with_root=False, with_leaf=True, cutoff=True):
+    """TODO: docs."""
+
+    from gists.models import GistsConfiguration
+    config = GistsConfiguration.get_solo()
+
+    # Walk back up to the head of the branch
+    head = sentence.head
+
+    if with_root:
+        yield head.parent
+
+    current = head
+    while (current.children.kept.count() > 0
+            and (not cutoff or current.depth < config.target_branch_depth)):
+        if current.children.kept.count() > 1:
+            raise ValueError("More than one (kept) children for sentence {}"
+                             .format(current.id))
+        yield current
+        current = current.children.kept.first()
+
+    if with_leaf:
+        # Yield the final leaf
+        yield current
+
+
+# TODO: test
+def equip_sentence_branch_sentences(models):
+    """TODO: docs."""
+    models.Sentence.branch_sentences = _branch_sentences
+
+
 def equip_sentence_shaping(models):
     """Import and compute shaping codings on sentences.
 
