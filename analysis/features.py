@@ -253,6 +253,8 @@ class Features:
         'aoa':                    _identity,
         'zipf_frequency':         _identity,
         'orthographic_density':   np.log,
+        'clustering':             np.log,
+        'synonyms_count':         np.log,
         '1_gram_word':            _identity,
         '2_gram_word':            _identity,
         '3_gram_word':            _identity,
@@ -658,6 +660,37 @@ class Features:
             _, tok, _ = target
             word = tok.lemma_
         return clearpond_orthographic.get(word, np.nan) or np.nan
+
+    @classmethod
+    def _clustering(cls, target=None):
+        """clustering"""
+        clustering = unpickle(settings.CLUSTERING)
+        if target is None:
+            return clustering.keys()
+        if isinstance(target, str):
+            word = target
+        else:
+            _, tok, _ = target
+            word = tok.lemma_
+        return clustering.get(word, np.nan)
+
+    @classmethod
+    def _synonyms_count(cls, target=None):
+        """<#synonyms>"""
+        if target is None:
+            return set(word.lower()
+                       for synset in wordnet.all_synsets()
+                       for word in synset.lemma_names())
+        if isinstance(target, str):
+            word = target
+        else:
+            _, tok, _ = target
+            word = tok.lemma_
+        synsets = wordnet.synsets(word)
+        if len(synsets) == 0:
+            return np.nan
+        count = np.mean([len(synset.lemmas()) - 1 for synset in synsets])
+        return count or np.nan
 
     @classmethod
     def _ngram_logprob(cls, model_n, model_type, target):
