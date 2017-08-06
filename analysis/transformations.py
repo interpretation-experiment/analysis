@@ -216,9 +216,9 @@ def consensus_relationships(parent, child):
             consensus_del = sorted(consensus_del + [conflict_parents[0]])
 
     # Cleanup and sanity checks
-    consensus_stb_pairs = np.array(consensus_stb_pairs)
-    consensus_rpl_pairs = np.array(consensus_rpl_pairs)
-    consensus_del = np.array(consensus_del)
+    consensus_stb_pairs = np.array(consensus_stb_pairs, dtype=int)
+    consensus_rpl_pairs = np.array(consensus_rpl_pairs, dtype=int)
+    consensus_del = np.array(consensus_del, dtype=int)
     assert (sorted(set(consensus_del)
                    .union([pid for pid, _
                            in itertools.chain(consensus_rpl_pairs,
@@ -235,7 +235,7 @@ def consensus_relationships(parent, child):
         consensus_ins = consensus_ins.difference(consensus_stb_pairs[:, 1])
     if len(consensus_rpl_pairs) > 0:
         consensus_ins = consensus_ins.difference(consensus_rpl_pairs[:, 1])
-    consensus_ins = np.array(sorted(consensus_ins))
+    consensus_ins = np.array(sorted(consensus_ins), dtype=int)
 
     return (consensus_del, consensus_ins,
             consensus_rpl_pairs, consensus_stb_pairs)
