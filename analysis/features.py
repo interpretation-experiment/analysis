@@ -148,6 +148,20 @@ def _get_clearpond():
             'phonological': clearpond_phonological}
 
 
+@memoized(level=1)
+def _get_synonyms_coding_pool():
+    """Coding pool for synonyms.
+
+    This corresponds to the Features._synonyms_count() call, but is memoized
+    at level 1 because it is so costly.
+
+    """
+
+    return set(word.lower()
+               for synset in wordnet.all_synsets()
+               for word in synset.lemma_names())
+
+
 @memoized
 def _depth_under(tok):
     """Depth of the sentence dependency tree under `tok`."""
@@ -678,9 +692,7 @@ class Features:
     def _synonyms_count(cls, target=None):
         """<#synonyms>"""
         if target is None:
-            return set(word.lower()
-                       for synset in wordnet.all_synsets()
-                       for word in synset.lemma_names())
+            return _get_synonyms_coding_pool()
         if isinstance(target, str):
             word = target
         else:
