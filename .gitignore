@@ -15,8 +15,5 @@ __pycache__/
 *.swp
 .~lock.*#
 
-# Notebook spreadr environments
-notebooks/*/spreadr_env
-
 # Pytest
 .cache/
