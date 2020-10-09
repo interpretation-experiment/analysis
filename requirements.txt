@@ -31,13 +31,13 @@ jupyter-core==4.3.0
 lifelines==0.11.1
 MarkupSafe==1.0
 matplotlib==2.0.2
-mistune==0.7.4
+mistune==0.8.1
 mpmath==0.19
 murmurhash==0.26.4
 nbconvert==5.2.1
 nbformat==4.3.0
-nltk==3.2.4
-notebook==5.0.0
+nltk==3.4.5
+notebook==5.7.8
 numpy==1.13.1
 packaging==16.8
 pandas==0.20.3
@@ -62,7 +62,7 @@ pytz==2017.2
 pyzmq==16.0.2
 qtconsole==4.3.0
 regex==2017.7.11
-requests==2.18.1
+requests==2.20.0
 scikit-learn==0.18.2
 scipy==0.19.1
 seaborn==0.8
@@ -79,7 +79,7 @@ tornado==4.5.1
 tqdm==4.15.0
 traitlets==4.3.2
 ujson==1.35
-urllib3==1.21.1
+urllib3==1.24.2
 virtualenv==15.1.0
 wcwidth==0.1.7
 webencodings==0.5.1
