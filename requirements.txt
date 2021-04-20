@@ -52,7 +52,7 @@ preshed==1.0.0
 progressbar2==3.30.2
 prompt-toolkit==1.0.14
 ptyprocess==0.5.2
-py==1.4.33
+py==1.10.0
 Pygments==2.2.0
 pyparsing==2.2.0
 pytest==3.0.7
